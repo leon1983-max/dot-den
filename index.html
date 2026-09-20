@@ -683,6 +683,20 @@
     return s;
   }
 
+  // Firestore rejects arrays nested directly inside arrays, so 2D boards
+  // are flattened to 1D before every write and rebuilt after every read.
+  function flatten2D(grid){
+    var out = [];
+    for (var r=0;r<grid.length;r++) out = out.concat(grid[r]);
+    return out;
+  }
+  function unflatten2D(flat, rows, cols){
+    var g = [];
+    flat = flat || [];
+    for (var r=0;r<rows;r++) g.push(flat.slice(r*cols, r*cols+cols));
+    return g;
+  }
+
   // ---------- view switching ----------
   var viewHub = document.getElementById('view-hub');
   var viewDab = document.getElementById('view-dab');
@@ -1081,7 +1095,7 @@
     var code = makeRoomCode();
     var size = parseInt(dabSizeSelect.value,10);
     var initial = {
-      game:'dab', size:size, edges:[], boxOwner:emptyBoxOwner(size),
+      game:'dab', size:size, edges:[], boxOwner:flatten2D(emptyBoxOwner(size)),
       scores:[0,0], current:1, gameOver:false,
       players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
     };
@@ -1127,7 +1141,7 @@
 
   function applyDabRemoteState(data){
     dabSizeSelect.value = String(data.size);
-    restoreDab({size:data.size, mode:'remote', edges:data.edges, boxOwner:data.boxOwner, scores:data.scores, current:data.current, gameOver:data.gameOver});
+    restoreDab({size:data.size, mode:'remote', edges:data.edges, boxOwner:unflatten2D(data.boxOwner, data.size, data.size), scores:data.scores, current:data.current, gameOver:data.gameOver});
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     dabMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
@@ -1150,7 +1164,7 @@
     };
     var ns = dabApplyMovePure(state, key);
     rdb.collection('dotden-rooms').doc(dabRoomCode).update({
-      edges: ns.edges, boxOwner: ns.boxOwner, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      edges: ns.edges, boxOwner: flatten2D(ns.boxOwner), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
     }).catch(function(err){ dabShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -1612,7 +1626,7 @@
       });
     }
     var initial = {
-      game:'dots', rows:rows, cols:cols, owner:ownerG, dead:deadG,
+      game:'dots', rows:rows, cols:cols, owner:flatten2D(ownerG), dead:flatten2D(deadG),
       scores:[0,0], current:1, gameOver:false,
       players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
     };
@@ -1662,7 +1676,7 @@
       return DOTS_PRESETS[k][0] === data.rows && DOTS_PRESETS[k][1] === data.cols;
     })[0];
     if (key) dotsSizeSelect.value = key;
-    restoreDots({rows:data.rows, cols:data.cols, mode:'remote', difficulty:'medium', owner:data.owner, dead:data.dead, scores:data.scores, current:data.current, gameOver:data.gameOver});
+    restoreDots({rows:data.rows, cols:data.cols, mode:'remote', difficulty:'medium', owner:unflatten2D(data.owner, data.rows, data.cols), dead:unflatten2D(data.dead, data.rows, data.cols), scores:data.scores, current:data.current, gameOver:data.gameOver});
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     dotsMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
@@ -1681,7 +1695,7 @@
     var state = {rows:R, cols:C, owner:owner, dead:dead, scores:dScores, current:dCurrent, gameOver:dGameOver};
     var ns = dotsApplyMovePure(state, r, c);
     rdb.collection('dotden-rooms').doc(dotsRoomCode).update({
-      owner: ns.owner, dead: ns.dead, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      owner: flatten2D(ns.owner), dead: flatten2D(ns.dead), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
     }).catch(function(err){ dotsShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -1800,23 +1814,4 @@
     updateDotsScores();
     if (dGameOver){
       dotsP1Card.classList.remove('active'); dotsP2Card.classList.remove('active');
-      if (dScores[0]===dScores[1]) dotsStatusLine.innerHTML = 'It\'s a tie &mdash; '+dScores[0]+' dots captured each.';
-      else{
-        var wn2 = dScores[0]>dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
-        dotsStatusLine.innerHTML = '<strong>'+wn2+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
-      }
-    } else if (data.mode !== 'remote'){
-      updateDotsTurnUI();
-    }
-    if (data.mode !== 'remote') renderDotsTally();
-    return true;
-  }
-
-  // fresh load — just show the hub, boards build lazily when a game is opened
-  showHub();
-  renderDabTally();
-  renderDotsTally();
-})();
-</script>
-</body>
-</html>
+      if (dScores[0]===dScores[1]) dotsStatusLine.innerHTML = 'It\'s a tie &mdash; '+dSco
