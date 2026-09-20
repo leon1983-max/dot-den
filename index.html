@@ -314,6 +314,18 @@
   .dots-ring{fill:none;stroke-width:2;stroke-dasharray:3 3;opacity:0;transition:opacity .2s ease;pointer-events:none;}
   .dots-ring.show{opacity:.9;}
 
+  /* connect four board */
+  .c4-col-hit{fill:transparent;cursor:pointer;}
+  .c4-col-hit:hover{fill:color-mix(in srgb, var(--accent) 8%, transparent);}
+  .c4-col-hit.blocked{cursor:not-allowed;}
+  .c4-slot{fill:var(--surface-2);stroke:var(--line);stroke-width:1;pointer-events:none;}
+  .c4-disc{pointer-events:none;transition:opacity .15s ease;}
+  .c4-disc.p1{fill:var(--p1);}
+  .c4-disc.p2{fill:var(--p2);}
+  .c4-disc.win{animation:dotsPulse .5s ease 2;}
+  .c4-preview{fill-opacity:.35;pointer-events:none;transition:opacity .12s ease;opacity:0;}
+  .c4-preview.show{opacity:1;}
+
   .side-panel{display:flex;flex-direction:column;gap:14px;}
   .score-card{
     border:1px solid var(--line);
@@ -401,7 +413,7 @@
           A small arcade, growing one game at a time
         </div>
         <h1 style="margin-top:14px;">Claim the box.<br>Surround the <em>rival.</em></h1>
-        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Two are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, and its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots. Both play hot-seat, against the computer, or online against someone in another location.</p>
+        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Three are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots, and the drop-and-line classic <strong>Connect Four</strong>. All three play hot-seat, against the computer, or online against someone in another location.</p>
         <div class="hero-actions" style="margin-top:18px;">
           <button class="btn primary" id="playFromHero">Play Dots &amp; Boxes</button>
           <button class="btn ghost" id="playFromHeroDots">Play Dots</button>
@@ -411,7 +423,7 @@
 
     <div class="section-head">
       <h2>Games</h2>
-      <span class="count" id="gameCount">2 playable · 2 in the works</span>
+      <span class="count" id="gameCount">3 playable · 1 in the works</span>
     </div>
     <div class="games-grid">
 
@@ -435,14 +447,14 @@
         <button class="btn primary" id="playFromCardDots">Play now</button>
       </div>
 
-      <div class="game-card">
-        <span class="badge">Soon</span>
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
         <span class="glyph">
           <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="16" cy="15" r="2" fill="currentColor"/></svg>
         </span>
         <h3>Connect Four</h3>
-        <p>Drop discs, build the line, don't let them see it coming until it's too late.</p>
-        <button class="btn small" disabled>Coming soon</button>
+        <p>Drop discs, build the line, don't let them see it coming until it's too late. Same three ways to play as the others.</p>
+        <button class="btn primary" id="playFromCardC4">Play now</button>
       </div>
 
       <div class="game-card">
@@ -608,6 +620,74 @@
     </div>
   </section>
 
+  <!-- CONNECT FOUR VIEW -->
+  <section class="view" id="view-c4" hidden>
+    <div class="game-header">
+      <div>
+        <h2>Connect Four</h2>
+        <p>Click a column to drop a disc. First to line up four &mdash; across, up-down, or on a diagonal &mdash; wins.</p>
+      </div>
+      <button class="btn ghost small" id="backToHubC4">← Back to hub</button>
+    </div>
+
+    <div class="controls-bar">
+      <div class="field">
+        <label for="c4ModeSelect">Opponent</label>
+        <select id="c4ModeSelect">
+          <option value="pvp">Two players (same screen)</option>
+          <option value="ai">Computer</option>
+          <option value="remote">Play online (remote)</option>
+        </select>
+      </div>
+      <div class="field" id="c4DifficultyField">
+        <label for="c4DifficultySelect">Difficulty</label>
+        <select id="c4DifficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn primary small" id="c4NewGameBtn">New game</button>
+    </div>
+
+    <div class="controls-bar remote-panel" id="c4RemotePanel" hidden>
+      <div class="field" style="flex:1;min-width:240px;">
+        <label>Play online</label>
+        <div class="remote-row" id="c4RemoteIdle">
+          <button class="btn primary small" id="c4CreateRoomBtn">Create room</button>
+          <span style="color:var(--muted);font-size:.82rem;">or</span>
+          <input class="code-input" id="c4JoinCodeInput" placeholder="CODE" maxlength="5">
+          <button class="btn small" id="c4JoinRoomBtn">Join</button>
+        </div>
+        <div class="remote-row" id="c4RemoteConnected" hidden>
+          <span>Room</span>
+          <span class="remote-code" id="c4RoomCodeLabel"></span>
+          <button class="btn ghost small" id="c4LeaveRoomBtn">Leave room</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-layout">
+      <div class="board-panel">
+        <svg id="c4Board" viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="side-panel">
+        <div class="score-card" id="c4P1Card" style="--p-color:var(--p1);">
+          <span class="name"><span class="turn-dot"></span><span id="c4P1Name">Player 1</span></span>
+          <span class="score mono" id="c4P1Score">0</span>
+        </div>
+        <div class="score-card" id="c4P2Card" style="--p-color:var(--p2);">
+          <span class="name"><span class="turn-dot"></span><span id="c4P2Name">Player 2</span></span>
+          <span class="score mono" id="c4P2Score">0</span>
+        </div>
+        <div class="status-line" id="c4StatusLine">Player 1's move &mdash; drop a disc to begin.</div>
+        <div class="tally" id="c4Tally"></div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="site">
@@ -708,12 +788,14 @@
   var viewHub = document.getElementById('view-hub');
   var viewDab = document.getElementById('view-dab');
   var viewDots = document.getElementById('view-dots');
+  var viewC4 = document.getElementById('view-c4');
   var backNote = document.getElementById('backNote');
   var activeView = 'hub';
 
   function showHub(){
     viewDab.hidden = true;
     viewDots.hidden = true;
+    viewC4.hidden = true;
     viewHub.hidden = false;
     backNote.hidden = true;
     activeView = 'hub';
@@ -722,6 +804,7 @@
   function showDab(){
     viewHub.hidden = true;
     viewDots.hidden = true;
+    viewC4.hidden = true;
     viewDab.hidden = false;
     backNote.hidden = false;
     backNote.textContent = 'Playing: Dots & Boxes';
@@ -732,6 +815,7 @@
   function showDots(){
     viewHub.hidden = true;
     viewDab.hidden = true;
+    viewC4.hidden = true;
     viewDots.hidden = false;
     backNote.hidden = false;
     backNote.textContent = 'Playing: Dots';
@@ -739,15 +823,28 @@
     window.scrollTo({top:0, behavior:'smooth'});
     if (!dBoardBuilt) newDotsGame();
   }
+  function showC4(){
+    viewHub.hidden = true;
+    viewDab.hidden = true;
+    viewDots.hidden = true;
+    viewC4.hidden = false;
+    backNote.hidden = false;
+    backNote.textContent = 'Playing: Connect Four';
+    activeView = 'c4';
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (!c4BoardBuilt) newC4Game();
+  }
 
   document.getElementById('logoBtn').addEventListener('click', showHub);
   document.getElementById('hubLink').addEventListener('click', showHub);
   document.getElementById('backToHubDab').addEventListener('click', showHub);
   document.getElementById('backToHubDots').addEventListener('click', showHub);
+  document.getElementById('backToHubC4').addEventListener('click', showHub);
   document.getElementById('playFromHero').addEventListener('click', showDab);
   document.getElementById('playFromCard').addEventListener('click', showDab);
   document.getElementById('playFromHeroDots').addEventListener('click', showDots);
   document.getElementById('playFromCardDots').addEventListener('click', showDots);
+  document.getElementById('playFromCardC4').addEventListener('click', showC4);
 
   /* =====================================================================
      GAME 1 — DOTS & BOXES
@@ -1726,6 +1823,501 @@
   }
 
   /* =====================================================================
+     GAME 3 — CONNECT FOUR
+  ===================================================================== */
+  var c4Svg = document.getElementById('c4Board');
+  var c4ModeSelect = document.getElementById('c4ModeSelect');
+  var c4DifficultySelect = document.getElementById('c4DifficultySelect');
+  var c4DifficultyField = document.getElementById('c4DifficultyField');
+  var c4NewGameBtn = document.getElementById('c4NewGameBtn');
+  var c4StatusLine = document.getElementById('c4StatusLine');
+  var c4P1Card = document.getElementById('c4P1Card');
+  var c4P2Card = document.getElementById('c4P2Card');
+  var c4P1Score = document.getElementById('c4P1Score');
+  var c4P2Score = document.getElementById('c4P2Score');
+  var c4P1Name = document.getElementById('c4P1Name');
+  var c4P2Name = document.getElementById('c4P2Name');
+  var c4TallyEl = document.getElementById('c4Tally');
+  var c4RemotePanel = document.getElementById('c4RemotePanel');
+  var c4RemoteIdle = document.getElementById('c4RemoteIdle');
+  var c4RemoteConnected = document.getElementById('c4RemoteConnected');
+  var c4RoomCodeLabel = document.getElementById('c4RoomCodeLabel');
+  var c4CreateRoomBtn = document.getElementById('c4CreateRoomBtn');
+  var c4JoinRoomBtn = document.getElementById('c4JoinRoomBtn');
+  var c4JoinCodeInput = document.getElementById('c4JoinCodeInput');
+  var c4LeaveRoomBtn = document.getElementById('c4LeaveRoomBtn');
+
+  var C4_COLS = 7, C4_ROWS = 6;
+  var C4_CELL = 70, C4_MARGIN = 25, C4_R = 26;
+  var c4Board = [];
+  var c4Current = 1, c4Scores = [0,0], c4GameOver = false, c4Mode = 'pvp', c4Difficulty = 'medium';
+  var c4BoardBuilt = false;
+  var c4Tally = loadTally('dotden-c4-tally');
+  var c4RoomUnsub = null, c4RoomCode = null, c4MyPlayer = null;
+  var c4DiscEls = [], c4ColHits = [];
+
+  function c4LowestEmptyRow(board, col){
+    for (var r=C4_ROWS-1; r>=0; r--){ if (board[r][col] === 0) return r; }
+    return -1;
+  }
+  function c4ValidCols(board){
+    var out = [];
+    for (var c=0;c<C4_COLS;c++) if (board[0][c] === 0) out.push(c);
+    return out;
+  }
+  function c4BoardFull(board){
+    for (var c=0;c<C4_COLS;c++) if (board[0][c] === 0) return false;
+    return true;
+  }
+  function c4BoardWinner(board){
+    for (var r=0;r<C4_ROWS;r++){
+      for (var c=0;c<C4_COLS;c++){
+        var v = board[r][c];
+        if (!v) continue;
+        if (c<=C4_COLS-4 && v===board[r][c+1] && v===board[r][c+2] && v===board[r][c+3]) return v;
+        if (r<=C4_ROWS-4 && v===board[r+1][c] && v===board[r+2][c] && v===board[r+3][c]) return v;
+        if (r<=C4_ROWS-4 && c<=C4_COLS-4 && v===board[r+1][c+1] && v===board[r+2][c+2] && v===board[r+3][c+3]) return v;
+        if (r>=3 && c<=C4_COLS-4 && v===board[r-1][c+1] && v===board[r-2][c+2] && v===board[r-3][c+3]) return v;
+      }
+    }
+    return 0;
+  }
+  function c4WinningCells(board, r, c, player){
+    var dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (var i=0;i<dirs.length;i++){
+      var dr=dirs[i][0], dc=dirs[i][1];
+      var cells = [[r,c]];
+      var rr=r+dr, cc=c+dc;
+      while (rr>=0&&rr<C4_ROWS&&cc>=0&&cc<C4_COLS&&board[rr][cc]===player){ cells.push([rr,cc]); rr+=dr; cc+=dc; }
+      rr=r-dr; cc=c-dc;
+      while (rr>=0&&rr<C4_ROWS&&cc>=0&&cc<C4_COLS&&board[rr][cc]===player){ cells.push([rr,cc]); rr-=dr; cc-=dc; }
+      if (cells.length>=4) return cells;
+    }
+    return null;
+  }
+
+  function buildC4Board(){
+    var dimW = C4_MARGIN*2 + C4_COLS*C4_CELL;
+    var dimH = C4_MARGIN*2 + C4_ROWS*C4_CELL;
+    c4Svg.setAttribute('viewBox', '0 0 '+dimW+' '+dimH);
+    c4Svg.innerHTML = '';
+    c4Board = [];
+    c4DiscEls = [];
+    c4ColHits = [];
+    for (var r=0;r<C4_ROWS;r++){
+      c4Board.push(new Array(C4_COLS).fill(0));
+      c4DiscEls.push([]);
+    }
+    for (var r2=0;r2<C4_ROWS;r2++){
+      for (var c2=0;c2<C4_COLS;c2++){
+        var cx = C4_MARGIN + c2*C4_CELL + C4_CELL/2;
+        var cy = C4_MARGIN + r2*C4_CELL + C4_CELL/2;
+        var slot = svgNS('circle');
+        slot.setAttribute('class','c4-slot');
+        slot.setAttribute('cx', cx); slot.setAttribute('cy', cy); slot.setAttribute('r', C4_R);
+        c4Svg.appendChild(slot);
+        var disc = svgNS('circle');
+        disc.setAttribute('class','c4-disc');
+        disc.setAttribute('cx', cx); disc.setAttribute('cy', cy); disc.setAttribute('r', C4_R-3);
+        disc.style.opacity = 0;
+        c4Svg.appendChild(disc);
+        c4DiscEls[r2].push(disc);
+      }
+    }
+    var _loop = function(c3){
+      var hit = svgNS('rect');
+      hit.setAttribute('class','c4-col-hit');
+      hit.setAttribute('x', C4_MARGIN + c3*C4_CELL);
+      hit.setAttribute('y', 0);
+      hit.setAttribute('width', C4_CELL);
+      hit.setAttribute('height', dimH);
+      hit.setAttribute('tabindex','0');
+      hit.setAttribute('role','button');
+      hit.setAttribute('aria-label', 'Column '+(c3+1));
+      hit.addEventListener('click', function(){ handleC4ColClick(c3); });
+      hit.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleC4ColClick(c3); }
+      });
+      c4Svg.appendChild(hit);
+      c4ColHits.push(hit);
+    };
+    for (var c3=0;c3<C4_COLS;c3++) _loop(c3);
+    c4BoardBuilt = true;
+  }
+
+  function renderC4Disc(row, col, player){
+    var el = c4DiscEls[row][col];
+    el.classList.add(player === 1 ? 'p1' : 'p2');
+    el.style.opacity = 1;
+  }
+
+  function handleC4ColClick(col){
+    if (c4GameOver) return;
+    if (c4Mode === 'ai' && c4Current === 2) return;
+    if (c4Mode === 'remote'){
+      if (!c4RoomCode || c4MyPlayer !== c4Current) return;
+      c4RemoteMakeMove(col);
+      return;
+    }
+    makeC4Move(col);
+  }
+
+  function makeC4Move(col){
+    var row = c4LowestEmptyRow(c4Board, col);
+    if (row < 0) return false;
+    c4Board[row][col] = c4Current;
+    renderC4Disc(row, col, c4Current);
+    var win = c4WinningCells(c4Board, row, col, c4Current);
+    if (win){
+      c4GameOver = true;
+      c4Scores[c4Current-1]++;
+      win.forEach(function(p){ c4DiscEls[p[0]][p[1]].classList.add('win'); });
+      updateC4Scores();
+      c4P1Card.classList.remove('active'); c4P2Card.classList.remove('active');
+      var winnerName = c4Current === 1 ? c4P1Name.textContent : c4P2Name.textContent;
+      c4StatusLine.innerHTML = '<strong>'+winnerName+' wins</strong> &mdash; four in a row.';
+      if (c4Mode !== 'remote') recordWin(c4Tally, c4Current, 'dotden-c4-tally');
+      renderC4Tally();
+      return true;
+    }
+    if (c4BoardFull(c4Board)){
+      c4GameOver = true;
+      c4P1Card.classList.remove('active'); c4P2Card.classList.remove('active');
+      c4StatusLine.innerHTML = 'It\'s a tie &mdash; the board filled up.';
+      renderC4Tally();
+      return true;
+    }
+    c4Current = c4Current === 1 ? 2 : 1;
+    updateC4TurnUI();
+    if (!c4GameOver && c4Mode === 'ai' && c4Current === 2){
+      c4StatusLine.innerHTML = 'Computer is thinking&hellip;';
+      setTimeout(c4AiTurn, 550);
+    }
+    return true;
+  }
+
+  function updateC4Scores(){
+    c4P1Score.textContent = c4Scores[0];
+    c4P2Score.textContent = c4Scores[1];
+  }
+  function updateC4TurnUI(){
+    c4P1Card.classList.toggle('active', c4Current === 1 && !c4GameOver);
+    c4P2Card.classList.toggle('active', c4Current === 2 && !c4GameOver);
+    if (!c4GameOver){
+      var who = c4Current === 1 ? c4P1Name.textContent : c4P2Name.textContent;
+      c4StatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+    }
+  }
+  function renderC4Tally(){
+    var total = c4Tally.p1 + c4Tally.p2;
+    if (!total){ c4TallyEl.textContent = 'No completed games yet on this device.'; return; }
+    c4TallyEl.textContent = 'On this device: P1 '+c4Tally.p1+' win'+(c4Tally.p1===1?'':'s')+' · '+(c4Mode==='ai'?'CPU':'P2')+' '+c4Tally.p2+' win'+(c4Tally.p2===1?'':'s');
+  }
+
+  function newC4Game(){
+    c4Mode = c4ModeSelect.value;
+    c4Difficulty = c4DifficultySelect.value;
+    c4DifficultyField.hidden = c4Mode !== 'ai';
+    c4Scores = [0,0];
+    c4Current = 1;
+    c4GameOver = false;
+    c4P1Name.textContent = 'Player 1';
+    c4P2Name.textContent = c4Mode === 'ai' ? 'Computer' : 'Player 2';
+    c4TallyEl.hidden = false;
+    buildC4Board();
+    updateC4Scores();
+    updateC4TurnUI();
+    renderC4Tally();
+  }
+  c4NewGameBtn.addEventListener('click', function(){
+    if (c4Mode === 'remote') return;
+    newC4Game();
+  });
+  c4DifficultySelect.addEventListener('change', function(){
+    c4Difficulty = c4DifficultySelect.value;
+  });
+  c4ModeSelect.addEventListener('change', function(){
+    c4DifficultyField.hidden = c4ModeSelect.value !== 'ai';
+    if (c4ModeSelect.value === 'remote'){
+      c4LeaveRoom();
+      c4Mode = 'remote';
+      c4RemotePanel.hidden = false;
+      c4RemoteIdle.hidden = false;
+      c4RemoteConnected.hidden = true;
+      c4NewGameBtn.hidden = true;
+      c4TallyEl.hidden = true;
+      buildC4Board();
+      c4StatusLine.textContent = 'Create a room, or enter a code to join one.';
+      c4P1Name.textContent = 'Player 1';
+      c4P2Name.textContent = 'Player 2';
+    } else {
+      c4LeaveRoom();
+      c4RemotePanel.hidden = true;
+      c4NewGameBtn.hidden = false;
+      newC4Game();
+    }
+  });
+
+  // ---- AI (minimax with alpha-beta pruning) ----
+  var C4_AI_DEPTH = {easy:1, medium:3, hard:5, expert:7};
+  function c4Drop(board, col, player){
+    var row = c4LowestEmptyRow(board, col);
+    if (row < 0) return null;
+    var nb = board.map(function(rw){ return rw.slice(); });
+    nb[row][col] = player;
+    return nb;
+  }
+  function c4EvalWindow(cells, player){
+    var opp = player === 1 ? 2 : 1;
+    var pc=0, oc=0, ec=0;
+    cells.forEach(function(v){ if (v===player) pc++; else if (v===opp) oc++; else ec++; });
+    var score = 0;
+    if (pc===4) score += 100000;
+    else if (pc===3 && ec===1) score += 50;
+    else if (pc===2 && ec===2) score += 8;
+    if (oc===3 && ec===1) score -= 60;
+    else if (oc===2 && ec===2) score -= 6;
+    return score;
+  }
+  function c4Evaluate(board, player){
+    var score = 0;
+    var centerCol = Math.floor(C4_COLS/2);
+    for (var r=0;r<C4_ROWS;r++){ if (board[r][centerCol] === player) score += 4; }
+    for (var r2=0;r2<C4_ROWS;r2++){
+      for (var c2=0;c2<=C4_COLS-4;c2++){
+        score += c4EvalWindow([board[r2][c2],board[r2][c2+1],board[r2][c2+2],board[r2][c2+3]], player);
+      }
+    }
+    for (var c3=0;c3<C4_COLS;c3++){
+      for (var r3=0;r3<=C4_ROWS-4;r3++){
+        score += c4EvalWindow([board[r3][c3],board[r3+1][c3],board[r3+2][c3],board[r3+3][c3]], player);
+      }
+    }
+    for (var r4=0;r4<=C4_ROWS-4;r4++){
+      for (var c4v=0;c4v<=C4_COLS-4;c4v++){
+        score += c4EvalWindow([board[r4][c4v],board[r4+1][c4v+1],board[r4+2][c4v+2],board[r4+3][c4v+3]], player);
+      }
+    }
+    for (var r5=3;r5<C4_ROWS;r5++){
+      for (var c5=0;c5<=C4_COLS-4;c5++){
+        score += c4EvalWindow([board[r5][c5],board[r5-1][c5+1],board[r5-2][c5+2],board[r5-3][c5+3]], player);
+      }
+    }
+    return score;
+  }
+  function c4Minimax(board, depth, alpha, beta, maximizing, aiPlayer){
+    var human = aiPlayer === 1 ? 2 : 1;
+    var winner = c4BoardWinner(board);
+    if (winner === aiPlayer) return {score: 10000000 + depth, col: null};
+    if (winner === human) return {score: -10000000 - depth, col: null};
+    var cols = c4ValidCols(board);
+    if (cols.length === 0) return {score: 0, col: null};
+    if (depth === 0) return {score: c4Evaluate(board, aiPlayer), col: null};
+    var order = cols.slice().sort(function(a,b){
+      return Math.abs(a-Math.floor(C4_COLS/2)) - Math.abs(b-Math.floor(C4_COLS/2));
+    });
+    if (maximizing){
+      var best = -Infinity, bestCol = order[0];
+      for (var i=0;i<order.length;i++){
+        var nb = c4Drop(board, order[i], aiPlayer);
+        var val = c4Minimax(nb, depth-1, alpha, beta, false, aiPlayer).score;
+        if (val > best){ best = val; bestCol = order[i]; }
+        alpha = Math.max(alpha, best);
+        if (alpha >= beta) break;
+      }
+      return {score: best, col: bestCol};
+    } else {
+      var best2 = Infinity, bestCol2 = order[0];
+      for (var j=0;j<order.length;j++){
+        var nb2 = c4Drop(board, order[j], human);
+        var val2 = c4Minimax(nb2, depth-1, alpha, beta, true, aiPlayer).score;
+        if (val2 < best2){ best2 = val2; bestCol2 = order[j]; }
+        beta = Math.min(beta, best2);
+        if (alpha >= beta) break;
+      }
+      return {score: best2, col: bestCol2};
+    }
+  }
+  function pickC4AiCol(){
+    var cols = c4ValidCols(c4Board);
+    if (cols.length === 0) return null;
+    if (c4Difficulty === 'easy'){
+      // still blocks/takes obvious 1-move wins about half the time, otherwise plays randomly
+      for (var i=0;i<cols.length;i++){
+        var nb = c4Drop(c4Board, cols[i], 2);
+        if (nb && c4BoardWinner(nb) === 2) return cols[i];
+      }
+      return cols[Math.floor(Math.random()*cols.length)];
+    }
+    var depth = C4_AI_DEPTH[c4Difficulty] || 3;
+    var result = c4Minimax(c4Board, depth, -Infinity, Infinity, true, 2);
+    return (result.col !== null && result.col !== undefined) ? result.col : cols[Math.floor(Math.random()*cols.length)];
+  }
+  function c4AiTurn(){
+    if (c4GameOver || c4Current !== 2) return;
+    var col = pickC4AiCol();
+    if (col !== null && col !== undefined) makeC4Move(col);
+  }
+
+  // ---- pure move logic (used for remote play, no DOM) ----
+  function c4ApplyMovePure(state, col){
+    if (state.gameOver) return state;
+    var row = -1;
+    for (var r=state.rows-1;r>=0;r--){ if (state.board[r][col] === 0){ row = r; break; } }
+    if (row < 0) return state;
+    var board = state.board.map(function(rw){ return rw.slice(); });
+    board[row][col] = state.current;
+    var scores = state.scores.slice();
+    var winner = c4BoardWinner(board);
+    var gameOver = false;
+    if (winner){
+      gameOver = true;
+      scores[winner-1]++;
+    } else {
+      var full = true;
+      for (var c2=0;c2<state.cols;c2++) if (board[0][c2] === 0) full = false;
+      if (full) gameOver = true;
+    }
+    var current = state.current;
+    if (!gameOver) current = current === 1 ? 2 : 1;
+    return {rows:state.rows, cols:state.cols, board:board, scores:scores, current:current, gameOver:gameOver};
+  }
+
+  // ---- remote room wiring ----
+  function c4ShowRemoteMsg(text){ c4StatusLine.textContent = text; }
+  function c4RemoteAvailable(){
+    if (!firebaseReady){
+      c4ShowRemoteMsg('Remote play needs a one-time setup (Firebase) by whoever hosts this page — see the comment near the top of the file.');
+      return false;
+    }
+    return true;
+  }
+  function c4LeaveRoom(){
+    if (c4RoomUnsub){ c4RoomUnsub(); c4RoomUnsub = null; }
+    c4RoomCode = null;
+    c4MyPlayer = null;
+    c4RemoteIdle.hidden = false;
+    c4RemoteConnected.hidden = true;
+    c4JoinCodeInput.value = '';
+  }
+  c4CreateRoomBtn.addEventListener('click', function(){
+    if (!c4RemoteAvailable()) return;
+    var code = makeRoomCode();
+    var emptyBoard = [];
+    for (var r=0;r<C4_ROWS;r++) emptyBoard.push(new Array(C4_COLS).fill(0));
+    var initial = {
+      game:'c4', rows:C4_ROWS, cols:C4_COLS, board: flatten2D(emptyBoard),
+      scores:[0,0], current:1, gameOver:false,
+      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+    };
+    rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
+      subscribeC4Room(code);
+    }).catch(function(err){ c4ShowRemoteMsg('Could not create room: '+err.message); });
+  });
+  c4JoinRoomBtn.addEventListener('click', function(){
+    if (!c4RemoteAvailable()) return;
+    var code = c4JoinCodeInput.value.trim().toUpperCase();
+    if (!code) return;
+    var ref = rdb.collection('dotden-rooms').doc(code);
+    ref.get().then(function(snap){
+      if (!snap.exists){ c4ShowRemoteMsg('No room with that code.'); return; }
+      var data = snap.data();
+      if (data.players.p2 && data.players.p2 !== CLIENT_ID){ c4ShowRemoteMsg('That room is already full.'); return; }
+      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeC4Room(code); });
+    }).catch(function(err){ c4ShowRemoteMsg('Could not join: '+err.message); });
+  });
+  c4LeaveRoomBtn.addEventListener('click', function(){
+    c4LeaveRoom();
+    c4StatusLine.textContent = 'Create a room, or enter a code to join one.';
+    c4P1Name.textContent = 'Player 1';
+    c4P2Name.textContent = 'Player 2';
+    buildC4Board();
+    updateC4Scores();
+  });
+
+  var c4LastSnapshotAt = 0;
+  function subscribeC4Room(code){
+    if (c4RoomUnsub) c4RoomUnsub();
+    c4RoomCode = code;
+    c4Mode = 'remote';
+    c4RoomCodeLabel.textContent = code;
+    c4RemoteIdle.hidden = true;
+    c4RemoteConnected.hidden = false;
+    c4LastSnapshotAt = Date.now();
+    c4RoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot({includeMetadataChanges:true}, function(snap){
+      c4LastSnapshotAt = Date.now();
+      if (!snap.exists) return;
+      applyC4RemoteState(snap.data());
+    }, function(err){
+      c4ShowRemoteMsg('Connection lost: '+err.message);
+    });
+  }
+  setInterval(function(){
+    if (c4RoomCode && rdb && Date.now() - c4LastSnapshotAt > 12000){
+      subscribeC4Room(c4RoomCode);
+    }
+  }, 6000);
+
+  function applyC4RemoteState(data){
+    restoreC4({rows:data.rows, cols:data.cols, mode:'remote', board:unflatten2D(data.board, data.rows, data.cols), scores:data.scores, current:data.current, gameOver:data.gameOver});
+    var amP1 = data.players.p1 === CLIENT_ID;
+    var amP2 = data.players.p2 === CLIENT_ID;
+    c4MyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
+    c4P1Name.textContent = amP1 ? 'You' : 'Opponent';
+    c4P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    if (!data.players.p2){
+      c4StatusLine.innerHTML = 'Room <strong>'+c4RoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+    } else if (!data.gameOver){
+      var myTurn = data.current === c4MyPlayer;
+      c4StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+    }
+  }
+
+  function c4RemoteMakeMove(col){
+    if (!c4RoomCode) return;
+    var state = {rows:C4_ROWS, cols:C4_COLS, board:c4Board, scores:c4Scores, current:c4Current, gameOver:c4GameOver};
+    var ns = c4ApplyMovePure(state, col);
+    rdb.collection('dotden-rooms').doc(c4RoomCode).update({
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+    }).catch(function(err){ c4ShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function restoreC4(data){
+    if (!data || !data.rows) return false;
+    c4Mode = data.mode;
+    if (data.mode !== 'remote') c4ModeSelect.value = data.mode;
+    buildC4Board();
+    c4Board = data.board || c4Board;
+    for (var r=0;r<C4_ROWS;r++){
+      for (var c=0;c<C4_COLS;c++){
+        if (c4Board[r][c]) renderC4Disc(r, c, c4Board[r][c]);
+      }
+    }
+    c4Scores = data.scores || [0,0];
+    c4Current = data.current || 1;
+    c4GameOver = !!data.gameOver;
+    if (data.mode !== 'remote'){
+      c4P1Name.textContent = 'Player 1';
+      c4P2Name.textContent = c4Mode === 'ai' ? 'Computer' : 'Player 2';
+    }
+    updateC4Scores();
+    if (c4GameOver){
+      c4P1Card.classList.remove('active'); c4P2Card.classList.remove('active');
+      var winner = c4BoardWinner(c4Board);
+      if (!winner){
+        c4StatusLine.innerHTML = 'It\'s a tie &mdash; the board filled up.';
+      } else {
+        var wn = winner === 1 ? c4P1Name.textContent : c4P2Name.textContent;
+        c4StatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; four in a row.';
+      }
+    } else if (data.mode !== 'remote'){
+      updateC4TurnUI();
+    }
+    if (data.mode !== 'remote') renderC4Tally();
+    return true;
+  }
+
+  /* =====================================================================
      shared: per-device tally storage
   ===================================================================== */
   function loadTally(storageKey){
@@ -1859,6 +2451,7 @@
     if (document.visibilityState === 'visible'){
       if (dabRoomCode) subscribeDabRoom(dabRoomCode);
       if (dotsRoomCode) subscribeDotsRoom(dotsRoomCode);
+      if (c4RoomCode) subscribeC4Room(c4RoomCode);
     }
   });
 
