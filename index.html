@@ -1,0 +1,1357 @@
+<title>The Dot Den</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5fa;
+    --surface:#ffffff;
+    --surface-2:#eceef6;
+    --ink:#1b1d27;
+    --muted:#666c80;
+    --line:#d7dae3;
+    --grid-dot:#c3c8d6;
+    --accent:#7c5cff;
+    --accent-ink:#ffffff;
+    --p1:#0f9b8e;
+    --p1-soft:#0f9b8e22;
+    --p2:#c22a86;
+    --p2-soft:#c22a8622;
+    --shadow:0 20px 40px -24px rgba(20,20,40,.35);
+    --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#100f17;
+      --surface:#191825;
+      --surface-2:#211f30;
+      --ink:#f1efff;
+      --muted:#9d9bb5;
+      --line:#302e42;
+      --grid-dot:#3a3852;
+      --accent:#a48dff;
+      --accent-ink:#171029;
+      --p1:#4fe3c9;
+      --p1-soft:#4fe3c92a;
+      --p2:#ff6fb0;
+      --p2-soft:#ff6fb02a;
+      --shadow:0 20px 48px -20px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#100f17;
+    --surface:#191825;
+    --surface-2:#211f30;
+    --ink:#f1efff;
+    --muted:#9d9bb5;
+    --line:#302e42;
+    --grid-dot:#3a3852;
+    --accent:#a48dff;
+    --accent-ink:#171029;
+    --p1:#4fe3c9;
+    --p1-soft:#4fe3c92a;
+    --p2:#ff6fb0;
+    --p2-soft:#ff6fb02a;
+    --shadow:0 20px 48px -20px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans',system-ui,sans-serif;
+    padding-inline:20px;
+    padding-block:0;
+  }
+  h1,h2,h3,.brand{
+    font-family:'Unbounded',system-ui,sans-serif;
+    text-wrap:balance;
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  a{color:inherit;}
+  button{font:inherit;}
+
+  .wrap{max-width:1040px;margin-inline:auto;}
+
+  /* header */
+  header.site{
+    position:sticky;
+    top:env(safe-area-inset-top,0px);
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding-block:16px;
+    background:color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-size:1.15rem;font-weight:700;letter-spacing:.01em;
+    cursor:pointer;background:none;border:0;color:var(--ink);padding:0;
+  }
+  .brand-mark{
+    width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--p1),var(--p2));
+    display:grid;place-items:center;flex:none;
+  }
+  .brand-mark svg{width:16px;height:16px;}
+  nav.site-nav{display:flex;gap:8px;align-items:center;}
+  .theme-note{font-size:.72rem;color:var(--muted);}
+
+  /* buttons */
+  .btn{
+    border-radius:999px;
+    padding:10px 20px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink);
+    cursor:pointer;
+    font-weight:600;
+    font-size:.9rem;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn:focus-visible, a:focus-visible, select:focus-visible, .edge:focus-visible, .dots-hit:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  .btn.primary{
+    background:var(--accent);
+    color:var(--accent-ink);
+    border-color:var(--accent);
+  }
+  .btn.ghost{background:transparent;}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;}
+  .btn.small{padding:7px 14px;font-size:.8rem;}
+
+  /* views */
+  .view{padding-block:36px 64px;}
+  [hidden]{display:none!important;}
+
+  /* hero */
+  .hero{
+    padding-block:52px 40px;
+    display:grid;
+    gap:26px;
+  }
+  .hero .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow .dotrow{display:flex;gap:5px;}
+  .eyebrow .dotrow span{width:5px;height:5px;border-radius:50%;background:var(--grid-dot);}
+  .hero h1{font-size:clamp(2.1rem,5.4vw,3.4rem);line-height:1.04;font-weight:900;}
+  .hero h1 em{font-style:normal;color:var(--p2);}
+  .hero p{max-width:56ch;color:var(--muted);font-size:1.05rem;line-height:1.55;}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+
+  .grain-panel{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:
+      radial-gradient(circle, var(--grid-dot) 1.6px, transparent 1.7px) 0 0/28px 28px,
+      var(--surface);
+    overflow:hidden;
+    min-height:150px;
+    box-shadow:var(--shadow);
+  }
+  .grain-panel .glow{
+    position:absolute;inset:auto -20% -60% auto;
+    width:60%;aspect-ratio:1;
+    background:radial-gradient(circle, var(--p1-soft), transparent 70%);
+    filter:blur(2px);
+  }
+  .grain-panel .glow.two{
+    inset:auto auto -60% -20%;
+    background:radial-gradient(circle, var(--p2-soft), transparent 70%);
+  }
+
+  /* games grid */
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .section-head h2{font-size:1.4rem;}
+  .section-head .count{color:var(--muted);font-size:.85rem;font-family:'IBM Plex Mono',monospace;}
+
+  .games-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:16px;
+  }
+  .game-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+    padding:20px;
+    display:flex;flex-direction:column;gap:14px;
+    position:relative;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .game-card.playable:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .game-card .glyph{
+    width:44px;height:44px;border-radius:12px;
+    display:grid;place-items:center;
+    background:var(--surface-2);
+    color:var(--accent);
+  }
+  .game-card .glyph svg{width:24px;height:24px;}
+  .game-card h3{font-size:1.05rem;}
+  .game-card p{color:var(--muted);font-size:.9rem;line-height:1.5;margin:0;flex:1;}
+  .badge{
+    position:absolute;top:16px;right:16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;
+    background:var(--surface-2);color:var(--muted);
+  }
+  .game-card.playable .badge{background:var(--p1-soft);color:var(--p1);}
+
+  /* game view (shared) */
+  .game-header{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+  .game-header h2{font-size:1.7rem;}
+  .game-header p{color:var(--muted);margin:4px 0 0;max-width:46ch;}
+
+  .controls-bar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-bottom:22px;
+  }
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  select{
+    font:inherit;
+    padding:7px 10px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--ink);
+  }
+  .controls-bar .spacer{flex:1;}
+
+  .board-layout{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:720px){
+    .board-layout{grid-template-columns:1fr;}
+  }
+
+  .board-panel{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  #dabBoard, #dotsBoard{width:100%;height:auto;display:block;touch-action:manipulation;}
+
+  /* dots & boxes board */
+  .edge{fill:none;stroke:var(--grid-dot);stroke-width:6;stroke-linecap:round;cursor:pointer;transition:stroke .12s ease, stroke-width .12s ease;}
+  .edge:hover{stroke:var(--accent);stroke-width:8;}
+  .edge.taken{cursor:default;stroke-width:8;}
+  .edge.taken:hover{stroke-width:8;}
+  .dot{fill:var(--grid-dot);}
+  .box-rect{fill:transparent;transition:fill .25s ease;}
+  .box-label{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    text-anchor:middle;
+    dominant-baseline:central;
+    opacity:0;
+    transition:opacity .25s ease;
+    pointer-events:none;
+  }
+  .box-label.show{opacity:.9;}
+
+  /* dots (surround) board */
+  .dots-hit{fill:transparent;cursor:pointer;}
+  .dots-hit:hover{fill:color-mix(in srgb, var(--accent) 14%, transparent);}
+  .dots-link{stroke-width:2.5;opacity:.85;}
+  .dots-dot{fill:var(--surface-2);stroke:var(--grid-dot);stroke-width:1.5;transition:fill .2s ease, opacity .2s ease;}
+  .dots-dot.placed{stroke:none;}
+  .dots-dot.dead{opacity:.38;}
+  .dots-dot.pulse{animation:dotsPulse .6s ease;}
+  @keyframes dotsPulse{0%{r:7;}40%{r:13;}100%{r:7;}}
+  .dots-ring{fill:none;stroke-width:2;stroke-dasharray:3 3;opacity:0;transition:opacity .2s ease;pointer-events:none;}
+  .dots-ring.show{opacity:.9;}
+
+  .side-panel{display:flex;flex-direction:column;gap:14px;}
+  .score-card{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    background:var(--surface);
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
+    border-left:4px solid var(--p-color, var(--line));
+    transition:box-shadow .2s ease;
+  }
+  .score-card .name{font-weight:600;font-size:.92rem;display:flex;align-items:center;gap:8px;}
+  .score-card .turn-dot{
+    width:8px;height:8px;border-radius:50%;background:var(--p-color);
+    opacity:0;box-shadow:0 0 0 0 var(--p-color);
+  }
+  .score-card.active .turn-dot{
+    opacity:1;
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  .score-card.active{box-shadow:0 0 0 2px var(--p-color) inset;}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--p-color) 55%, transparent);}
+    50%{box-shadow:0 0 0 6px transparent;}
+  }
+  .score-card .score{font-family:'IBM Plex Mono',monospace;font-size:1.3rem;font-weight:600;}
+
+  .status-line{
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:.86rem;
+    color:var(--muted);
+    text-align:center;
+  }
+  .status-line strong{color:var(--ink);}
+
+  .tally{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  footer.site{
+    border-top:1px solid var(--line);
+    padding-block:22px;
+    color:var(--muted);
+    font-size:.82rem;
+    text-align:center;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+</style>
+
+<header class="site">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+    <button class="brand" id="logoBtn" aria-label="Go to hub">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="5" r="2" fill="white"/><circle cx="19" cy="5" r="2" fill="white"/><circle cx="5" cy="19" r="2" fill="white"/><circle cx="19" cy="19" r="2" fill="white"/><path d="M5 5 L19 5 M5 5 L5 19" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      The Dot Den
+    </button>
+    <nav class="site-nav">
+      <span class="theme-note" id="backNote" hidden></span>
+      <button class="btn ghost small" id="hubLink">All games</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HUB VIEW -->
+  <section class="view" id="view-hub">
+    <div class="hero">
+      <div class="grain-panel" style="padding:34px 28px;">
+        <div class="glow"></div>
+        <div class="glow two"></div>
+        <div class="eyebrow">
+          <span class="dotrow"><span></span><span></span><span></span></span>
+          A small arcade, growing one game at a time
+        </div>
+        <h1 style="margin-top:14px;">Claim the box.<br>Surround the <em>rival.</em></h1>
+        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Two are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, and its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots.</p>
+        <div class="hero-actions" style="margin-top:18px;">
+          <button class="btn primary" id="playFromHero">Play Dots &amp; Boxes</button>
+          <button class="btn ghost" id="playFromHeroDots">Play Dots</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <h2>Games</h2>
+      <span class="count" id="gameCount">2 playable · 2 in the works</span>
+    </div>
+    <div class="games-grid">
+
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><circle cx="19" cy="5" r="2" fill="currentColor"/><circle cx="5" cy="19" r="2" fill="currentColor"/><circle cx="19" cy="19" r="2" fill="currentColor"/><path d="M5 5H19M5 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="10" y="10" width="9" height="9" fill="currentColor" opacity=".18"/></svg>
+        </span>
+        <h3>Dots &amp; Boxes</h3>
+        <p>Draw a line, claim a box, go again. Choose your grid size and play a friend on one screen, or take on the computer.</p>
+        <button class="btn primary" id="playFromCard">Play now</button>
+      </div>
+
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="2.2" fill="currentColor"/><circle cx="14" cy="7" r="2.2" fill="currentColor" opacity=".35"/><circle cx="6" cy="15" r="2.2" fill="currentColor" opacity=".35"/><circle cx="16" cy="17" r="2.2" fill="currentColor"/><path d="M6 6L14 7M6 15L16 17M6 6L6 15" stroke="currentColor" stroke-width="1.4"/></svg>
+        </span>
+        <h3>Dots</h3>
+        <p>Place a dot each turn. Close a loop of your own color around one of theirs and it's captured &mdash; most captures when the board fills wins.</p>
+        <button class="btn primary" id="playFromCardDots">Play now</button>
+      </div>
+
+      <div class="game-card">
+        <span class="badge">Soon</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="16" cy="15" r="2" fill="currentColor"/></svg>
+        </span>
+        <h3>Connect Four</h3>
+        <p>Drop discs, build the line, don't let them see it coming until it's too late.</p>
+        <button class="btn small" disabled>Coming soon</button>
+      </div>
+
+      <div class="game-card">
+        <span class="badge">Soon</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        <h3>Memory Match</h3>
+        <p>Flip two, find the pair, keep the streak alive. A quiet little test of recall.</p>
+        <button class="btn small" disabled>Coming soon</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DOTS & BOXES VIEW -->
+  <section class="view" id="view-dab" hidden>
+    <div class="game-header">
+      <div>
+        <h2>Dots &amp; Boxes</h2>
+        <p>Click a line to draw it. Complete a box's fourth side and it's yours &mdash; and you go again.</p>
+      </div>
+      <button class="btn ghost small" id="backToHubDab">← Back to hub</button>
+    </div>
+
+    <div class="controls-bar">
+      <div class="field">
+        <label for="dabSizeSelect">Grid</label>
+        <select id="dabSizeSelect">
+          <option value="3">Small · 3×3 boxes</option>
+          <option value="5" selected>Medium · 5×5 boxes</option>
+          <option value="7">Large · 7×7 boxes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="dabModeSelect">Opponent</label>
+        <select id="dabModeSelect">
+          <option value="pvp">Two players (same screen)</option>
+          <option value="ai">Computer</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn primary small" id="dabNewGameBtn">New game</button>
+    </div>
+
+    <div class="board-layout">
+      <div class="board-panel">
+        <svg id="dabBoard" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="side-panel">
+        <div class="score-card" id="dabP1Card" style="--p-color:var(--p1);">
+          <span class="name"><span class="turn-dot"></span><span id="dabP1Name">Player 1</span></span>
+          <span class="score mono" id="dabP1Score">0</span>
+        </div>
+        <div class="score-card" id="dabP2Card" style="--p-color:var(--p2);">
+          <span class="name"><span class="turn-dot"></span><span id="dabP2Name">Player 2</span></span>
+          <span class="score mono" id="dabP2Score">0</span>
+        </div>
+        <div class="status-line" id="dabStatusLine">Player 1's move &mdash; draw any line to begin.</div>
+        <div class="tally" id="dabTally"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOTS (SURROUND) VIEW -->
+  <section class="view" id="view-dots" hidden>
+    <div class="game-header">
+      <div>
+        <h2>Dots</h2>
+        <p>Place a dot on any empty point. Fully surround one or more of your opponent's live dots with an unbroken loop of your own color and you capture them.</p>
+      </div>
+      <button class="btn ghost small" id="backToHubDots">← Back to hub</button>
+    </div>
+
+    <div class="controls-bar">
+      <div class="field">
+        <label for="dotsSizeSelect">Grid</label>
+        <select id="dotsSizeSelect">
+          <option value="small">Small · 10×8</option>
+          <option value="medium" selected>Medium · 14×10</option>
+          <option value="large">Large · 18×13</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="dotsModeSelect">Opponent</label>
+        <select id="dotsModeSelect">
+          <option value="pvp">Two players (same screen)</option>
+          <option value="ai">Computer</option>
+        </select>
+      </div>
+      <div class="field" id="dotsDifficultyField">
+        <label for="dotsDifficultySelect">Difficulty</label>
+        <select id="dotsDifficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn primary small" id="dotsNewGameBtn">New game</button>
+    </div>
+
+    <div class="board-layout">
+      <div class="board-panel">
+        <svg id="dotsBoard" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="side-panel">
+        <div class="score-card" id="dotsP1Card" style="--p-color:var(--p1);">
+          <span class="name"><span class="turn-dot"></span><span id="dotsP1Name">Player 1</span></span>
+          <span class="score mono" id="dotsP1Score">0</span>
+        </div>
+        <div class="score-card" id="dotsP2Card" style="--p-color:var(--p2);">
+          <span class="name"><span class="turn-dot"></span><span id="dotsP2Name">Player 2</span></span>
+          <span class="score mono" id="dotsP2Score">0</span>
+        </div>
+        <div class="status-line" id="dotsStatusLine">Player 1's move &mdash; place a dot to begin.</div>
+        <div class="tally" id="dotsTally"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  Built for one player who likes small games. More arriving soon.
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  function svgNS(tag){ return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+
+  // ---------- view switching ----------
+  var viewHub = document.getElementById('view-hub');
+  var viewDab = document.getElementById('view-dab');
+  var viewDots = document.getElementById('view-dots');
+  var backNote = document.getElementById('backNote');
+  var activeView = 'hub';
+
+  function showHub(){
+    viewDab.hidden = true;
+    viewDots.hidden = true;
+    viewHub.hidden = false;
+    backNote.hidden = true;
+    activeView = 'hub';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function showDab(){
+    viewHub.hidden = true;
+    viewDots.hidden = true;
+    viewDab.hidden = false;
+    backNote.hidden = false;
+    backNote.textContent = 'Playing: Dots & Boxes';
+    activeView = 'dab';
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (!dabBoardBuilt) newDabGame();
+  }
+  function showDots(){
+    viewHub.hidden = true;
+    viewDab.hidden = true;
+    viewDots.hidden = false;
+    backNote.hidden = false;
+    backNote.textContent = 'Playing: Dots';
+    activeView = 'dots';
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (!dBoardBuilt) newDotsGame();
+  }
+
+  document.getElementById('logoBtn').addEventListener('click', showHub);
+  document.getElementById('hubLink').addEventListener('click', showHub);
+  document.getElementById('backToHubDab').addEventListener('click', showHub);
+  document.getElementById('backToHubDots').addEventListener('click', showHub);
+  document.getElementById('playFromHero').addEventListener('click', showDab);
+  document.getElementById('playFromCard').addEventListener('click', showDab);
+  document.getElementById('playFromHeroDots').addEventListener('click', showDots);
+  document.getElementById('playFromCardDots').addEventListener('click', showDots);
+
+  /* =====================================================================
+     GAME 1 — DOTS & BOXES
+  ===================================================================== */
+  var dabSvg = document.getElementById('dabBoard');
+  var dabSizeSelect = document.getElementById('dabSizeSelect');
+  var dabModeSelect = document.getElementById('dabModeSelect');
+  var dabNewGameBtn = document.getElementById('dabNewGameBtn');
+  var dabStatusLine = document.getElementById('dabStatusLine');
+  var dabP1Card = document.getElementById('dabP1Card');
+  var dabP2Card = document.getElementById('dabP2Card');
+  var dabP1Score = document.getElementById('dabP1Score');
+  var dabP2Score = document.getElementById('dabP2Score');
+  var dabP1Name = document.getElementById('dabP1Name');
+  var dabP2Name = document.getElementById('dabP2Name');
+  var dabTallyEl = document.getElementById('dabTally');
+
+  var DAB_CELL = 80, DAB_MARGIN = 40, DAB_DOT_R = 5;
+  var dabSize = 5;
+  var dabMode = 'pvp';
+  var dabEdges = {};
+  var dabBoxOwner = [];
+  var dabBoxEls = [];
+  var dabScores = [0,0];
+  var dabCurrent = 1;
+  var dabGameOver = false;
+  var dabBoardBuilt = false;
+  var dabTally = loadTally('dotden-tally');
+
+  function hKey(r,c){ return 'h-'+r+'-'+c; }
+  function vKey(r,c){ return 'v-'+r+'-'+c; }
+  function edgesOfBox(r,c){ return [hKey(r,c), hKey(r+1,c), vKey(r,c), vKey(r,c+1)]; }
+  function boxesOfHEdge(r,c){
+    var out = [];
+    if (r-1 >= 0) out.push([r-1,c]);
+    if (r < dabSize) out.push([r,c]);
+    return out;
+  }
+  function boxesOfVEdge(r,c){
+    var out = [];
+    if (c-1 >= 0) out.push([r,c-1]);
+    if (c < dabSize) out.push([r,c]);
+    return out;
+  }
+  function dabSidesTaken(r,c){
+    var n = 0;
+    edgesOfBox(r,c).forEach(function(k){ if (dabEdges[k] && dabEdges[k].taken) n++; });
+    return n;
+  }
+
+  function buildDabBoard(newSize){
+    dabSize = newSize;
+    var dim = DAB_MARGIN*2 + dabSize*DAB_CELL;
+    dabSvg.setAttribute('viewBox', '0 0 '+dim+' '+dim);
+    dabSvg.innerHTML = '';
+    dabEdges = {};
+    dabBoxOwner = [];
+    dabBoxEls = [];
+
+    for (var r=0; r<dabSize; r++){
+      dabBoxOwner.push(new Array(dabSize).fill(0));
+      dabBoxEls.push([]);
+      for (var c=0; c<dabSize; c++){
+        var rect = svgNS('rect');
+        rect.setAttribute('class','box-rect');
+        rect.setAttribute('x', DAB_MARGIN + c*DAB_CELL + 5);
+        rect.setAttribute('y', DAB_MARGIN + r*DAB_CELL + 5);
+        rect.setAttribute('width', DAB_CELL-10);
+        rect.setAttribute('height', DAB_CELL-10);
+        rect.setAttribute('rx', 6);
+        dabSvg.appendChild(rect);
+
+        var label = svgNS('text');
+        label.setAttribute('class','box-label');
+        label.setAttribute('x', DAB_MARGIN + c*DAB_CELL + DAB_CELL/2);
+        label.setAttribute('y', DAB_MARGIN + r*DAB_CELL + DAB_CELL/2);
+        label.setAttribute('font-size', Math.max(14, DAB_CELL*0.32));
+        dabSvg.appendChild(label);
+
+        dabBoxEls[r].push({rect:rect, text:label});
+      }
+    }
+
+    for (var r2=0; r2<=dabSize; r2++){
+      for (var c2=0; c2<dabSize; c2++){
+        addDabEdge('h', r2, c2,
+          DAB_MARGIN + c2*DAB_CELL, DAB_MARGIN + r2*DAB_CELL,
+          DAB_MARGIN + (c2+1)*DAB_CELL, DAB_MARGIN + r2*DAB_CELL);
+      }
+    }
+    for (var r3=0; r3<dabSize; r3++){
+      for (var c3=0; c3<=dabSize; c3++){
+        addDabEdge('v', r3, c3,
+          DAB_MARGIN + c3*DAB_CELL, DAB_MARGIN + r3*DAB_CELL,
+          DAB_MARGIN + c3*DAB_CELL, DAB_MARGIN + (r3+1)*DAB_CELL);
+      }
+    }
+    for (var r4=0; r4<=dabSize; r4++){
+      for (var c4=0; c4<=dabSize; c4++){
+        var dot = svgNS('circle');
+        dot.setAttribute('class','dot');
+        dot.setAttribute('cx', DAB_MARGIN + c4*DAB_CELL);
+        dot.setAttribute('cy', DAB_MARGIN + r4*DAB_CELL);
+        dot.setAttribute('r', DAB_DOT_R);
+        dabSvg.appendChild(dot);
+      }
+    }
+    dabBoardBuilt = true;
+  }
+
+  function addDabEdge(type, r, c, x1, y1, x2, y2){
+    var line = svgNS('line');
+    line.setAttribute('class','edge');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('tabindex', '0');
+    line.setAttribute('role','button');
+    var key = type === 'h' ? hKey(r,c) : vKey(r,c);
+    line.setAttribute('aria-label', 'Line '+key);
+    line.addEventListener('click', function(){ handleDabEdgeClick(key); });
+    line.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleDabEdgeClick(key); }
+    });
+    dabSvg.appendChild(line);
+    dabEdges[key] = {taken:false, el:line, type:type, r:r, c:c};
+  }
+
+  function handleDabEdgeClick(key){
+    if (dabGameOver || dabEdges[key].taken) return;
+    if (dabMode === 'ai' && dabCurrent === 2) return;
+    makeDabMove(key);
+  }
+
+  function makeDabMove(key){
+    var e = dabEdges[key];
+    if (!e || e.taken) return false;
+    e.taken = true;
+    e.el.classList.add('taken');
+    e.el.style.stroke = dabCurrent === 1 ? 'var(--p1)' : 'var(--p2)';
+
+    var boxes = e.type === 'h' ? boxesOfHEdge(e.r, e.c) : boxesOfVEdge(e.r, e.c);
+    var completed = false;
+    boxes.forEach(function(pos){
+      var r = pos[0], c = pos[1];
+      if (dabBoxOwner[r][c] === 0 && dabSidesTaken(r,c) === 4){
+        dabBoxOwner[r][c] = dabCurrent;
+        dabScores[dabCurrent-1]++;
+        completed = true;
+        var be = dabBoxEls[r][c];
+        be.rect.style.fill = dabCurrent === 1 ? 'var(--p1-soft)' : 'var(--p2-soft)';
+        be.rect.style.stroke = dabCurrent === 1 ? 'var(--p1)' : 'var(--p2)';
+        be.text.textContent = dabCurrent === 1 ? 'P1' : (dabMode==='ai' ? 'CPU' : 'P2');
+        be.text.style.fill = dabCurrent === 1 ? 'var(--p1)' : 'var(--p2)';
+        be.text.classList.add('show');
+      }
+    });
+
+    updateDabScores();
+
+    var totalBoxes = dabSize*dabSize;
+    if (dabScores[0] + dabScores[1] === totalBoxes){
+      endDabGame();
+      return true;
+    }
+    if (!completed){
+      dabCurrent = dabCurrent === 1 ? 2 : 1;
+    }
+    updateDabTurnUI();
+
+    if (!dabGameOver && dabMode === 'ai' && dabCurrent === 2){
+      dabStatusLine.innerHTML = 'Computer is thinking&hellip;';
+      setTimeout(dabAiTurn, 550);
+    }
+    return true;
+  }
+
+  function updateDabScores(){
+    dabP1Score.textContent = dabScores[0];
+    dabP2Score.textContent = dabScores[1];
+  }
+  function updateDabTurnUI(){
+    dabP1Card.classList.toggle('active', dabCurrent === 1 && !dabGameOver);
+    dabP2Card.classList.toggle('active', dabCurrent === 2 && !dabGameOver);
+    if (!dabGameOver){
+      var who = dabCurrent === 1 ? dabP1Name.textContent : dabP2Name.textContent;
+      dabStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+    }
+  }
+  function endDabGame(){
+    dabGameOver = true;
+    dabP1Card.classList.remove('active');
+    dabP2Card.classList.remove('active');
+    var msg;
+    if (dabScores[0] === dabScores[1]){
+      msg = 'It\'s a tie &mdash; '+dabScores[0]+' boxes each.';
+    } else {
+      var winnerName = dabScores[0] > dabScores[1] ? dabP1Name.textContent : dabP2Name.textContent;
+      msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dabScores[0],dabScores[1])+' to '+Math.min(dabScores[0],dabScores[1])+'.';
+      recordWin(dabTally, dabScores[0] > dabScores[1] ? 1 : 2, 'dotden-tally');
+    }
+    dabStatusLine.innerHTML = msg;
+    renderDabTally();
+  }
+
+  function dabAiTurn(){
+    if (dabGameOver || dabCurrent !== 2) return;
+    var key = pickDabAiEdge();
+    if (key) makeDabMove(key);
+  }
+  function pickDabAiEdge(){
+    var available = Object.keys(dabEdges).filter(function(k){ return !dabEdges[k].taken; });
+    if (available.length === 0) return null;
+    function boxesFor(k){
+      var e = dabEdges[k];
+      return e.type === 'h' ? boxesOfHEdge(e.r, e.c) : boxesOfVEdge(e.r, e.c);
+    }
+    var completing = available.filter(function(k){
+      return boxesFor(k).some(function(pos){ return dabSidesTaken(pos[0], pos[1]) === 3; });
+    });
+    if (completing.length) return completing[Math.floor(Math.random()*completing.length)];
+    var safe = available.filter(function(k){
+      return boxesFor(k).every(function(pos){ return dabSidesTaken(pos[0], pos[1]) <= 1; });
+    });
+    if (safe.length) return safe[Math.floor(Math.random()*safe.length)];
+    available.sort(function(a,b){
+      var da = Math.max.apply(null, boxesFor(a).map(function(p){return dabSidesTaken(p[0],p[1]);}));
+      var db = Math.max.apply(null, boxesFor(b).map(function(p){return dabSidesTaken(p[0],p[1]);}));
+      return da - db;
+    });
+    return available[0];
+  }
+
+  function newDabGame(){
+    var newSize = parseInt(dabSizeSelect.value, 10);
+    dabMode = dabModeSelect.value;
+    dabScores = [0,0];
+    dabCurrent = 1;
+    dabGameOver = false;
+    dabP1Name.textContent = 'Player 1';
+    dabP2Name.textContent = dabMode === 'ai' ? 'Computer' : 'Player 2';
+    buildDabBoard(newSize);
+    updateDabScores();
+    updateDabTurnUI();
+    renderDabTally();
+  }
+  dabNewGameBtn.addEventListener('click', newDabGame);
+  dabSizeSelect.addEventListener('change', newDabGame);
+  dabModeSelect.addEventListener('change', newDabGame);
+
+  function renderDabTally(){
+    var total = dabTally.p1 + dabTally.p2;
+    if (!total){ dabTallyEl.textContent = 'No completed games yet on this device.'; return; }
+    dabTallyEl.textContent = 'On this device: P1 '+dabTally.p1+' win'+(dabTally.p1===1?'':'s')+' · '+(dabMode==='ai'?'CPU':'P2')+' '+dabTally.p2+' win'+(dabTally.p2===1?'':'s');
+  }
+
+  /* =====================================================================
+     GAME 2 — DOTS (surround & capture)
+  ===================================================================== */
+  var DR8 = [-1,-1,-1,0,0,1,1,1];
+  var DC8 = [-1,0,1,-1,1,-1,0,1];
+  var D4R = [-1,1,0,0];
+  var D4C = [0,0,-1,1];
+  var DOTS_PRESETS = {small:[8,10], medium:[10,14], large:[13,18]};
+  var GCELL = 34, GMARGIN = 26, GDOT_R = 7;
+
+  var dSvg = document.getElementById('dotsBoard');
+  var dotsSizeSelect = document.getElementById('dotsSizeSelect');
+  var dotsModeSelect = document.getElementById('dotsModeSelect');
+  var dotsDifficultySelect = document.getElementById('dotsDifficultySelect');
+  var dotsDifficultyField = document.getElementById('dotsDifficultyField');
+  var dotsNewGameBtn = document.getElementById('dotsNewGameBtn');
+  var dotsStatusLine = document.getElementById('dotsStatusLine');
+  var dotsP1Card = document.getElementById('dotsP1Card');
+  var dotsP2Card = document.getElementById('dotsP2Card');
+  var dotsP1Score = document.getElementById('dotsP1Score');
+  var dotsP2Score = document.getElementById('dotsP2Score');
+  var dotsP1Name = document.getElementById('dotsP1Name');
+  var dotsP2Name = document.getElementById('dotsP2Name');
+  var dotsTallyEl = document.getElementById('dotsTally');
+
+  var R, C;
+  var owner = [], dead = [];
+  var dotEls = [], ringEls = [], drawnEdges = {};
+  var linkLayer = null;
+  var dCurrent = 1, dScores = [0,0], dGameOver = false, dMode = 'pvp', dDifficulty = 'medium';
+  var dBoardBuilt = false;
+  var dotsTally = loadTally('dotden-dots-tally');
+
+  function inBounds(r,c){ return r>=0 && r<R && c>=0 && c<C; }
+  function neighbors8(r,c){
+    var out=[];
+    for (var i=0;i<8;i++){
+      var nr=r+DR8[i], nc=c+DC8[i];
+      if (inBounds(nr,nc)) out.push([nr,nc]);
+    }
+    return out;
+  }
+
+  function buildDotsBoard(rows, cols){
+    R = rows; C = cols;
+    owner = []; dead = [];
+    for (var r=0;r<R;r++){ owner.push(new Array(C).fill(0)); dead.push(new Array(C).fill(false)); }
+    drawnEdges = {};
+    dotEls = []; ringEls = [];
+
+    var w = GMARGIN*2 + (C-1)*GCELL;
+    var h = GMARGIN*2 + (R-1)*GCELL;
+    dSvg.setAttribute('viewBox', '0 0 '+w+' '+h);
+    dSvg.innerHTML = '';
+
+    var hitLayer = svgNS('g');
+    linkLayer = svgNS('g');
+    var dotLayer = svgNS('g');
+    dSvg.appendChild(hitLayer);
+    dSvg.appendChild(linkLayer);
+    dSvg.appendChild(dotLayer);
+
+    for (var r2=0;r2<R;r2++){
+      dotEls.push([]); ringEls.push([]);
+      for (var c2=0;c2<C;c2++){
+        var cx = GMARGIN + c2*GCELL, cy = GMARGIN + r2*GCELL;
+
+        var hit = svgNS('circle');
+        hit.setAttribute('class','dots-hit');
+        hit.setAttribute('cx',cx); hit.setAttribute('cy',cy);
+        hit.setAttribute('r', GCELL*0.42);
+        hit.setAttribute('tabindex','0');
+        hit.setAttribute('role','button');
+        hit.setAttribute('aria-label','Point row '+r2+' column '+c2);
+        (function(rr,cc){
+          hit.addEventListener('click', function(){ handleDotsClick(rr,cc); });
+          hit.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleDotsClick(rr,cc); } });
+        })(r2,c2);
+        hitLayer.appendChild(hit);
+
+        var ring = svgNS('circle');
+        ring.setAttribute('class','dots-ring');
+        ring.setAttribute('cx',cx); ring.setAttribute('cy',cy);
+        ring.setAttribute('r', GDOT_R+5);
+        dotLayer.appendChild(ring);
+
+        var dot = svgNS('circle');
+        dot.setAttribute('class','dots-dot');
+        dot.setAttribute('cx',cx); dot.setAttribute('cy',cy);
+        dot.setAttribute('r', GDOT_R);
+        dotLayer.appendChild(dot);
+
+        dotEls[r2].push(dot);
+        ringEls[r2].push(ring);
+      }
+    }
+    dBoardBuilt = true;
+  }
+
+  function connectorKey(r1,c1,r2,c2){
+    if (r1>r2 || (r1===r2 && c1>c2)){
+      var t;
+      t=r1;r1=r2;r2=t;
+      t=c1;c1=c2;c2=t;
+    }
+    return r1+','+c1+'-'+r2+','+c2;
+  }
+  function drawConnector(r1,c1,r2,c2,player){
+    var key = connectorKey(r1,c1,r2,c2);
+    if (drawnEdges[key]) return;
+    drawnEdges[key] = true;
+    var line = svgNS('line');
+    line.setAttribute('class','dots-link');
+    line.setAttribute('x1', GMARGIN + c1*GCELL);
+    line.setAttribute('y1', GMARGIN + r1*GCELL);
+    line.setAttribute('x2', GMARGIN + c2*GCELL);
+    line.setAttribute('y2', GMARGIN + r2*GCELL);
+    line.style.stroke = player === 1 ? 'var(--p1)' : 'var(--p2)';
+    linkLayer.appendChild(line);
+  }
+
+  function renderNewDot(r,c,player){
+    var el = dotEls[r][c];
+    el.classList.add('placed');
+    el.style.fill = player === 1 ? 'var(--p1)' : 'var(--p2)';
+    neighbors8(r,c).forEach(function(pos){
+      var nr = pos[0], nc = pos[1];
+      if (owner[nr][nc] === player && !dead[nr][nc]){
+        drawConnector(r,c,nr,nc,player);
+      }
+    });
+  }
+
+  function renderCaptures(list, capturingPlayer){
+    list.forEach(function(pos){
+      var r = pos[0], c = pos[1];
+      var el = dotEls[r][c];
+      var ring = ringEls[r][c];
+      el.classList.add('dead');
+      ring.classList.add('show');
+      ring.style.stroke = capturingPlayer === 1 ? 'var(--p1)' : 'var(--p2)';
+      el.classList.add('pulse');
+      setTimeout(function(){ el.classList.remove('pulse'); }, 650);
+    });
+  }
+
+  // pure model helper — works on plain owner/dead grids, used for real moves and AI search
+  function computeCaptures(ownerG, deadG, mover){
+    var visited = [];
+    for (var r=0;r<R;r++) visited.push(new Array(C).fill(false));
+    function blocked(r,c){ return ownerG[r][c] === mover && !deadG[r][c]; }
+    var stack = [];
+    for (var r2=0;r2<R;r2++){
+      for (var c2=0;c2<C;c2++){
+        var isBorder = (r2===0 || r2===R-1 || c2===0 || c2===C-1);
+        if (isBorder && !blocked(r2,c2) && !visited[r2][c2]){
+          visited[r2][c2] = true;
+          stack.push([r2,c2]);
+        }
+      }
+    }
+    while (stack.length){
+      var cur = stack.pop(), cr = cur[0], cc = cur[1];
+      for (var i=0;i<4;i++){
+        var nr = cr+D4R[i], nc = cc+D4C[i];
+        if (inBounds(nr,nc) && !visited[nr][nc] && !blocked(nr,nc)){
+          visited[nr][nc] = true;
+          stack.push([nr,nc]);
+        }
+      }
+    }
+    var captured = [];
+    var opponent = mover === 1 ? 2 : 1;
+    for (var r3=0;r3<R;r3++){
+      for (var c3=0;c3<C;c3++){
+        if (!visited[r3][c3] && !blocked(r3,c3) && ownerG[r3][c3] === opponent && !deadG[r3][c3]){
+          captured.push([r3,c3]);
+        }
+      }
+    }
+    return captured;
+  }
+
+  function isDotsBoardFull(){
+    for (var r=0;r<R;r++) for (var c=0;c<C;c++) if (owner[r][c] === 0) return false;
+    return true;
+  }
+
+  function placeDotsMove(r,c,player){
+    if (dGameOver || owner[r][c] !== 0) return false;
+    owner[r][c] = player;
+    renderNewDot(r,c,player);
+
+    var captured = computeCaptures(owner, dead, player);
+    if (captured.length){
+      captured.forEach(function(pos){ dead[pos[0]][pos[1]] = true; });
+      dScores[player-1] += captured.length;
+      renderCaptures(captured, player);
+    }
+    updateDotsScores();
+
+    if (isDotsBoardFull()){
+      endDotsGame();
+      return true;
+    }
+    dCurrent = dCurrent === 1 ? 2 : 1;
+    updateDotsTurnUI();
+
+    if (!dGameOver && dMode === 'ai' && dCurrent === 2){
+      dotsStatusLine.innerHTML = 'Computer is thinking&hellip;';
+      setTimeout(dotsAiTurn, 550);
+    }
+    return true;
+  }
+
+  function handleDotsClick(r,c){
+    if (dGameOver || owner[r][c] !== 0) return;
+    if (dMode === 'ai' && dCurrent === 2) return;
+    placeDotsMove(r,c,dCurrent);
+  }
+
+  function updateDotsScores(){
+    dotsP1Score.textContent = dScores[0];
+    dotsP2Score.textContent = dScores[1];
+  }
+  function updateDotsTurnUI(){
+    dotsP1Card.classList.toggle('active', dCurrent === 1 && !dGameOver);
+    dotsP2Card.classList.toggle('active', dCurrent === 2 && !dGameOver);
+    if (!dGameOver){
+      var who = dCurrent === 1 ? dotsP1Name.textContent : dotsP2Name.textContent;
+      dotsStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move &mdash; place a dot.';
+    }
+  }
+  function endDotsGame(){
+    dGameOver = true;
+    dotsP1Card.classList.remove('active');
+    dotsP2Card.classList.remove('active');
+    var msg;
+    if (dScores[0] === dScores[1]){
+      msg = 'It\'s a tie &mdash; '+dScores[0]+' dots captured each.';
+    } else {
+      var winnerName = dScores[0] > dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
+      msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
+      recordWin(dotsTally, dScores[0] > dScores[1] ? 1 : 2, 'dotden-dots-tally');
+    }
+    dotsStatusLine.innerHTML = msg;
+    renderDotsTally();
+  }
+
+  function seedCross(){
+    var cr = Math.floor(R/2), cc = Math.floor(C/2);
+    var seeds = [[cr-1,cc,1],[cr+1,cc,1],[cr,cc-1,2],[cr,cc+1,2]];
+    seeds.forEach(function(s){
+      if (inBounds(s[0],s[1])){
+        owner[s[0]][s[1]] = s[2];
+        renderNewDot(s[0], s[1], s[2]);
+      }
+    });
+  }
+
+  // ---------- AI ----------
+  function emptyCellsAll(ownerG){
+    var out = [];
+    for (var r=0;r<R;r++) for (var c=0;c<C;c++) if (ownerG[r][c] === 0) out.push([r,c]);
+    return out;
+  }
+  function candidateCells(ownerG){
+    var set = {}, any = false;
+    for (var r=0;r<R;r++){
+      for (var c=0;c<C;c++){
+        if (ownerG[r][c] !== 0){
+          any = true;
+          for (var dr=-2; dr<=2; dr++){
+            for (var dc=-2; dc<=2; dc++){
+              var nr=r+dr, nc=c+dc;
+              if (inBounds(nr,nc) && ownerG[nr][nc] === 0) set[nr+','+nc] = [nr,nc];
+            }
+          }
+        }
+      }
+    }
+    var list = Object.keys(set).map(function(k){ return set[k]; });
+    return (any && list.length) ? list : emptyCellsAll(ownerG);
+  }
+  function simulateMove(r,c,player,ownerG,deadG){
+    var o2 = ownerG.map(function(row){ return row.slice(); });
+    var d2 = deadG.map(function(row){ return row.slice(); });
+    o2[r][c] = player;
+    var captured = computeCaptures(o2,d2,player);
+    captured.forEach(function(p){ d2[p[0]][p[1]] = true; });
+    return {captured: captured.length, ownerG: o2, deadG: d2};
+  }
+
+  function dotsAiTurn(){
+    if (dGameOver || dCurrent !== 2) return;
+    var move = pickDotsAiMove();
+    if (move) placeDotsMove(move[0], move[1], 2);
+  }
+
+  function pickDotsAiMove(){
+    var cands = candidateCells(owner);
+    if (!cands.length) return null;
+
+    if (dDifficulty === 'easy'){
+      return cands[Math.floor(Math.random()*cands.length)];
+    }
+
+    var replySample = dDifficulty === 'hard' ? 25 : 10;
+    var best = [], bestScore = -Infinity;
+
+    cands.forEach(function(pos){
+      var r = pos[0], c = pos[1];
+      var sim = simulateMove(r,c,2,owner,dead);
+      var myGain = sim.captured;
+
+      var oppBest = 0;
+      var oppCands = candidateCells(sim.ownerG).slice(0, replySample);
+      oppCands.forEach(function(op){
+        if (sim.ownerG[op[0]][op[1]] !== 0) return;
+        var sim2 = simulateMove(op[0], op[1], 1, sim.ownerG, sim.deadG);
+        if (sim2.captured > oppBest) oppBest = sim2.captured;
+      });
+
+      var score = myGain*3 - oppBest*2 + Math.random()*0.5;
+      if (score > bestScore){ bestScore = score; best = [pos]; }
+      else if (score === bestScore){ best.push(pos); }
+    });
+
+    return best[Math.floor(Math.random()*best.length)];
+  }
+
+  function newDotsGame(){
+    var preset = DOTS_PRESETS[dotsSizeSelect.value] || DOTS_PRESETS.medium;
+    dMode = dotsModeSelect.value;
+    dDifficulty = dotsDifficultySelect.value;
+    dScores = [0,0];
+    dCurrent = 1;
+    dGameOver = false;
+    dotsP1Name.textContent = 'Player 1';
+    dotsP2Name.textContent = dMode === 'ai' ? 'Computer' : 'Player 2';
+    dotsDifficultyField.hidden = dMode !== 'ai';
+    buildDotsBoard(preset[0], preset[1]);
+    seedCross();
+    updateDotsScores();
+    updateDotsTurnUI();
+    renderDotsTally();
+  }
+  dotsNewGameBtn.addEventListener('click', newDotsGame);
+  dotsSizeSelect.addEventListener('change', newDotsGame);
+  dotsModeSelect.addEventListener('change', newDotsGame);
+  dotsDifficultySelect.addEventListener('change', newDotsGame);
+
+  function renderDotsTally(){
+    var total = dotsTally.p1 + dotsTally.p2;
+    if (!total){ dotsTallyEl.textContent = 'No completed games yet on this device.'; return; }
+    dotsTallyEl.textContent = 'On this device: P1 '+dotsTally.p1+' win'+(dotsTally.p1===1?'':'s')+' · '+(dMode==='ai'?'CPU':'P2')+' '+dotsTally.p2+' win'+(dotsTally.p2===1?'':'s');
+  }
+
+  /* =====================================================================
+     shared: per-device tally storage
+  ===================================================================== */
+  function loadTally(storageKey){
+    try{
+      var raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : {p1:0, p2:0};
+    }catch(err){
+      return {p1:0, p2:0};
+    }
+  }
+  function recordWin(tallyObj, player, storageKey){
+    if (player === 1) tallyObj.p1++; else tallyObj.p2++;
+    try{ localStorage.setItem(storageKey, JSON.stringify(tallyObj)); }catch(err){}
+  }
+
+  /* =====================================================================
+     hot reload — keep state for viewers who already have the page open
+  ===================================================================== */
+  function snapshotState(){
+    return {
+      view: activeView,
+      dab: {
+        size: dabSize, mode: dabMode,
+        edges: Object.keys(dabEdges).filter(function(k){ return dabEdges[k].taken; }),
+        boxOwner: dabBoxOwner, scores: dabScores, current: dabCurrent, gameOver: dabGameOver
+      },
+      dots: {
+        rows: R, cols: C, mode: dMode, difficulty: dDifficulty,
+        owner: owner, dead: dead, scores: dScores, current: dCurrent, gameOver: dGameOver
+      }
+    };
+  }
+
+  function restoreDab(data){
+    if (!data || !data.size) return false;
+    dabSizeSelect.value = String(data.size);
+    dabModeSelect.value = data.mode;
+    dabMode = data.mode;
+    buildDabBoard(data.size);
+    (data.edges||[]).forEach(function(k){
+      if (dabEdges[k]){ dabEdges[k].taken = true; dabEdges[k].el.classList.add('taken'); }
+    });
+    dabBoxOwner = data.boxOwner || dabBoxOwner;
+    for (var r=0;r<dabSize;r++){
+      for (var c=0;c<dabSize;c++){
+        var own = dabBoxOwner[r][c];
+        if (own){
+          var be = dabBoxEls[r][c];
+          be.rect.style.fill = own === 1 ? 'var(--p1-soft)' : 'var(--p2-soft)';
+          be.rect.style.stroke = own === 1 ? 'var(--p1)' : 'var(--p2)';
+          be.text.textContent = own === 1 ? 'P1' : (dabMode==='ai' ? 'CPU' : 'P2');
+          be.text.style.fill = own === 1 ? 'var(--p1)' : 'var(--p2)';
+          be.text.classList.add('show');
+        }
+      }
+    }
+    dabScores = data.scores || [0,0];
+    dabCurrent = data.current || 1;
+    dabGameOver = !!data.gameOver;
+    dabP1Name.textContent = 'Player 1';
+    dabP2Name.textContent = dabMode === 'ai' ? 'Computer' : 'Player 2';
+    updateDabScores();
+    if (dabGameOver){
+      dabP1Card.classList.remove('active'); dabP2Card.classList.remove('active');
+      if (dabScores[0]===dabScores[1]) dabStatusLine.innerHTML = 'It\'s a tie &mdash; '+dabScores[0]+' boxes each.';
+      else{
+        var wn = dabScores[0]>dabScores[1] ? dabP1Name.textContent : dabP2Name.textContent;
+        dabStatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; '+Math.max(dabScores[0],dabScores[1])+' to '+Math.min(dabScores[0],dabScores[1])+'.';
+      }
+    } else updateDabTurnUI();
+    renderDabTally();
+    return true;
+  }
+
+  function restoreDots(data){
+    if (!data || !data.rows) return false;
+    var key = Object.keys(DOTS_PRESETS).filter(function(k){
+      return DOTS_PRESETS[k][0] === data.rows && DOTS_PRESETS[k][1] === data.cols;
+    })[0];
+    dotsSizeSelect.value = key || 'medium';
+    dotsModeSelect.value = data.mode;
+    dotsDifficultySelect.value = data.difficulty || 'medium';
+    dMode = data.mode;
+    dDifficulty = data.difficulty || 'medium';
+    dotsDifficultyField.hidden = dMode !== 'ai';
+    buildDotsBoard(data.rows, data.cols);
+    owner = data.owner || owner;
+    dead = data.dead || dead;
+    for (var r=0;r<R;r++){
+      for (var c=0;c<C;c++){
+        if (owner[r][c]){
+          renderNewDot(r,c,owner[r][c]);
+          if (dead[r][c]){
+            var ring = ringEls[r][c];
+            dotEls[r][c].classList.add('dead');
+            ring.classList.add('show');
+            ring.style.stroke = owner[r][c] === 1 ? 'var(--p2)' : 'var(--p1)';
+          }
+        }
+      }
+    }
+    dScores = data.scores || [0,0];
+    dCurrent = data.current || 1;
+    dGameOver = !!data.gameOver;
+    dotsP1Name.textContent = 'Player 1';
+    dotsP2Name.textContent = dMode === 'ai' ? 'Computer' : 'Player 2';
+    updateDotsScores();
+    if (dGameOver){
+      dotsP1Card.classList.remove('active'); dotsP2Card.classList.remove('active');
+      if (dScores[0]===dScores[1]) dotsStatusLine.innerHTML = 'It\'s a tie &mdash; '+dScores[0]+' dots captured each.';
+      else{
+        var wn2 = dScores[0]>dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
+        dotsStatusLine.innerHTML = '<strong>'+wn2+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
+      }
+    } else updateDotsTurnUI();
+    renderDotsTally();
+    return true;
+  }
+
+  try{
+    if (window.claude && window.claude.hot){
+      window.claude.hot.snapshot(snapshotState);
+    }
+  }catch(err){}
+
+  function boot(initialData){
+    var restoredDab = restoreDab(initialData && initialData.dab);
+    var restoredDots = restoreDots(initialData && initialData.dots);
+    if (!restoredDab) renderDabTally();
+    if (!restoredDots) renderDotsTally();
+    var view = initialData && initialData.view;
+    if (view === 'dab') showDab();
+    else if (view === 'dots') showDots();
+    else showHub();
+  }
+
+  try{
+    if (window.claude && window.claude.hot && window.claude.hot.ready){
+      window.claude.hot.ready(boot);
+    } else {
+      boot(window.claude && window.claude.hot ? window.claude.hot.data : null);
+    }
+  }catch(err){
+    boot(null);
+  }
+})();
+</script>
