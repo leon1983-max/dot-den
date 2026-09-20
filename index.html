@@ -349,6 +349,38 @@
   .t3-cell.win{background:color-mix(in srgb, var(--accent) 16%, transparent);border-color:var(--accent);}
   .t3-cell[disabled]{cursor:default;}
 
+  /* shared: last-move pulse + full-screen win celebration */
+  @keyframes pulseLast{
+    0%{ filter:drop-shadow(0 0 0 var(--accent)); }
+    35%{ filter:drop-shadow(0 0 10px var(--accent)); }
+    100%{ filter:drop-shadow(0 0 0 rgba(0,0,0,0)); }
+  }
+  .pulse-last{ animation:pulseLast 900ms ease-out 1; }
+
+  .win-overlay{
+    position:fixed; inset:0; pointer-events:none; z-index:9999;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    opacity:0; transition:opacity .35s ease;
+  }
+  .win-overlay.show{ opacity:1; }
+  .win-overlay .win-banner{
+    background:var(--surface); border:3px solid var(--accent); border-radius:20px;
+    padding:22px 42px; font-family:'Unbounded',sans-serif; font-weight:700; font-size:1.7rem;
+    color:var(--ink); box-shadow:0 24px 70px rgba(0,0,0,.32); text-align:center;
+    transform:scale(.4); opacity:0;
+  }
+  .win-overlay.show .win-banner{ animation:winBannerPop .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes winBannerPop{
+    0%{ transform:scale(.4) translateY(24px); opacity:0; }
+    60%{ transform:scale(1.08) translateY(0); opacity:1; }
+    100%{ transform:scale(1) translateY(0); opacity:1; }
+  }
+  .confetti-piece{
+    position:absolute; top:-24px; width:10px; height:16px; opacity:.9; border-radius:2px;
+    animation:confettiFall linear forwards;
+  }
+  @keyframes confettiFall{ to{ transform:translateY(112vh) rotate(720deg); opacity:0; } }
+
   .side-panel{display:flex;flex-direction:column;gap:14px;}
   .score-card{
     border:1px solid var(--line);
@@ -542,6 +574,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn primary small" id="dabNewGameBtn">New game</button>
+      <button class="btn ghost small" id="dabRematchBtn" hidden>Rematch</button>
     </div>
 
     <div class="controls-bar remote-panel" id="dabRemotePanel" hidden>
@@ -625,6 +658,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn primary small" id="dotsNewGameBtn">New game</button>
+      <button class="btn ghost small" id="dotsRematchBtn" hidden>Rematch</button>
     </div>
 
     <div class="controls-bar remote-panel" id="dotsRemotePanel" hidden>
@@ -693,6 +727,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn primary small" id="c4NewGameBtn">New game</button>
+      <button class="btn ghost small" id="c4RematchBtn" hidden>Rematch</button>
     </div>
 
     <div class="controls-bar remote-panel" id="c4RemotePanel" hidden>
@@ -761,6 +796,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn primary small" id="revNewGameBtn">New game</button>
+      <button class="btn ghost small" id="revRematchBtn" hidden>Rematch</button>
     </div>
 
     <div class="controls-bar remote-panel" id="revRemotePanel" hidden>
@@ -829,6 +865,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn primary small" id="t3NewGameBtn">New game</button>
+      <button class="btn ghost small" id="t3RematchBtn" hidden>Rematch</button>
     </div>
 
     <div class="controls-bar remote-panel" id="t3RemotePanel" hidden>
@@ -872,6 +909,8 @@
 <footer class="site">
   Built for one player who likes small games. More arriving soon.
 </footer>
+
+<div class="win-overlay" id="winOverlay" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -1072,6 +1111,7 @@
   var dabSizeSelect = document.getElementById('dabSizeSelect');
   var dabModeSelect = document.getElementById('dabModeSelect');
   var dabNewGameBtn = document.getElementById('dabNewGameBtn');
+  var dabRematchBtn = document.getElementById('dabRematchBtn');
   var dabStatusLine = document.getElementById('dabStatusLine');
   var dabP1Card = document.getElementById('dabP1Card');
   var dabP2Card = document.getElementById('dabP2Card');
@@ -1222,6 +1262,7 @@
     e.taken = true;
     e.el.classList.add('taken');
     e.el.style.stroke = dabCurrent === 1 ? 'var(--p1)' : 'var(--p2)';
+    pulseLastMove(e.el);
 
     var boxes = e.type === 'h' ? boxesOfHEdge(e.r, e.c) : boxesOfVEdge(e.r, e.c);
     var completed = false;
@@ -1282,9 +1323,11 @@
       var winnerName = dabScores[0] > dabScores[1] ? dabP1Name.textContent : dabP2Name.textContent;
       msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dabScores[0],dabScores[1])+' to '+Math.min(dabScores[0],dabScores[1])+'.';
       if (dabMode !== 'remote') recordWin(dabTally, dabScores[0] > dabScores[1] ? 1 : 2, 'dotden-tally');
+      celebrateWin(winnerName+' wins!');
     }
     dabStatusLine.innerHTML = msg;
     renderDabTally();
+    dabRematchBtn.hidden = false;
   }
 
   function dabAiTurn(){
@@ -1324,11 +1367,16 @@
     dabP1Name.textContent = 'Player 1';
     dabP2Name.textContent = dabMode === 'ai' ? 'Computer' : 'Player 2';
     dabTallyEl.hidden = false;
+    dabRematchBtn.hidden = true;
     buildDabBoard(newSize);
     updateDabScores();
     updateDabTurnUI();
     renderDabTally();
   }
+  dabRematchBtn.addEventListener('click', function(){
+    if (dabMode === 'remote'){ dabRemoteRematch(); return; }
+    newDabGame();
+  });
   dabNewGameBtn.addEventListener('click', function(){
     if (dabMode === 'remote') return;
     newDabGame();
@@ -1344,6 +1392,7 @@
       dabRemoteIdle.hidden = false;
       dabRemoteConnected.hidden = true;
       dabNewGameBtn.hidden = true;
+      dabRematchBtn.hidden = true;
       dabTallyEl.hidden = true;
       buildDabBoard(parseInt(dabSizeSelect.value,10));
       dabStatusLine.textContent = 'Create a room, or enter a code to join one.';
@@ -1440,6 +1489,7 @@
   });
   dabLeaveRoomBtn.addEventListener('click', function(){
     dabLeaveRoom();
+    dabRematchBtn.hidden = true;
     dabStatusLine.textContent = 'Create a room, or enter a code to join one.';
     dabP1Name.textContent = 'Player 1';
     dabP2Name.textContent = 'Player 2';
@@ -1473,6 +1523,7 @@
     }
   }, 6000);
 
+  var dabRemoteWasGameOver = false;
   function applyDabRemoteState(data){
     dabSizeSelect.value = String(data.size);
     restoreDab({size:data.size, mode:'remote', edges:data.edges, boxOwner:unflatten2D(data.boxOwner, data.size, data.size), scores:data.scores, current:data.current, gameOver:data.gameOver});
@@ -1487,6 +1538,13 @@
       var myTurn = data.current === dabMyPlayer;
       dabStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
     }
+    if (data.lastMove && dabEdges[data.lastMove]) pulseLastMove(dabEdges[data.lastMove].el);
+    dabRematchBtn.hidden = !data.gameOver;
+    if (data.gameOver && !dabRemoteWasGameOver && data.scores[0] !== data.scores[1]){
+      var winnerName = data.scores[0] > data.scores[1] ? dabP1Name.textContent : dabP2Name.textContent;
+      celebrateWin(winnerName+' wins!');
+    }
+    dabRemoteWasGameOver = data.gameOver;
   }
 
   function dabRemoteMakeMove(key){
@@ -1498,8 +1556,16 @@
     };
     var ns = dabApplyMovePure(state, key);
     rdb.collection('dotden-rooms').doc(dabRoomCode).update({
-      edges: ns.edges, boxOwner: flatten2D(ns.boxOwner), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      edges: ns.edges, boxOwner: flatten2D(ns.boxOwner), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: key, updatedAt: Date.now()
     }).catch(function(err){ dabShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function dabRemoteRematch(){
+    if (!dabRoomCode) return;
+    var size = dabSize;
+    rdb.collection('dotden-rooms').doc(dabRoomCode).update({
+      edges: [], boxOwner: flatten2D(emptyBoxOwner(size)), scores:[0,0], current:1, gameOver:false, lastMove:null, updatedAt: Date.now()
+    }).catch(function(err){ dabShowRemoteMsg('Rematch failed: '+err.message); });
   }
 
   /* =====================================================================
@@ -1519,6 +1585,7 @@
   var dotsDifficultySelect = document.getElementById('dotsDifficultySelect');
   var dotsDifficultyField = document.getElementById('dotsDifficultyField');
   var dotsNewGameBtn = document.getElementById('dotsNewGameBtn');
+  var dotsRematchBtn = document.getElementById('dotsRematchBtn');
   var dotsStatusLine = document.getElementById('dotsStatusLine');
   var dotsP1Card = document.getElementById('dotsP1Card');
   var dotsP2Card = document.getElementById('dotsP2Card');
@@ -1703,6 +1770,7 @@
     if (dGameOver || owner[r][c] !== 0) return false;
     owner[r][c] = player;
     renderNewDot(r,c,player);
+    pulseLastMove(dotEls[r][c]);
 
     var captured = computeCaptures(owner, dead, player);
     if (captured.length){
@@ -1760,9 +1828,11 @@
       var winnerName = dScores[0] > dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
       msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
       if (dMode !== 'remote') recordWin(dotsTally, dScores[0] > dScores[1] ? 1 : 2, 'dotden-dots-tally');
+      celebrateWin(winnerName+' wins!');
     }
     dotsStatusLine.innerHTML = msg;
     renderDotsTally();
+    dotsRematchBtn.hidden = false;
   }
 
   function seedCross(){
@@ -1866,12 +1936,17 @@
     dotsP2Name.textContent = dMode === 'ai' ? 'Computer' : 'Player 2';
     dotsDifficultyField.hidden = dMode !== 'ai';
     dotsTallyEl.hidden = false;
+    dotsRematchBtn.hidden = true;
     buildDotsBoard(preset[0], preset[1]);
     if (dotsStartSelect.value === 'cross') seedCross();
     updateDotsScores();
     updateDotsTurnUI();
     renderDotsTally();
   }
+  dotsRematchBtn.addEventListener('click', function(){
+    if (dMode === 'remote'){ dotsRemoteRematch(); return; }
+    newDotsGame();
+  });
   dotsNewGameBtn.addEventListener('click', function(){
     if (dMode === 'remote') return;
     newDotsGame();
@@ -1887,6 +1962,7 @@
       dotsRemoteIdle.hidden = false;
       dotsRemoteConnected.hidden = true;
       dotsNewGameBtn.hidden = true;
+      dotsRematchBtn.hidden = true;
       dotsDifficultyField.hidden = true;
       dotsTallyEl.hidden = true;
       var preset = DOTS_PRESETS[dotsSizeSelect.value] || DOTS_PRESETS.medium;
@@ -1982,6 +2058,7 @@
   });
   dotsLeaveRoomBtn.addEventListener('click', function(){
     dotsLeaveRoom();
+    dotsRematchBtn.hidden = true;
     dotsStatusLine.textContent = 'Create a room, or enter a code to join one.';
     dotsP1Name.textContent = 'Player 1';
     dotsP2Name.textContent = 'Player 2';
@@ -2013,6 +2090,7 @@
     }
   }, 6000);
 
+  var dotsRemoteWasGameOver = false;
   function applyDotsRemoteState(data){
     var key = Object.keys(DOTS_PRESETS).filter(function(k){
       return DOTS_PRESETS[k][0] === data.rows && DOTS_PRESETS[k][1] === data.cols;
@@ -2030,6 +2108,13 @@
       var myTurn = data.current === dotsMyPlayer;
       dotsStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
     }
+    if (data.lastMove && dotEls[data.lastMove.r] && dotEls[data.lastMove.r][data.lastMove.c]) pulseLastMove(dotEls[data.lastMove.r][data.lastMove.c]);
+    dotsRematchBtn.hidden = !data.gameOver;
+    if (data.gameOver && !dotsRemoteWasGameOver && data.scores[0] !== data.scores[1]){
+      var winnerName = data.scores[0] > data.scores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
+      celebrateWin(winnerName+' wins!');
+    }
+    dotsRemoteWasGameOver = data.gameOver;
   }
 
   function dotsRemoteMakeMove(r,c){
@@ -2037,8 +2122,24 @@
     var state = {rows:R, cols:C, owner:owner, dead:dead, scores:dScores, current:dCurrent, gameOver:dGameOver};
     var ns = dotsApplyMovePure(state, r, c);
     rdb.collection('dotden-rooms').doc(dotsRoomCode).update({
-      owner: flatten2D(ns.owner), dead: flatten2D(ns.dead), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      owner: flatten2D(ns.owner), dead: flatten2D(ns.dead), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, updatedAt: Date.now()
     }).catch(function(err){ dotsShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function dotsRemoteRematch(){
+    if (!dotsRoomCode) return;
+    var rows = R, cols = C;
+    var ownerG = [], deadG = [];
+    for (var r=0;r<rows;r++){ ownerG.push(new Array(cols).fill(0)); deadG.push(new Array(cols).fill(false)); }
+    if (dotsStartSelect.value === 'cross'){
+      var cr = Math.floor(rows/2), cc = Math.floor(cols/2);
+      [[cr-1,cc,1],[cr+1,cc,1],[cr,cc-1,2],[cr,cc+1,2]].forEach(function(s){
+        if (s[0]>=0 && s[0]<rows && s[1]>=0 && s[1]<cols) ownerG[s[0]][s[1]] = s[2];
+      });
+    }
+    rdb.collection('dotden-rooms').doc(dotsRoomCode).update({
+      owner: flatten2D(ownerG), dead: flatten2D(deadG), scores:[0,0], current:1, gameOver:false, lastMove:null, updatedAt: Date.now()
+    }).catch(function(err){ dotsShowRemoteMsg('Rematch failed: '+err.message); });
   }
 
   /* =====================================================================
@@ -2049,6 +2150,7 @@
   var c4DifficultySelect = document.getElementById('c4DifficultySelect');
   var c4DifficultyField = document.getElementById('c4DifficultyField');
   var c4NewGameBtn = document.getElementById('c4NewGameBtn');
+  var c4RematchBtn = document.getElementById('c4RematchBtn');
   var c4StatusLine = document.getElementById('c4StatusLine');
   var c4P1Card = document.getElementById('c4P1Card');
   var c4P2Card = document.getElementById('c4P2Card');
@@ -2186,6 +2288,7 @@
     if (row < 0) return false;
     c4Board[row][col] = c4Current;
     renderC4Disc(row, col, c4Current);
+    pulseLastMove(c4DiscEls[row][col]);
     var win = c4WinningCells(c4Board, row, col, c4Current);
     if (win){
       c4GameOver = true;
@@ -2197,6 +2300,8 @@
       c4StatusLine.innerHTML = '<strong>'+winnerName+' wins</strong> &mdash; four in a row.';
       if (c4Mode !== 'remote') recordWin(c4Tally, c4Current, 'dotden-c4-tally');
       renderC4Tally();
+      c4RematchBtn.hidden = false;
+      celebrateWin(winnerName+' wins!');
       return true;
     }
     if (c4BoardFull(c4Board)){
@@ -2204,6 +2309,7 @@
       c4P1Card.classList.remove('active'); c4P2Card.classList.remove('active');
       c4StatusLine.innerHTML = 'It\'s a tie &mdash; the board filled up.';
       renderC4Tally();
+      c4RematchBtn.hidden = false;
       return true;
     }
     c4Current = c4Current === 1 ? 2 : 1;
@@ -2243,11 +2349,16 @@
     c4P1Name.textContent = 'Player 1';
     c4P2Name.textContent = c4Mode === 'ai' ? 'Computer' : 'Player 2';
     c4TallyEl.hidden = false;
+    c4RematchBtn.hidden = true;
     buildC4Board();
     updateC4Scores();
     updateC4TurnUI();
     renderC4Tally();
   }
+  c4RematchBtn.addEventListener('click', function(){
+    if (c4Mode === 'remote'){ c4RemoteRematch(); return; }
+    newC4Game();
+  });
   c4NewGameBtn.addEventListener('click', function(){
     if (c4Mode === 'remote') return;
     newC4Game();
@@ -2264,6 +2375,7 @@
       c4RemoteIdle.hidden = false;
       c4RemoteConnected.hidden = true;
       c4NewGameBtn.hidden = true;
+      c4RematchBtn.hidden = true;
       c4TallyEl.hidden = true;
       buildC4Board();
       c4StatusLine.textContent = 'Create a room, or enter a code to join one.';
@@ -2447,6 +2559,7 @@
   });
   c4LeaveRoomBtn.addEventListener('click', function(){
     c4LeaveRoom();
+    c4RematchBtn.hidden = true;
     c4StatusLine.textContent = 'Create a room, or enter a code to join one.';
     c4P1Name.textContent = 'Player 1';
     c4P2Name.textContent = 'Player 2';
@@ -2477,8 +2590,10 @@
     }
   }, 6000);
 
+  var c4RemoteWasGameOver = false;
   function applyC4RemoteState(data){
-    restoreC4({rows:data.rows, cols:data.cols, mode:'remote', board:unflatten2D(data.board, data.rows, data.cols), scores:data.scores, current:data.current, gameOver:data.gameOver});
+    var board = unflatten2D(data.board, data.rows, data.cols);
+    restoreC4({rows:data.rows, cols:data.cols, mode:'remote', board:board, scores:data.scores, current:data.current, gameOver:data.gameOver});
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     c4MyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
@@ -2490,15 +2605,35 @@
       var myTurn = data.current === c4MyPlayer;
       c4StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
     }
+    if (data.lastMove && c4DiscEls[data.lastMove.row] && c4DiscEls[data.lastMove.row][data.lastMove.col]) pulseLastMove(c4DiscEls[data.lastMove.row][data.lastMove.col]);
+    c4RematchBtn.hidden = !data.gameOver;
+    if (data.gameOver && !c4RemoteWasGameOver){
+      var winner = c4BoardWinner(board);
+      if (winner){
+        var winnerName = winner === 1 ? c4P1Name.textContent : c4P2Name.textContent;
+        celebrateWin(winnerName+' wins!');
+      }
+    }
+    c4RemoteWasGameOver = data.gameOver;
   }
 
   function c4RemoteMakeMove(col){
     if (!c4RoomCode) return;
+    var row = c4LowestEmptyRow(c4Board, col);
     var state = {rows:C4_ROWS, cols:C4_COLS, board:c4Board, scores:c4Scores, current:c4Current, gameOver:c4GameOver};
     var ns = c4ApplyMovePure(state, col);
     rdb.collection('dotden-rooms').doc(c4RoomCode).update({
-      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{row:row,col:col}, updatedAt: Date.now()
     }).catch(function(err){ c4ShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function c4RemoteRematch(){
+    if (!c4RoomCode) return;
+    var emptyBoard = [];
+    for (var r=0;r<C4_ROWS;r++) emptyBoard.push(new Array(C4_COLS).fill(0));
+    rdb.collection('dotden-rooms').doc(c4RoomCode).update({
+      board: flatten2D(emptyBoard), scores:[0,0], current:1, gameOver:false, lastMove:null, updatedAt: Date.now()
+    }).catch(function(err){ c4ShowRemoteMsg('Rematch failed: '+err.message); });
   }
 
   function restoreC4(data){
@@ -2528,6 +2663,16 @@
       } else {
         var wn = winner === 1 ? c4P1Name.textContent : c4P2Name.textContent;
         c4StatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; four in a row.';
+        var wcellsFound = null;
+        for (var wr=0; wr<C4_ROWS && !wcellsFound; wr++){
+          for (var wc=0; wc<C4_COLS; wc++){
+            if (c4Board[wr][wc] === winner){
+              var wcells = c4WinningCells(c4Board, wr, wc, winner);
+              if (wcells){ wcellsFound = wcells; break; }
+            }
+          }
+        }
+        if (wcellsFound) wcellsFound.forEach(function(p){ c4DiscEls[p[0]][p[1]].classList.add('win'); });
       }
     } else if (data.mode !== 'remote'){
       updateC4TurnUI();
@@ -2544,6 +2689,7 @@
   var revDifficultySelect = document.getElementById('revDifficultySelect');
   var revDifficultyField = document.getElementById('revDifficultyField');
   var revNewGameBtn = document.getElementById('revNewGameBtn');
+  var revRematchBtn = document.getElementById('revRematchBtn');
   var revStatusLine = document.getElementById('revStatusLine');
   var revP1Card = document.getElementById('revP1Card');
   var revP2Card = document.getElementById('revP2Card');
@@ -2710,12 +2856,14 @@
     var nx = revNextPlayerOrGameOver(revBoard, revCurrent);
     if (nx.over){
       renderRevBoard();
+      pulseLastMove(revDiscEls[r][c]);
       finishRevGame();
       return true;
     }
     var passed = nx.next === revCurrent;
     revCurrent = nx.next;
     renderRevBoard();
+    pulseLastMove(revDiscEls[r][c]);
     updateRevTurnUI(passed);
     if (!revGameOver && revMode==='ai' && revCurrent===2){
       revStatusLine.innerHTML = 'Computer is thinking&hellip;';
@@ -2735,10 +2883,12 @@
       var wn = winner===1 ? revP1Name.textContent : revP2Name.textContent;
       revStatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; '+counts[winner-1]+' to '+counts[winner===1?1:0]+'.';
       if (revMode!=='remote') recordWin(revTally, winner, 'dotden-rev-tally');
+      celebrateWin(wn+' wins!');
     } else {
       revStatusLine.innerHTML = 'It\'s a tie &mdash; '+counts[0]+' to '+counts[1]+'.';
     }
     renderRevTally();
+    revRematchBtn.hidden = false;
   }
   function updateRevScores(){ revP1Score.textContent = revScores[0]; revP2Score.textContent = revScores[1]; }
   function updateRevTurnUI(passed){
@@ -2768,6 +2918,7 @@
     revP1Name.textContent = 'Player 1';
     revP2Name.textContent = revMode==='ai' ? 'Computer' : 'Player 2';
     revTallyEl.hidden = false;
+    revRematchBtn.hidden = true;
     buildRevBoard();
     var counts = revCount(revBoard);
     revScores = counts;
@@ -2775,6 +2926,10 @@
     updateRevTurnUI(false);
     renderRevTally();
   }
+  revRematchBtn.addEventListener('click', function(){
+    if (revMode === 'remote'){ revRemoteRematch(); return; }
+    newRevGame();
+  });
   revNewGameBtn.addEventListener('click', function(){ if (revMode==='remote') return; newRevGame(); });
   revDifficultySelect.addEventListener('change', function(){ revDifficulty = revDifficultySelect.value; });
   revModeSelect.addEventListener('change', function(){
@@ -2786,6 +2941,7 @@
       revRemoteIdle.hidden = false;
       revRemoteConnected.hidden = true;
       revNewGameBtn.hidden = true;
+      revRematchBtn.hidden = true;
       revTallyEl.hidden = true;
       buildRevBoard();
       revStatusLine.textContent = 'Create a room, or enter a code to join one.';
@@ -2928,6 +3084,7 @@
   });
   revLeaveRoomBtn.addEventListener('click', function(){
     revLeaveRoom();
+    revRematchBtn.hidden = true;
     revStatusLine.textContent = 'Create a room, or enter a code to join one.';
     revP1Name.textContent = 'Player 1';
     revP2Name.textContent = 'Player 2';
@@ -2958,6 +3115,7 @@
     }
   }, 6000);
 
+  var revRemoteWasGameOver = false;
   function applyRevRemoteState(data){
     restoreRev({mode:'remote', board: unflatten2D(data.board, 8, 8), scores: data.scores, current: data.current, gameOver: data.gameOver});
     var amP1 = data.players.p1 === CLIENT_ID;
@@ -2971,6 +3129,18 @@
       var myTurn = data.current === revMyPlayer;
       revStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
     }
+    if (data.lastMove && revDiscEls[data.lastMove.r] && revDiscEls[data.lastMove.r][data.lastMove.c]) pulseLastMove(revDiscEls[data.lastMove.r][data.lastMove.c]);
+    revRematchBtn.hidden = !data.gameOver;
+    if (data.gameOver && !revRemoteWasGameOver){
+      var counts = data.scores;
+      var winner = 0;
+      if (counts[0]>counts[1]) winner=1; else if (counts[1]>counts[0]) winner=2;
+      if (winner){
+        var wn = winner===1 ? revP1Name.textContent : revP2Name.textContent;
+        celebrateWin(wn+' wins!');
+      }
+    }
+    revRemoteWasGameOver = data.gameOver;
   }
 
   function revRemoteMakeMove(r,c){
@@ -2978,8 +3148,15 @@
     var state = {board: revBoard, current: revCurrent, gameOver: revGameOver};
     var ns = revApplyMovePure(state, r, c);
     rdb.collection('dotden-rooms').doc(revRoomCode).update({
-      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, updatedAt: Date.now()
     }).catch(function(err){ revShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function revRemoteRematch(){
+    if (!revRoomCode) return;
+    rdb.collection('dotden-rooms').doc(revRoomCode).update({
+      board: flatten2D(revInitBoard()), scores:[2,2], current:1, gameOver:false, lastMove:null, updatedAt: Date.now()
+    }).catch(function(err){ revShowRemoteMsg('Rematch failed: '+err.message); });
   }
 
   function restoreRev(data){
@@ -3023,6 +3200,7 @@
   var t3DifficultySelect = document.getElementById('t3DifficultySelect');
   var t3DifficultyField = document.getElementById('t3DifficultyField');
   var t3NewGameBtn = document.getElementById('t3NewGameBtn');
+  var t3RematchBtn = document.getElementById('t3RematchBtn');
   var t3StatusLine = document.getElementById('t3StatusLine');
   var t3P1Card = document.getElementById('t3P1Card');
   var t3P2Card = document.getElementById('t3P2Card');
@@ -3167,6 +3345,7 @@
     if (t3Board[idx] !== 0) return false;
     t3Board[idx] = t3Current;
     renderT3Board();
+    pulseLastMove(t3CellEls[idx]);
     var win = t3Winner(t3Board);
     if (win){
       t3GameOver = true;
@@ -3178,6 +3357,8 @@
       t3StatusLine.innerHTML = '<strong>'+winnerName+' wins</strong> &mdash; four in a row.';
       if (t3Mode!=='remote') recordWin(t3Tally, t3Current, 'dotden-t3-tally');
       renderT3Tally();
+      t3RematchBtn.hidden = false;
+      celebrateWin(winnerName+' wins!');
       return true;
     }
     if (t3BoardFull(t3Board)){
@@ -3185,6 +3366,7 @@
       t3P1Card.classList.remove('active'); t3P2Card.classList.remove('active');
       t3StatusLine.innerHTML = 'It\'s a tie &mdash; the cube filled up.';
       renderT3Tally();
+      t3RematchBtn.hidden = false;
       return true;
     }
     t3Current = t3Current===1 ? 2 : 1;
@@ -3219,11 +3401,16 @@
     t3P1Name.textContent = 'Player 1';
     t3P2Name.textContent = t3Mode==='ai' ? 'Computer' : 'Player 2';
     t3TallyEl.hidden = false;
+    t3RematchBtn.hidden = true;
     buildT3Board();
     updateT3Scores();
     updateT3TurnUI();
     renderT3Tally();
   }
+  t3RematchBtn.addEventListener('click', function(){
+    if (t3Mode === 'remote'){ t3RemoteRematch(); return; }
+    newT3Game();
+  });
   t3NewGameBtn.addEventListener('click', function(){ if (t3Mode==='remote') return; newT3Game(); });
   t3DifficultySelect.addEventListener('change', function(){ t3Difficulty = t3DifficultySelect.value; });
   t3ModeSelect.addEventListener('change', function(){
@@ -3235,6 +3422,7 @@
       t3RemoteIdle.hidden = false;
       t3RemoteConnected.hidden = true;
       t3NewGameBtn.hidden = true;
+      t3RematchBtn.hidden = true;
       t3TallyEl.hidden = true;
       buildT3Board();
       t3StatusLine.textContent = 'Create a room, or enter a code to join one.';
@@ -3407,6 +3595,7 @@
   });
   t3LeaveRoomBtn.addEventListener('click', function(){
     t3LeaveRoom();
+    t3RematchBtn.hidden = true;
     t3StatusLine.textContent = 'Create a room, or enter a code to join one.';
     t3P1Name.textContent = 'Player 1';
     t3P2Name.textContent = 'Player 2';
@@ -3437,6 +3626,7 @@
     }
   }, 6000);
 
+  var t3RemoteWasGameOver = false;
   function applyT3RemoteState(data){
     restoreT3({mode:'remote', board: data.board, scores: data.scores, current: data.current, gameOver: data.gameOver});
     var amP1 = data.players.p1 === CLIENT_ID;
@@ -3450,6 +3640,16 @@
       var myTurn = data.current === t3MyPlayer;
       t3StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
     }
+    if (data.lastMove !== undefined && data.lastMove !== null && t3CellEls[data.lastMove]) pulseLastMove(t3CellEls[data.lastMove]);
+    t3RematchBtn.hidden = !data.gameOver;
+    if (data.gameOver && !t3RemoteWasGameOver){
+      var winner = t3Winner(data.board);
+      if (winner){
+        var wn = winner.player===1 ? t3P1Name.textContent : t3P2Name.textContent;
+        celebrateWin(wn+' wins!');
+      }
+    }
+    t3RemoteWasGameOver = data.gameOver;
   }
 
   function t3RemoteMakeMove(idx){
@@ -3457,8 +3657,15 @@
     var state = {board: t3Board, scores: t3Scores, current: t3Current, gameOver: t3GameOver};
     var ns = t3ApplyMovePure(state, idx);
     rdb.collection('dotden-rooms').doc(t3RoomCode).update({
-      board: ns.board, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+      board: ns.board, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: idx, updatedAt: Date.now()
     }).catch(function(err){ t3ShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function t3RemoteRematch(){
+    if (!t3RoomCode) return;
+    rdb.collection('dotden-rooms').doc(t3RoomCode).update({
+      board: t3EmptyBoard(), scores:[0,0], current:1, gameOver:false, lastMove:null, updatedAt: Date.now()
+    }).catch(function(err){ t3ShowRemoteMsg('Rematch failed: '+err.message); });
   }
 
   function restoreT3(data){
@@ -3493,6 +3700,43 @@
     return true;
   }
 
+
+  /* =====================================================================
+     shared: last-move pulse + full-screen win celebration
+  ===================================================================== */
+  function pulseLastMove(el){
+    if (!el) return;
+    el.classList.remove('pulse-last');
+    void el.getBoundingClientRect();
+    el.classList.add('pulse-last');
+  }
+  var winOverlayEl = document.getElementById('winOverlay');
+  var CONFETTI_COLORS = ['#7c5cff','#0f9b8e','#c22a86','#ffb454','#4cc3ff'];
+  function celebrateWin(message){
+    if (!winOverlayEl) return;
+    winOverlayEl.innerHTML = '';
+    var banner = document.createElement('div');
+    banner.className = 'win-banner';
+    banner.textContent = message;
+    winOverlayEl.appendChild(banner);
+    for (var i=0;i<44;i++){
+      var p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = (Math.random()*100)+'vw';
+      p.style.background = CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+      p.style.animationDuration = (1.5 + Math.random()*1.3)+'s';
+      p.style.animationDelay = (Math.random()*0.35)+'s';
+      p.style.transform = 'rotate('+Math.floor(Math.random()*360)+'deg)';
+      winOverlayEl.appendChild(p);
+    }
+    winOverlayEl.classList.add('show');
+    clearTimeout(celebrateWin._t);
+    celebrateWin._t = setTimeout(function(){
+      winOverlayEl.classList.remove('show');
+      clearTimeout(celebrateWin._t2);
+      celebrateWin._t2 = setTimeout(function(){ winOverlayEl.innerHTML = ''; }, 400);
+    }, 2200);
+  }
 
   /* =====================================================================
      shared: per-device tally storage
