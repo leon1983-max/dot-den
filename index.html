@@ -658,6 +658,13 @@
     if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf('YOUR_') !== 0 && window.firebase){
       firebase.initializeApp(FIREBASE_CONFIG);
       rdb = firebase.firestore();
+      // Firestore's default WebSocket ("greenfield") channel can silently stall on some
+      // networks/proxies/extensions — the listener stops delivering updates with no error,
+      // which looks exactly like "opponent's moves stop showing up after a couple of turns".
+      // Auto-detecting long-polling avoids that failure mode.
+      try{
+        rdb.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+      }catch(settingsErr){ /* non-fatal */ }
       firebaseReady = true;
     }
   }catch(err){ firebaseReady = false; }
@@ -1124,6 +1131,7 @@
     updateDabScores();
   });
 
+  var dabLastSnapshotAt = 0;
   function subscribeDabRoom(code){
     if (dabRoomUnsub) dabRoomUnsub();
     dabRoomCode = code;
@@ -1131,13 +1139,23 @@
     dabRoomCodeLabel.textContent = code;
     dabRemoteIdle.hidden = true;
     dabRemoteConnected.hidden = false;
-    dabRoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot(function(snap){
+    dabLastSnapshotAt = Date.now();
+    dabRoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot({includeMetadataChanges:true}, function(snap){
+      dabLastSnapshotAt = Date.now();
       if (!snap.exists) return;
       applyDabRemoteState(snap.data());
     }, function(err){
       dabShowRemoteMsg('Connection lost: '+err.message);
     });
   }
+  // Watchdog: some networks silently stall Firestore's realtime channel with no error
+  // event at all — the room just stops receiving updates. If we haven't heard anything
+  // in a while, force a fresh subscription (a plain re-fetch + new listen channel).
+  setInterval(function(){
+    if (dabRoomCode && rdb && Date.now() - dabLastSnapshotAt > 12000){
+      subscribeDabRoom(dabRoomCode);
+    }
+  }, 6000);
 
   function applyDabRemoteState(data){
     dabSizeSelect.value = String(data.size);
@@ -1656,6 +1674,7 @@
     updateDotsScores();
   });
 
+  var dotsLastSnapshotAt = 0;
   function subscribeDotsRoom(code){
     if (dotsRoomUnsub) dotsRoomUnsub();
     dotsRoomCode = code;
@@ -1663,13 +1682,20 @@
     dotsRoomCodeLabel.textContent = code;
     dotsRemoteIdle.hidden = true;
     dotsRemoteConnected.hidden = false;
-    dotsRoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot(function(snap){
+    dotsLastSnapshotAt = Date.now();
+    dotsRoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot({includeMetadataChanges:true}, function(snap){
+      dotsLastSnapshotAt = Date.now();
       if (!snap.exists) return;
       applyDotsRemoteState(snap.data());
     }, function(err){
       dotsShowRemoteMsg('Connection lost: '+err.message);
     });
   }
+  setInterval(function(){
+    if (dotsRoomCode && rdb && Date.now() - dotsLastSnapshotAt > 12000){
+      subscribeDotsRoom(dotsRoomCode);
+    }
+  }, 6000);
 
   function applyDotsRemoteState(data){
     var key = Object.keys(DOTS_PRESETS).filter(function(k){
@@ -1825,6 +1851,16 @@
     if (data.mode !== 'remote') renderDotsTally();
     return true;
   }
+
+  // Coming back from the background (phone screen locked, switched tabs/apps) is a
+  // classic way a real-time listener ends up silently dead. Force a fresh subscribe
+  // whenever the tab becomes visible again, for whichever room is currently open.
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible'){
+      if (dabRoomCode) subscribeDabRoom(dabRoomCode);
+      if (dotsRoomCode) subscribeDotsRoom(dotsRoomCode);
+    }
+  });
 
   // fresh load — just show the hub, boards build lazily when a game is opened
   showHub();
