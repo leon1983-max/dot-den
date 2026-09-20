@@ -10,6 +10,7 @@
 <!-- Firebase (only used for the "Play online" remote mode — see FIREBASE_CONFIG near the top of the script below) -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <style>
   :root{
     --bg:#f4f5fa;
@@ -357,6 +358,68 @@
   }
   .pulse-last{ animation:pulseLast 900ms ease-out 1; }
 
+  .last-move-p1{ filter:drop-shadow(0 0 6px var(--p1)); }
+  .last-move-p2{ filter:drop-shadow(0 0 6px var(--p2)); }
+
+  .turn-banner{
+    position:sticky;
+    top:var(--header-h, 64px);
+    z-index:15;
+    display:flex; align-items:center; gap:10px;
+    padding:10px 16px;
+    margin-bottom:14px;
+    border-radius:12px;
+    font-weight:700;
+    font-size:.92rem;
+    background:color-mix(in srgb, var(--p-color, var(--line)) 16%, var(--surface));
+    border:1px solid color-mix(in srgb, var(--p-color, var(--line)) 45%, var(--line));
+    color:var(--ink);
+    transition:background .25s ease, border-color .25s ease;
+  }
+  .turn-banner .turn-banner-dot{
+    width:10px;height:10px;border-radius:50%;flex:none;
+    background:var(--p-color, var(--muted));
+    box-shadow:0 0 0 0 color-mix(in srgb, var(--p-color, var(--muted)) 55%, transparent);
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  .turn-banner.over{ background:var(--surface); border-color:var(--line); }
+  .turn-banner.over .turn-banner-dot{ animation:none; background:var(--muted); }
+
+  /* account / auth modal */
+  #accountBtn.signed-in{ border-color:var(--accent); color:var(--accent); }
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    padding:22px; width:100%; max-width:360px;
+    box-shadow:0 24px 70px rgba(0,0,0,.32);
+  }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .modal-head h3{ font-size:1.15rem; }
+  .modal-tabs{ display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--line); }
+  .modal-tab{
+    flex:1; background:none; border:0; padding:8px 4px; font:inherit; font-weight:600;
+    color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .modal-tab.active{ color:var(--ink); border-bottom-color:var(--accent); }
+  #authForm .field{ margin-bottom:12px; display:flex; flex-direction:column; gap:5px; }
+  #authForm label{ font-size:.82rem; color:var(--muted); font-weight:600; }
+  #authForm input{
+    padding:9px 11px; border-radius:9px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink);
+  }
+  #authForm button[type="submit"]{ width:100%; margin-top:4px; }
+  .auth-error{
+    color:#e5484d; font-size:.82rem; margin-bottom:10px; background:color-mix(in srgb, #e5484d 12%, transparent);
+    border-radius:8px; padding:8px 10px;
+  }
+  .account-status{ display:flex; align-items:center; gap:8px; }
+  .account-status .who{ font-size:.85rem; color:var(--muted); }
+
   .win-overlay{
     position:fixed; inset:0; pointer-events:none; z-index:9999;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
@@ -451,9 +514,39 @@
     <nav class="site-nav">
       <span class="theme-note" id="backNote" hidden></span>
       <button class="btn ghost small" id="hubLink">All games</button>
+      <button class="btn ghost small" id="accountBtn">Sign in</button>
     </nav>
   </div>
 </header>
+
+<div class="modal-backdrop" id="authModalBackdrop" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="modal-head">
+      <h3 id="authModalTitle">Sign in</h3>
+      <button class="btn ghost small" id="authModalClose" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="authTabLogin" type="button">Log in</button>
+      <button class="modal-tab" id="authTabSignup" type="button">Sign up</button>
+    </div>
+    <form id="authForm">
+      <div class="field" id="authNameField" hidden>
+        <label for="authNameInput">Display name</label>
+        <input type="text" id="authNameInput" placeholder="What should players see?" maxlength="24">
+      </div>
+      <div class="field">
+        <label for="authEmailInput">Email</label>
+        <input type="email" id="authEmailInput" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="authPasswordInput">Password</label>
+        <input type="password" id="authPasswordInput" placeholder="At least 6 characters" minlength="6" required autocomplete="current-password">
+      </div>
+      <div class="auth-error" id="authError" hidden></div>
+      <button class="btn primary small" type="submit" id="authSubmitBtn">Log in</button>
+    </form>
+  </div>
+</div>
 
 <main class="wrap">
 
@@ -555,6 +648,11 @@
       <button class="btn ghost small" id="backToHubDab">← Back to hub</button>
     </div>
 
+    <div class="turn-banner" id="dabTurnBanner" style="--p-color:var(--p1);">
+      <span class="turn-banner-dot"></span>
+      <span id="dabTurnBannerText">Player 1's move</span>
+    </div>
+
     <div class="controls-bar">
       <div class="field">
         <label for="dabSizeSelect">Grid</label>
@@ -621,6 +719,11 @@
         <p>Place a dot on any empty point. Fully surround one or more of your opponent's live dots with an unbroken loop of your own color and you capture them.</p>
       </div>
       <button class="btn ghost small" id="backToHubDots">← Back to hub</button>
+    </div>
+
+    <div class="turn-banner" id="dotsTurnBanner" style="--p-color:var(--p1);">
+      <span class="turn-banner-dot"></span>
+      <span id="dotsTurnBannerText">Player 1's move</span>
     </div>
 
     <div class="controls-bar">
@@ -707,6 +810,11 @@
       <button class="btn ghost small" id="backToHubC4">← Back to hub</button>
     </div>
 
+    <div class="turn-banner" id="c4TurnBanner" style="--p-color:var(--p1);">
+      <span class="turn-banner-dot"></span>
+      <span id="c4TurnBannerText">Player 1's move</span>
+    </div>
+
     <div class="controls-bar">
       <div class="field">
         <label for="c4ModeSelect">Opponent</label>
@@ -776,6 +884,11 @@
       <button class="btn ghost small" id="backToHubRev">← Back to hub</button>
     </div>
 
+    <div class="turn-banner" id="revTurnBanner" style="--p-color:var(--p1);">
+      <span class="turn-banner-dot"></span>
+      <span id="revTurnBannerText">Player 1's move</span>
+    </div>
+
     <div class="controls-bar">
       <div class="field">
         <label for="revModeSelect">Opponent</label>
@@ -843,6 +956,11 @@
         <p>Four 4×4 layers stacked into a cube. Get four of your own in a row &mdash; within a layer, straight through all four layers, or on a diagonal that cuts through the whole cube &mdash; to win.</p>
       </div>
       <button class="btn ghost small" id="backToHubT3">← Back to hub</button>
+    </div>
+
+    <div class="turn-banner" id="t3TurnBanner" style="--p-color:var(--p1);">
+      <span class="turn-banner-dot"></span>
+      <span id="t3TurnBannerText">Player 1's move</span>
     </div>
 
     <div class="controls-bar">
@@ -981,6 +1099,113 @@
   }
   var CLIENT_ID = getClientId();
 
+  /* =====================================================================
+     ACCOUNT — optional sign up / log in so your name follows you into
+     online games instead of showing up as "Opponent". Uses the same
+     Firebase project as remote play; if that isn't configured, the
+     account button quietly does nothing beyond a local guest name.
+  ===================================================================== */
+  var auth = null;
+  try{ if (firebaseReady && firebase.auth) auth = firebase.auth(); }catch(authInitErr){ auth = null; }
+
+  var accountBtn = document.getElementById('accountBtn');
+  var authModalBackdrop = document.getElementById('authModalBackdrop');
+  var authModalTitle = document.getElementById('authModalTitle');
+  var authModalClose = document.getElementById('authModalClose');
+  var authTabLogin = document.getElementById('authTabLogin');
+  var authTabSignup = document.getElementById('authTabSignup');
+  var authForm = document.getElementById('authForm');
+  var authNameField = document.getElementById('authNameField');
+  var authNameInput = document.getElementById('authNameInput');
+  var authEmailInput = document.getElementById('authEmailInput');
+  var authPasswordInput = document.getElementById('authPasswordInput');
+  var authError = document.getElementById('authError');
+  var authSubmitBtn = document.getElementById('authSubmitBtn');
+  var authMode = 'login';
+  var currentUser = null;
+
+  function getMyDisplayName(){
+    if (currentUser && currentUser.displayName) return currentUser.displayName;
+    try{
+      var guest = localStorage.getItem('dotden-guest-name');
+      if (guest) return guest;
+    }catch(e){}
+    return null;
+  }
+
+  function openAuthModal(mode){
+    authMode = mode || 'login';
+    authError.hidden = true;
+    authError.textContent = '';
+    authNameField.hidden = authMode !== 'signup';
+    authTabLogin.classList.toggle('active', authMode === 'login');
+    authTabSignup.classList.toggle('active', authMode === 'signup');
+    authModalTitle.textContent = authMode === 'signup' ? 'Sign up' : 'Log in';
+    authSubmitBtn.textContent = authMode === 'signup' ? 'Sign up' : 'Log in';
+    authModalBackdrop.hidden = false;
+  }
+  function closeAuthModal(){
+    authModalBackdrop.hidden = true;
+    authForm.reset();
+  }
+  accountBtn.addEventListener('click', function(){
+    if (currentUser){
+      auth.signOut();
+      return;
+    }
+    openAuthModal('login');
+  });
+  authModalClose.addEventListener('click', closeAuthModal);
+  authModalBackdrop.addEventListener('click', function(e){ if (e.target === authModalBackdrop) closeAuthModal(); });
+  authTabLogin.addEventListener('click', function(){ openAuthModal('login'); });
+  authTabSignup.addEventListener('click', function(){ openAuthModal('signup'); });
+
+  authForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    authError.hidden = true;
+    if (!auth){
+      authError.textContent = 'Accounts need the same one-time Firebase setup as online play — see the comment near the top of the file.';
+      authError.hidden = false;
+      return;
+    }
+    var email = authEmailInput.value.trim();
+    var password = authPasswordInput.value;
+    authSubmitBtn.disabled = true;
+    if (authMode === 'signup'){
+      var name = authNameInput.value.trim() || 'Player';
+      auth.createUserWithEmailAndPassword(email, password).then(function(cred){
+        return cred.user.updateProfile({displayName: name});
+      }).then(function(){
+        closeAuthModal();
+      }).catch(function(err){
+        authError.textContent = err.message;
+        authError.hidden = false;
+      }).then(function(){ authSubmitBtn.disabled = false; });
+    } else {
+      auth.signInWithEmailAndPassword(email, password).then(function(){
+        closeAuthModal();
+      }).catch(function(err){
+        authError.textContent = err.message;
+        authError.hidden = false;
+      }).then(function(){ authSubmitBtn.disabled = false; });
+    }
+  });
+
+  if (auth){
+    auth.onAuthStateChanged(function(user){
+      currentUser = user;
+      if (user){
+        accountBtn.textContent = 'Hi, ' + (user.displayName || 'Player') + ' · Log out';
+        accountBtn.classList.add('signed-in');
+      } else {
+        accountBtn.textContent = 'Sign in';
+        accountBtn.classList.remove('signed-in');
+      }
+    });
+  } else {
+    accountBtn.hidden = true;
+  }
+
   function makeRoomCode(){
     var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     var s = '';
@@ -1115,6 +1340,8 @@
   var dabStatusLine = document.getElementById('dabStatusLine');
   var dabP1Card = document.getElementById('dabP1Card');
   var dabP2Card = document.getElementById('dabP2Card');
+  var dabTurnBanner = document.getElementById('dabTurnBanner');
+  var dabTurnBannerText = document.getElementById('dabTurnBannerText');
   var dabP1Score = document.getElementById('dabP1Score');
   var dabP2Score = document.getElementById('dabP2Score');
   var dabP1Name = document.getElementById('dabP1Name');
@@ -1263,6 +1490,7 @@
     e.el.classList.add('taken');
     e.el.style.stroke = dabCurrent === 1 ? 'var(--p1)' : 'var(--p2)';
     pulseLastMove(e.el);
+    markLastMove('dab', e.el, dabCurrent);
 
     var boxes = e.type === 'h' ? boxesOfHEdge(e.r, e.c) : boxesOfVEdge(e.r, e.c);
     var completed = false;
@@ -1310,6 +1538,7 @@
     if (!dabGameOver){
       var who = dabCurrent === 1 ? dabP1Name.textContent : dabP2Name.textContent;
       dabStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, who+"'s move", dabCurrent, false);
     }
   }
   function endDabGame(){
@@ -1319,11 +1548,13 @@
     var msg;
     if (dabScores[0] === dabScores[1]){
       msg = 'It\'s a tie &mdash; '+dabScores[0]+' boxes each.';
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, "It's a tie", dabCurrent, true);
     } else {
       var winnerName = dabScores[0] > dabScores[1] ? dabP1Name.textContent : dabP2Name.textContent;
       msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dabScores[0],dabScores[1])+' to '+Math.min(dabScores[0],dabScores[1])+'.';
       if (dabMode !== 'remote') recordWin(dabTally, dabScores[0] > dabScores[1] ? 1 : 2, 'dotden-tally');
       celebrateWin(winnerName+' wins!');
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, winnerName+' wins!', dabScores[0] > dabScores[1] ? 1 : 2, true);
     }
     dabStatusLine.innerHTML = msg;
     renderDabTally();
@@ -1368,6 +1599,7 @@
     dabP2Name.textContent = dabMode === 'ai' ? 'Computer' : 'Player 2';
     dabTallyEl.hidden = false;
     dabRematchBtn.hidden = true;
+    clearLastMoveMarker('dab');
     buildDabBoard(newSize);
     updateDabScores();
     updateDabTurnUI();
@@ -1469,7 +1701,7 @@
     var initial = {
       game:'dab', size:size, edges:[], boxOwner:flatten2D(emptyBoxOwner(size)),
       scores:[0,0], current:1, gameOver:false,
-      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+      players:{p1:CLIENT_ID, p2:null, p1Name:getMyDisplayName(), p2Name:null}, updatedAt: Date.now()
     };
     rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
       subscribeDabRoom(code);
@@ -1484,7 +1716,7 @@
       if (!snap.exists){ dabShowRemoteMsg('No room with that code.'); return; }
       var data = snap.data();
       if (data.players.p2 && data.players.p2 !== CLIENT_ID){ dabShowRemoteMsg('That room is already full.'); return; }
-      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeDabRoom(code); });
+      return ref.update({'players.p2': CLIENT_ID, 'players.p2Name': getMyDisplayName()}).then(function(){ subscribeDabRoom(code); });
     }).catch(function(err){ dabShowRemoteMsg('Could not join: '+err.message); });
   });
   dabLeaveRoomBtn.addEventListener('click', function(){
@@ -1522,6 +1754,16 @@
       subscribeDabRoom(dabRoomCode);
     }
   }, 6000);
+  // Belt-and-suspenders sync: the realtime listener above should be near-instant,
+  // but on flaky networks it can go quiet for several seconds without erroring.
+  // A cheap direct read every couple of seconds bounds the worst-case lag.
+  setInterval(function(){
+    if (dabRoomCode && rdb){
+      rdb.collection('dotden-rooms').doc(dabRoomCode).get({source:'server'}).then(function(snap){
+        if (snap.exists) applyDabRemoteState(snap.data());
+      }).catch(function(){});
+    }
+  }, 2500);
 
   var dabRemoteWasGameOver = false;
   function applyDabRemoteState(data){
@@ -1530,20 +1772,30 @@
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     dabMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
-    dabP1Name.textContent = amP1 ? 'You' : 'Opponent';
-    dabP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    dabP1Name.textContent = amP1 ? 'You' : (data.players.p1Name || 'Opponent');
+    dabP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? (data.players.p2Name || 'Opponent') : 'Waiting…');
     if (!data.players.p2){
       dabStatusLine.innerHTML = 'Room <strong>'+dabRoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, 'Waiting for opponent to join…', 1, true);
     } else if (!data.gameOver){
       var myTurn = data.current === dabMyPlayer;
       dabStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, myTurn ? 'Your move' : (data.current === 1 ? dabP1Name.textContent : dabP2Name.textContent)+"'s move", data.current, false);
     }
-    if (data.lastMove && dabEdges[data.lastMove]) pulseLastMove(dabEdges[data.lastMove].el);
+    if (data.lastMove && dabEdges[data.lastMove]){
+      pulseLastMove(dabEdges[data.lastMove].el);
+      markLastMove('dab', dabEdges[data.lastMove].el, data.lastMoveBy || (data.current === 1 ? 2 : 1));
+    }
     dabRematchBtn.hidden = !data.gameOver;
     if (data.gameOver && !dabRemoteWasGameOver && data.scores[0] !== data.scores[1]){
       var winnerName = data.scores[0] > data.scores[1] ? dabP1Name.textContent : dabP2Name.textContent;
       celebrateWin(winnerName+' wins!');
     }
+    if (data.gameOver){
+      var overText = data.scores[0] === data.scores[1] ? "It's a tie" : (data.scores[0] > data.scores[1] ? dabP1Name.textContent : dabP2Name.textContent)+' wins!';
+      setTurnBanner(dabTurnBanner, dabTurnBannerText, overText, data.scores[0] > data.scores[1] ? 1 : 2, true);
+    }
+    if (!data.lastMove) clearLastMoveMarker('dab');
     dabRemoteWasGameOver = data.gameOver;
   }
 
@@ -1556,7 +1808,7 @@
     };
     var ns = dabApplyMovePure(state, key);
     rdb.collection('dotden-rooms').doc(dabRoomCode).update({
-      edges: ns.edges, boxOwner: flatten2D(ns.boxOwner), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: key, updatedAt: Date.now()
+      edges: ns.edges, boxOwner: flatten2D(ns.boxOwner), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: key, lastMoveBy: dabCurrent, updatedAt: Date.now()
     }).catch(function(err){ dabShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -1589,6 +1841,8 @@
   var dotsStatusLine = document.getElementById('dotsStatusLine');
   var dotsP1Card = document.getElementById('dotsP1Card');
   var dotsP2Card = document.getElementById('dotsP2Card');
+  var dotsTurnBanner = document.getElementById('dotsTurnBanner');
+  var dotsTurnBannerText = document.getElementById('dotsTurnBannerText');
   var dotsP1Score = document.getElementById('dotsP1Score');
   var dotsP2Score = document.getElementById('dotsP2Score');
   var dotsP1Name = document.getElementById('dotsP1Name');
@@ -1771,6 +2025,7 @@
     owner[r][c] = player;
     renderNewDot(r,c,player);
     pulseLastMove(dotEls[r][c]);
+    markLastMove('dots', dotEls[r][c], player);
 
     var captured = computeCaptures(owner, dead, player);
     if (captured.length){
@@ -1815,6 +2070,7 @@
     if (!dGameOver){
       var who = dCurrent === 1 ? dotsP1Name.textContent : dotsP2Name.textContent;
       dotsStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move &mdash; place a dot.';
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, who+"'s move", dCurrent, false);
     }
   }
   function endDotsGame(){
@@ -1824,11 +2080,13 @@
     var msg;
     if (dScores[0] === dScores[1]){
       msg = 'It\'s a tie &mdash; '+dScores[0]+' dots captured each.';
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, "It's a tie", dCurrent, true);
     } else {
       var winnerName = dScores[0] > dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
       msg = '<strong>'+winnerName+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
       if (dMode !== 'remote') recordWin(dotsTally, dScores[0] > dScores[1] ? 1 : 2, 'dotden-dots-tally');
       celebrateWin(winnerName+' wins!');
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, winnerName+' wins!', dScores[0] > dScores[1] ? 1 : 2, true);
     }
     dotsStatusLine.innerHTML = msg;
     renderDotsTally();
@@ -1937,6 +2195,7 @@
     dotsDifficultyField.hidden = dMode !== 'ai';
     dotsTallyEl.hidden = false;
     dotsRematchBtn.hidden = true;
+    clearLastMoveMarker('dots');
     buildDotsBoard(preset[0], preset[1]);
     if (dotsStartSelect.value === 'cross') seedCross();
     updateDotsScores();
@@ -2038,7 +2297,7 @@
     var initial = {
       game:'dots', rows:rows, cols:cols, owner:flatten2D(ownerG), dead:flatten2D(deadG),
       scores:[0,0], current:1, gameOver:false,
-      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+      players:{p1:CLIENT_ID, p2:null, p1Name:getMyDisplayName(), p2Name:null}, updatedAt: Date.now()
     };
     rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
       subscribeDotsRoom(code);
@@ -2053,7 +2312,7 @@
       if (!snap.exists){ dotsShowRemoteMsg('No room with that code.'); return; }
       var data = snap.data();
       if (data.players.p2 && data.players.p2 !== CLIENT_ID){ dotsShowRemoteMsg('That room is already full.'); return; }
-      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeDotsRoom(code); });
+      return ref.update({'players.p2': CLIENT_ID, 'players.p2Name': getMyDisplayName()}).then(function(){ subscribeDotsRoom(code); });
     }).catch(function(err){ dotsShowRemoteMsg('Could not join: '+err.message); });
   });
   dotsLeaveRoomBtn.addEventListener('click', function(){
@@ -2089,6 +2348,13 @@
       subscribeDotsRoom(dotsRoomCode);
     }
   }, 6000);
+  setInterval(function(){
+    if (dotsRoomCode && rdb){
+      rdb.collection('dotden-rooms').doc(dotsRoomCode).get({source:'server'}).then(function(snap){
+        if (snap.exists) applyDotsRemoteState(snap.data());
+      }).catch(function(){});
+    }
+  }, 2500);
 
   var dotsRemoteWasGameOver = false;
   function applyDotsRemoteState(data){
@@ -2100,19 +2366,30 @@
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     dotsMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
-    dotsP1Name.textContent = amP1 ? 'You' : 'Opponent';
-    dotsP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    dotsP1Name.textContent = amP1 ? 'You' : (data.players.p1Name || 'Opponent');
+    dotsP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? (data.players.p2Name || 'Opponent') : 'Waiting…');
     if (!data.players.p2){
       dotsStatusLine.innerHTML = 'Room <strong>'+dotsRoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, 'Waiting for opponent to join…', 1, true);
     } else if (!data.gameOver){
       var myTurn = data.current === dotsMyPlayer;
       dotsStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, myTurn ? 'Your move' : (data.current === 1 ? dotsP1Name.textContent : dotsP2Name.textContent)+"'s move", data.current, false);
     }
-    if (data.lastMove && dotEls[data.lastMove.r] && dotEls[data.lastMove.r][data.lastMove.c]) pulseLastMove(dotEls[data.lastMove.r][data.lastMove.c]);
+    if (data.lastMove && dotEls[data.lastMove.r] && dotEls[data.lastMove.r][data.lastMove.c]){
+      pulseLastMove(dotEls[data.lastMove.r][data.lastMove.c]);
+      markLastMove('dots', dotEls[data.lastMove.r][data.lastMove.c], data.lastMoveBy || (data.current === 1 ? 2 : 1));
+    } else {
+      clearLastMoveMarker('dots');
+    }
     dotsRematchBtn.hidden = !data.gameOver;
     if (data.gameOver && !dotsRemoteWasGameOver && data.scores[0] !== data.scores[1]){
       var winnerName = data.scores[0] > data.scores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
       celebrateWin(winnerName+' wins!');
+    }
+    if (data.gameOver){
+      var overText = data.scores[0] === data.scores[1] ? "It's a tie" : (data.scores[0] > data.scores[1] ? dotsP1Name.textContent : dotsP2Name.textContent)+' wins!';
+      setTurnBanner(dotsTurnBanner, dotsTurnBannerText, overText, data.scores[0] > data.scores[1] ? 1 : 2, true);
     }
     dotsRemoteWasGameOver = data.gameOver;
   }
@@ -2122,7 +2399,7 @@
     var state = {rows:R, cols:C, owner:owner, dead:dead, scores:dScores, current:dCurrent, gameOver:dGameOver};
     var ns = dotsApplyMovePure(state, r, c);
     rdb.collection('dotden-rooms').doc(dotsRoomCode).update({
-      owner: flatten2D(ns.owner), dead: flatten2D(ns.dead), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, updatedAt: Date.now()
+      owner: flatten2D(ns.owner), dead: flatten2D(ns.dead), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, lastMoveBy: dCurrent, updatedAt: Date.now()
     }).catch(function(err){ dotsShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -2154,6 +2431,8 @@
   var c4StatusLine = document.getElementById('c4StatusLine');
   var c4P1Card = document.getElementById('c4P1Card');
   var c4P2Card = document.getElementById('c4P2Card');
+  var c4TurnBanner = document.getElementById('c4TurnBanner');
+  var c4TurnBannerText = document.getElementById('c4TurnBannerText');
   var c4P1Score = document.getElementById('c4P1Score');
   var c4P2Score = document.getElementById('c4P2Score');
   var c4P1Name = document.getElementById('c4P1Name');
@@ -2289,6 +2568,7 @@
     c4Board[row][col] = c4Current;
     renderC4Disc(row, col, c4Current);
     pulseLastMove(c4DiscEls[row][col]);
+    markLastMove('c4', c4DiscEls[row][col], c4Current);
     var win = c4WinningCells(c4Board, row, col, c4Current);
     if (win){
       c4GameOver = true;
@@ -2302,6 +2582,7 @@
       renderC4Tally();
       c4RematchBtn.hidden = false;
       celebrateWin(winnerName+' wins!');
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, winnerName+' wins!', c4Current, true);
       return true;
     }
     if (c4BoardFull(c4Board)){
@@ -2310,6 +2591,7 @@
       c4StatusLine.innerHTML = 'It\'s a tie &mdash; the board filled up.';
       renderC4Tally();
       c4RematchBtn.hidden = false;
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, "It's a tie", c4Current, true);
       return true;
     }
     c4Current = c4Current === 1 ? 2 : 1;
@@ -2331,6 +2613,7 @@
     if (!c4GameOver){
       var who = c4Current === 1 ? c4P1Name.textContent : c4P2Name.textContent;
       c4StatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, who+"'s move", c4Current, false);
     }
   }
   function renderC4Tally(){
@@ -2350,6 +2633,7 @@
     c4P2Name.textContent = c4Mode === 'ai' ? 'Computer' : 'Player 2';
     c4TallyEl.hidden = false;
     c4RematchBtn.hidden = true;
+    clearLastMoveMarker('c4');
     buildC4Board();
     updateC4Scores();
     updateC4TurnUI();
@@ -2539,7 +2823,7 @@
     var initial = {
       game:'c4', rows:C4_ROWS, cols:C4_COLS, board: flatten2D(emptyBoard),
       scores:[0,0], current:1, gameOver:false,
-      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+      players:{p1:CLIENT_ID, p2:null, p1Name:getMyDisplayName(), p2Name:null}, updatedAt: Date.now()
     };
     rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
       subscribeC4Room(code);
@@ -2554,7 +2838,7 @@
       if (!snap.exists){ c4ShowRemoteMsg('No room with that code.'); return; }
       var data = snap.data();
       if (data.players.p2 && data.players.p2 !== CLIENT_ID){ c4ShowRemoteMsg('That room is already full.'); return; }
-      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeC4Room(code); });
+      return ref.update({'players.p2': CLIENT_ID, 'players.p2Name': getMyDisplayName()}).then(function(){ subscribeC4Room(code); });
     }).catch(function(err){ c4ShowRemoteMsg('Could not join: '+err.message); });
   });
   c4LeaveRoomBtn.addEventListener('click', function(){
@@ -2589,6 +2873,13 @@
       subscribeC4Room(c4RoomCode);
     }
   }, 6000);
+  setInterval(function(){
+    if (c4RoomCode && rdb){
+      rdb.collection('dotden-rooms').doc(c4RoomCode).get({source:'server'}).then(function(snap){
+        if (snap.exists) applyC4RemoteState(snap.data());
+      }).catch(function(){});
+    }
+  }, 2500);
 
   var c4RemoteWasGameOver = false;
   function applyC4RemoteState(data){
@@ -2597,15 +2888,22 @@
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     c4MyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
-    c4P1Name.textContent = amP1 ? 'You' : 'Opponent';
-    c4P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    c4P1Name.textContent = amP1 ? 'You' : (data.players.p1Name || 'Opponent');
+    c4P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? (data.players.p2Name || 'Opponent') : 'Waiting…');
     if (!data.players.p2){
       c4StatusLine.innerHTML = 'Room <strong>'+c4RoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, 'Waiting for opponent to join…', 1, true);
     } else if (!data.gameOver){
       var myTurn = data.current === c4MyPlayer;
       c4StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, myTurn ? 'Your move' : (data.current === 1 ? c4P1Name.textContent : c4P2Name.textContent)+"'s move", data.current, false);
     }
-    if (data.lastMove && c4DiscEls[data.lastMove.row] && c4DiscEls[data.lastMove.row][data.lastMove.col]) pulseLastMove(c4DiscEls[data.lastMove.row][data.lastMove.col]);
+    if (data.lastMove && c4DiscEls[data.lastMove.row] && c4DiscEls[data.lastMove.row][data.lastMove.col]){
+      pulseLastMove(c4DiscEls[data.lastMove.row][data.lastMove.col]);
+      markLastMove('c4', c4DiscEls[data.lastMove.row][data.lastMove.col], data.lastMoveBy || (data.current === 1 ? 2 : 1));
+    } else {
+      clearLastMoveMarker('c4');
+    }
     c4RematchBtn.hidden = !data.gameOver;
     if (data.gameOver && !c4RemoteWasGameOver){
       var winner = c4BoardWinner(board);
@@ -2613,6 +2911,11 @@
         var winnerName = winner === 1 ? c4P1Name.textContent : c4P2Name.textContent;
         celebrateWin(winnerName+' wins!');
       }
+    }
+    if (data.gameOver){
+      var winner2 = c4BoardWinner(board);
+      var overText = winner2 ? (winner2 === 1 ? c4P1Name.textContent : c4P2Name.textContent)+' wins!' : "It's a tie";
+      setTurnBanner(c4TurnBanner, c4TurnBannerText, overText, winner2 || data.current, true);
     }
     c4RemoteWasGameOver = data.gameOver;
   }
@@ -2623,7 +2926,7 @@
     var state = {rows:C4_ROWS, cols:C4_COLS, board:c4Board, scores:c4Scores, current:c4Current, gameOver:c4GameOver};
     var ns = c4ApplyMovePure(state, col);
     rdb.collection('dotden-rooms').doc(c4RoomCode).update({
-      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{row:row,col:col}, updatedAt: Date.now()
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{row:row,col:col}, lastMoveBy: c4Current, updatedAt: Date.now()
     }).catch(function(err){ c4ShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -2693,6 +2996,8 @@
   var revStatusLine = document.getElementById('revStatusLine');
   var revP1Card = document.getElementById('revP1Card');
   var revP2Card = document.getElementById('revP2Card');
+  var revTurnBanner = document.getElementById('revTurnBanner');
+  var revTurnBannerText = document.getElementById('revTurnBannerText');
   var revP1Score = document.getElementById('revP1Score');
   var revP2Score = document.getElementById('revP2Score');
   var revP1Name = document.getElementById('revP1Name');
@@ -2847,6 +3152,7 @@
     makeRevMove(r,c);
   }
   function makeRevMove(r,c){
+    var mover = revCurrent;
     var res = revApplyMove(revBoard, r, c, revCurrent);
     if (!res) return false;
     revBoard = res.board;
@@ -2857,6 +3163,7 @@
     if (nx.over){
       renderRevBoard();
       pulseLastMove(revDiscEls[r][c]);
+      markLastMove('rev', revDiscEls[r][c], mover);
       finishRevGame();
       return true;
     }
@@ -2864,6 +3171,7 @@
     revCurrent = nx.next;
     renderRevBoard();
     pulseLastMove(revDiscEls[r][c]);
+    markLastMove('rev', revDiscEls[r][c], mover);
     updateRevTurnUI(passed);
     if (!revGameOver && revMode==='ai' && revCurrent===2){
       revStatusLine.innerHTML = 'Computer is thinking&hellip;';
@@ -2884,8 +3192,10 @@
       revStatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; '+counts[winner-1]+' to '+counts[winner===1?1:0]+'.';
       if (revMode!=='remote') recordWin(revTally, winner, 'dotden-rev-tally');
       celebrateWin(wn+' wins!');
+      setTurnBanner(revTurnBanner, revTurnBannerText, wn+' wins!', winner, true);
     } else {
       revStatusLine.innerHTML = 'It\'s a tie &mdash; '+counts[0]+' to '+counts[1]+'.';
+      setTurnBanner(revTurnBanner, revTurnBannerText, "It's a tie", revCurrent, true);
     }
     renderRevTally();
     revRematchBtn.hidden = false;
@@ -2902,6 +3212,7 @@
       } else {
         revStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
       }
+      setTurnBanner(revTurnBanner, revTurnBannerText, who+"'s move", revCurrent, false);
     }
   }
   function renderRevTally(){
@@ -2919,6 +3230,7 @@
     revP2Name.textContent = revMode==='ai' ? 'Computer' : 'Player 2';
     revTallyEl.hidden = false;
     revRematchBtn.hidden = true;
+    clearLastMoveMarker('rev');
     buildRevBoard();
     var counts = revCount(revBoard);
     revScores = counts;
@@ -3064,7 +3376,7 @@
     var code = makeRoomCode();
     var initial = {
       game:'rev', board: flatten2D(revInitBoard()), scores:[2,2], current:1, gameOver:false,
-      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+      players:{p1:CLIENT_ID, p2:null, p1Name:getMyDisplayName(), p2Name:null}, updatedAt: Date.now()
     };
     rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
       subscribeRevRoom(code);
@@ -3079,7 +3391,7 @@
       if (!snap.exists){ revShowRemoteMsg('No room with that code.'); return; }
       var data = snap.data();
       if (data.players.p2 && data.players.p2 !== CLIENT_ID){ revShowRemoteMsg('That room is already full.'); return; }
-      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeRevRoom(code); });
+      return ref.update({'players.p2': CLIENT_ID, 'players.p2Name': getMyDisplayName()}).then(function(){ subscribeRevRoom(code); });
     }).catch(function(err){ revShowRemoteMsg('Could not join: '+err.message); });
   });
   revLeaveRoomBtn.addEventListener('click', function(){
@@ -3114,6 +3426,13 @@
       subscribeRevRoom(revRoomCode);
     }
   }, 6000);
+  setInterval(function(){
+    if (revRoomCode && rdb){
+      rdb.collection('dotden-rooms').doc(revRoomCode).get({source:'server'}).then(function(snap){
+        if (snap.exists) applyRevRemoteState(snap.data());
+      }).catch(function(){});
+    }
+  }, 2500);
 
   var revRemoteWasGameOver = false;
   function applyRevRemoteState(data){
@@ -3121,24 +3440,33 @@
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     revMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
-    revP1Name.textContent = amP1 ? 'You' : 'Opponent';
-    revP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    revP1Name.textContent = amP1 ? 'You' : (data.players.p1Name || 'Opponent');
+    revP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? (data.players.p2Name || 'Opponent') : 'Waiting…');
     if (!data.players.p2){
       revStatusLine.innerHTML = 'Room <strong>'+revRoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+      setTurnBanner(revTurnBanner, revTurnBannerText, 'Waiting for opponent to join…', 1, true);
     } else if (!data.gameOver){
       var myTurn = data.current === revMyPlayer;
       revStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+      setTurnBanner(revTurnBanner, revTurnBannerText, myTurn ? 'Your move' : (data.current === 1 ? revP1Name.textContent : revP2Name.textContent)+"'s move", data.current, false);
     }
-    if (data.lastMove && revDiscEls[data.lastMove.r] && revDiscEls[data.lastMove.r][data.lastMove.c]) pulseLastMove(revDiscEls[data.lastMove.r][data.lastMove.c]);
+    if (data.lastMove && revDiscEls[data.lastMove.r] && revDiscEls[data.lastMove.r][data.lastMove.c]){
+      pulseLastMove(revDiscEls[data.lastMove.r][data.lastMove.c]);
+      markLastMove('rev', revDiscEls[data.lastMove.r][data.lastMove.c], data.lastMoveBy || (data.current === 1 ? 2 : 1));
+    } else {
+      clearLastMoveMarker('rev');
+    }
     revRematchBtn.hidden = !data.gameOver;
-    if (data.gameOver && !revRemoteWasGameOver){
+    var winner = 0;
+    if (data.gameOver){
       var counts = data.scores;
-      var winner = 0;
       if (counts[0]>counts[1]) winner=1; else if (counts[1]>counts[0]) winner=2;
-      if (winner){
+      if (!revRemoteWasGameOver && winner){
         var wn = winner===1 ? revP1Name.textContent : revP2Name.textContent;
         celebrateWin(wn+' wins!');
       }
+      var overText = winner ? (winner===1 ? revP1Name.textContent : revP2Name.textContent)+' wins!' : "It's a tie";
+      setTurnBanner(revTurnBanner, revTurnBannerText, overText, winner || data.current, true);
     }
     revRemoteWasGameOver = data.gameOver;
   }
@@ -3148,7 +3476,7 @@
     var state = {board: revBoard, current: revCurrent, gameOver: revGameOver};
     var ns = revApplyMovePure(state, r, c);
     rdb.collection('dotden-rooms').doc(revRoomCode).update({
-      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, updatedAt: Date.now()
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove:{r:r,c:c}, lastMoveBy: revCurrent, updatedAt: Date.now()
     }).catch(function(err){ revShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -3204,6 +3532,8 @@
   var t3StatusLine = document.getElementById('t3StatusLine');
   var t3P1Card = document.getElementById('t3P1Card');
   var t3P2Card = document.getElementById('t3P2Card');
+  var t3TurnBanner = document.getElementById('t3TurnBanner');
+  var t3TurnBannerText = document.getElementById('t3TurnBannerText');
   var t3P1Score = document.getElementById('t3P1Score');
   var t3P2Score = document.getElementById('t3P2Score');
   var t3P1Name = document.getElementById('t3P1Name');
@@ -3346,6 +3676,7 @@
     t3Board[idx] = t3Current;
     renderT3Board();
     pulseLastMove(t3CellEls[idx]);
+    markLastMove('t3', t3CellEls[idx], t3Current);
     var win = t3Winner(t3Board);
     if (win){
       t3GameOver = true;
@@ -3359,6 +3690,7 @@
       renderT3Tally();
       t3RematchBtn.hidden = false;
       celebrateWin(winnerName+' wins!');
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, winnerName+' wins!', t3Current, true);
       return true;
     }
     if (t3BoardFull(t3Board)){
@@ -3367,6 +3699,7 @@
       t3StatusLine.innerHTML = 'It\'s a tie &mdash; the cube filled up.';
       renderT3Tally();
       t3RematchBtn.hidden = false;
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, "It's a tie", t3Current, true);
       return true;
     }
     t3Current = t3Current===1 ? 2 : 1;
@@ -3384,6 +3717,7 @@
     if (!t3GameOver){
       var who = t3Current===1 ? t3P1Name.textContent : t3P2Name.textContent;
       t3StatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, who+"'s move", t3Current, false);
     }
   }
   function renderT3Tally(){
@@ -3402,6 +3736,7 @@
     t3P2Name.textContent = t3Mode==='ai' ? 'Computer' : 'Player 2';
     t3TallyEl.hidden = false;
     t3RematchBtn.hidden = true;
+    clearLastMoveMarker('t3');
     buildT3Board();
     updateT3Scores();
     updateT3TurnUI();
@@ -3575,7 +3910,7 @@
     var code = makeRoomCode();
     var initial = {
       game:'t3', board: t3EmptyBoard(), scores:[0,0], current:1, gameOver:false,
-      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+      players:{p1:CLIENT_ID, p2:null, p1Name:getMyDisplayName(), p2Name:null}, updatedAt: Date.now()
     };
     rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
       subscribeT3Room(code);
@@ -3590,7 +3925,7 @@
       if (!snap.exists){ t3ShowRemoteMsg('No room with that code.'); return; }
       var data = snap.data();
       if (data.players.p2 && data.players.p2 !== CLIENT_ID){ t3ShowRemoteMsg('That room is already full.'); return; }
-      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeT3Room(code); });
+      return ref.update({'players.p2': CLIENT_ID, 'players.p2Name': getMyDisplayName()}).then(function(){ subscribeT3Room(code); });
     }).catch(function(err){ t3ShowRemoteMsg('Could not join: '+err.message); });
   });
   t3LeaveRoomBtn.addEventListener('click', function(){
@@ -3625,6 +3960,13 @@
       subscribeT3Room(t3RoomCode);
     }
   }, 6000);
+  setInterval(function(){
+    if (t3RoomCode && rdb){
+      rdb.collection('dotden-rooms').doc(t3RoomCode).get({source:'server'}).then(function(snap){
+        if (snap.exists) applyT3RemoteState(snap.data());
+      }).catch(function(){});
+    }
+  }, 2500);
 
   var t3RemoteWasGameOver = false;
   function applyT3RemoteState(data){
@@ -3632,22 +3974,31 @@
     var amP1 = data.players.p1 === CLIENT_ID;
     var amP2 = data.players.p2 === CLIENT_ID;
     t3MyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
-    t3P1Name.textContent = amP1 ? 'You' : 'Opponent';
-    t3P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    t3P1Name.textContent = amP1 ? 'You' : (data.players.p1Name || 'Opponent');
+    t3P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? (data.players.p2Name || 'Opponent') : 'Waiting…');
     if (!data.players.p2){
       t3StatusLine.innerHTML = 'Room <strong>'+t3RoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, 'Waiting for opponent to join…', 1, true);
     } else if (!data.gameOver){
       var myTurn = data.current === t3MyPlayer;
       t3StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, myTurn ? 'Your move' : (data.current === 1 ? t3P1Name.textContent : t3P2Name.textContent)+"'s move", data.current, false);
     }
-    if (data.lastMove !== undefined && data.lastMove !== null && t3CellEls[data.lastMove]) pulseLastMove(t3CellEls[data.lastMove]);
+    if (data.lastMove !== undefined && data.lastMove !== null && t3CellEls[data.lastMove]){
+      pulseLastMove(t3CellEls[data.lastMove]);
+      markLastMove('t3', t3CellEls[data.lastMove], data.lastMoveBy || (data.current === 1 ? 2 : 1));
+    } else {
+      clearLastMoveMarker('t3');
+    }
     t3RematchBtn.hidden = !data.gameOver;
-    if (data.gameOver && !t3RemoteWasGameOver){
+    if (data.gameOver){
       var winner = t3Winner(data.board);
-      if (winner){
+      if (!t3RemoteWasGameOver && winner){
         var wn = winner.player===1 ? t3P1Name.textContent : t3P2Name.textContent;
         celebrateWin(wn+' wins!');
       }
+      var overText = winner ? (winner.player===1 ? t3P1Name.textContent : t3P2Name.textContent)+' wins!' : "It's a tie";
+      setTurnBanner(t3TurnBanner, t3TurnBannerText, overText, winner ? winner.player : data.current, true);
     }
     t3RemoteWasGameOver = data.gameOver;
   }
@@ -3657,7 +4008,7 @@
     var state = {board: t3Board, scores: t3Scores, current: t3Current, gameOver: t3GameOver};
     var ns = t3ApplyMovePure(state, idx);
     rdb.collection('dotden-rooms').doc(t3RoomCode).update({
-      board: ns.board, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: idx, updatedAt: Date.now()
+      board: ns.board, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, lastMove: idx, lastMoveBy: t3Current, updatedAt: Date.now()
     }).catch(function(err){ t3ShowRemoteMsg('Move failed: '+err.message); });
   }
 
@@ -3737,6 +4088,41 @@
       celebrateWin._t2 = setTimeout(function(){ winOverlayEl.innerHTML = ''; }, 400);
     }, 2200);
   }
+
+  // Persistent (not just transient-pulse) marker on whichever cell/piece was
+  // the last move made, colored by whoever made it, so a player can see at a
+  // glance where their own and their opponent's last turns landed.
+  var lastMoveMarkers = {};
+  function markLastMove(gameKey, el, player){
+    var prev = lastMoveMarkers[gameKey];
+    if (prev && prev !== el) prev.classList.remove('last-move-p1','last-move-p2');
+    if (!el) { lastMoveMarkers[gameKey] = null; return; }
+    el.classList.remove('last-move-p1','last-move-p2');
+    el.classList.add(player === 1 ? 'last-move-p1' : 'last-move-p2');
+    lastMoveMarkers[gameKey] = el;
+  }
+  function clearLastMoveMarker(gameKey){
+    var prev = lastMoveMarkers[gameKey];
+    if (prev) prev.classList.remove('last-move-p1','last-move-p2');
+    lastMoveMarkers[gameKey] = null;
+  }
+
+  // Sticky "whose turn" banner shown at the top of every game view, colored
+  // to match the player whose turn it is (or neutral once the game is over).
+  function setTurnBanner(bannerEl, textEl, text, player, over){
+    if (!bannerEl || !textEl) return;
+    textEl.textContent = text;
+    bannerEl.style.setProperty('--p-color', player === 2 ? 'var(--p2)' : 'var(--p1)');
+    bannerEl.classList.toggle('over', !!over);
+  }
+
+  function updateHeaderHeightVar(){
+    var header = document.querySelector('header.site');
+    if (!header) return;
+    document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+  }
+  updateHeaderHeightVar();
+  window.addEventListener('resize', updateHeaderHeightVar);
 
   /* =====================================================================
      shared: per-device tally storage
