@@ -1814,4 +1814,23 @@
     updateDotsScores();
     if (dGameOver){
       dotsP1Card.classList.remove('active'); dotsP2Card.classList.remove('active');
-      if (dScores[0]===dScores[1]) dotsStatusLine.innerHTML = 'It\'s a tie &mdash; '+dSco
+      if (dScores[0]===dScores[1]) dotsStatusLine.innerHTML = 'It\'s a tie &mdash; '+dScores[0]+' dots captured each.';
+      else{
+        var wn2 = dScores[0]>dScores[1] ? dotsP1Name.textContent : dotsP2Name.textContent;
+        dotsStatusLine.innerHTML = '<strong>'+wn2+' wins</strong> &mdash; '+Math.max(dScores[0],dScores[1])+' to '+Math.min(dScores[0],dScores[1])+' dots captured.';
+      }
+    } else if (data.mode !== 'remote'){
+      updateDotsTurnUI();
+    }
+    if (data.mode !== 'remote') renderDotsTally();
+    return true;
+  }
+
+  // fresh load — just show the hub, boards build lazily when a game is opened
+  showHub();
+  renderDabTally();
+  renderDotsTally();
+})();
+</script>
+</body>
+</html>
