@@ -326,6 +326,29 @@
   .c4-preview{fill-opacity:.35;pointer-events:none;transition:opacity .12s ease;opacity:0;}
   .c4-preview.show{opacity:1;}
 
+  /* reversi board */
+  .rev-cell-hit{fill:transparent;cursor:pointer;}
+  .rev-cell-hit:hover{fill:color-mix(in srgb, var(--accent) 10%, transparent);}
+  .rev-cell-hit.legal{fill:color-mix(in srgb, var(--p1) 8%, transparent);}
+  .rev-grid-line{stroke:var(--line);stroke-width:1;pointer-events:none;}
+  .rev-disc{pointer-events:none;transition:opacity .15s ease;}
+  .rev-disc.p1{fill:var(--p1);}
+  .rev-disc.p2{fill:var(--p2);}
+  .rev-disc.hint{opacity:.28;}
+  .rev-disc.win{animation:dotsPulse .5s ease 2;}
+
+  /* 3d tic-tac-toe board */
+  .t3-boards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+  .t3-layer{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .t3-layer-label{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+  .t3-grid{display:grid;grid-template-columns:repeat(4,40px);grid-template-rows:repeat(4,40px);gap:4px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);}
+  .t3-cell{width:40px;height:40px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);cursor:pointer;display:grid;place-items:center;font-family:'Unbounded',sans-serif;font-weight:700;font-size:1rem;color:transparent;transition:background .15s ease, border-color .15s ease;padding:0;}
+  .t3-cell:hover{border-color:var(--accent);}
+  .t3-cell.p1{color:var(--p1);}
+  .t3-cell.p2{color:var(--p2);}
+  .t3-cell.win{background:color-mix(in srgb, var(--accent) 16%, transparent);border-color:var(--accent);}
+  .t3-cell[disabled]{cursor:default;}
+
   .side-panel{display:flex;flex-direction:column;gap:14px;}
   .score-card{
     border:1px solid var(--line);
@@ -413,7 +436,7 @@
           A small arcade, growing one game at a time
         </div>
         <h1 style="margin-top:14px;">Claim the box.<br>Surround the <em>rival.</em></h1>
-        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Three are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots, and the drop-and-line classic <strong>Connect Four</strong>. All three play hot-seat, against the computer, or online against someone in another location.</p>
+        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Five are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots, the drop-and-line classic <strong>Connect Four</strong>, the flanking-capture classic <strong>Reversi</strong>, and a cube-sized <strong>3D Tic-Tac-Toe</strong>. All five play hot-seat, against the computer, or online against someone in another location.</p>
         <div class="hero-actions" style="margin-top:18px;">
           <button class="btn primary" id="playFromHero">Play Dots &amp; Boxes</button>
           <button class="btn ghost" id="playFromHeroDots">Play Dots</button>
@@ -423,7 +446,7 @@
 
     <div class="section-head">
       <h2>Games</h2>
-      <span class="count" id="gameCount">3 playable · 1 in the works</span>
+      <span class="count" id="gameCount">5 playable · 1 in the works</span>
     </div>
     <div class="games-grid">
 
@@ -465,6 +488,26 @@
         <h3>Memory Match</h3>
         <p>Flip two, find the pair, keep the streak alive. A quiet little test of recall.</p>
         <button class="btn small" disabled>Coming soon</button>
+      </div>
+
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="2.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="2.3" fill="currentColor" opacity=".35"/><circle cx="8.5" cy="15.5" r="2.3" fill="currentColor" opacity=".35"/><circle cx="15.5" cy="15.5" r="2.3" fill="currentColor"/></svg>
+        </span>
+        <h3>Reversi</h3>
+        <p>Sandwich their discs between two of yours and they flip to your side. Whoever owns more of the board when it fills wins.</p>
+        <button class="btn primary" id="playFromCardRev">Play now</button>
+      </div>
+
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" opacity=".4"/><rect x="9" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" opacity=".7"/><rect x="15" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M6 9L12 6M13 6L18 12" stroke="currentColor" stroke-width="1.4" opacity=".5"/></svg>
+        </span>
+        <h3>3D Tic-Tac-Toe</h3>
+        <p>Four layers, four in a row to win &mdash; across a layer, straight up through them, or on a slanted line through the whole cube.</p>
+        <button class="btn primary" id="playFromCardT3">Play now</button>
       </div>
 
     </div>
@@ -688,6 +731,142 @@
     </div>
   </section>
 
+  <!-- REVERSI VIEW -->
+  <section class="view" id="view-rev" hidden>
+    <div class="game-header">
+      <div>
+        <h2>Reversi</h2>
+        <p>Place a disc so it sandwiches a line of the opponent's discs between yours &mdash; every disc in that line flips to your color. Most discs when the board is full wins.</p>
+      </div>
+      <button class="btn ghost small" id="backToHubRev">← Back to hub</button>
+    </div>
+
+    <div class="controls-bar">
+      <div class="field">
+        <label for="revModeSelect">Opponent</label>
+        <select id="revModeSelect">
+          <option value="pvp">Two players (same screen)</option>
+          <option value="ai">Computer</option>
+          <option value="remote">Play online (remote)</option>
+        </select>
+      </div>
+      <div class="field" id="revDifficultyField">
+        <label for="revDifficultySelect">Difficulty</label>
+        <select id="revDifficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn primary small" id="revNewGameBtn">New game</button>
+    </div>
+
+    <div class="controls-bar remote-panel" id="revRemotePanel" hidden>
+      <div class="field" style="flex:1;min-width:240px;">
+        <label>Play online</label>
+        <div class="remote-row" id="revRemoteIdle">
+          <button class="btn primary small" id="revCreateRoomBtn">Create room</button>
+          <span style="color:var(--muted);font-size:.82rem;">or</span>
+          <input class="code-input" id="revJoinCodeInput" placeholder="CODE" maxlength="5">
+          <button class="btn small" id="revJoinRoomBtn">Join</button>
+        </div>
+        <div class="remote-row" id="revRemoteConnected" hidden>
+          <span>Room</span>
+          <span class="remote-code" id="revRoomCodeLabel"></span>
+          <button class="btn ghost small" id="revLeaveRoomBtn">Leave room</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-layout">
+      <div class="board-panel">
+        <svg id="revBoard" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="side-panel">
+        <div class="score-card" id="revP1Card" style="--p-color:var(--p1);">
+          <span class="name"><span class="turn-dot"></span><span id="revP1Name">Player 1</span></span>
+          <span class="score mono" id="revP1Score">2</span>
+        </div>
+        <div class="score-card" id="revP2Card" style="--p-color:var(--p2);">
+          <span class="name"><span class="turn-dot"></span><span id="revP2Name">Player 2</span></span>
+          <span class="score mono" id="revP2Score">2</span>
+        </div>
+        <div class="status-line" id="revStatusLine">Player 1's move &mdash; place a disc to begin.</div>
+        <div class="tally" id="revTally"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3D TIC-TAC-TOE VIEW -->
+  <section class="view" id="view-t3" hidden>
+    <div class="game-header">
+      <div>
+        <h2>3D Tic-Tac-Toe</h2>
+        <p>Four 4×4 layers stacked into a cube. Get four of your own in a row &mdash; within a layer, straight through all four layers, or on a diagonal that cuts through the whole cube &mdash; to win.</p>
+      </div>
+      <button class="btn ghost small" id="backToHubT3">← Back to hub</button>
+    </div>
+
+    <div class="controls-bar">
+      <div class="field">
+        <label for="t3ModeSelect">Opponent</label>
+        <select id="t3ModeSelect">
+          <option value="pvp">Two players (same screen)</option>
+          <option value="ai">Computer</option>
+          <option value="remote">Play online (remote)</option>
+        </select>
+      </div>
+      <div class="field" id="t3DifficultyField">
+        <label for="t3DifficultySelect">Difficulty</label>
+        <select id="t3DifficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn primary small" id="t3NewGameBtn">New game</button>
+    </div>
+
+    <div class="controls-bar remote-panel" id="t3RemotePanel" hidden>
+      <div class="field" style="flex:1;min-width:240px;">
+        <label>Play online</label>
+        <div class="remote-row" id="t3RemoteIdle">
+          <button class="btn primary small" id="t3CreateRoomBtn">Create room</button>
+          <span style="color:var(--muted);font-size:.82rem;">or</span>
+          <input class="code-input" id="t3JoinCodeInput" placeholder="CODE" maxlength="5">
+          <button class="btn small" id="t3JoinRoomBtn">Join</button>
+        </div>
+        <div class="remote-row" id="t3RemoteConnected" hidden>
+          <span>Room</span>
+          <span class="remote-code" id="t3RoomCodeLabel"></span>
+          <button class="btn ghost small" id="t3LeaveRoomBtn">Leave room</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-layout">
+      <div class="board-panel">
+        <div class="t3-boards" id="t3Boards"></div>
+      </div>
+      <div class="side-panel">
+        <div class="score-card" id="t3P1Card" style="--p-color:var(--p1);">
+          <span class="name"><span class="turn-dot"></span><span id="t3P1Name">Player 1</span></span>
+          <span class="score mono" id="t3P1Score">0</span>
+        </div>
+        <div class="score-card" id="t3P2Card" style="--p-color:var(--p2);">
+          <span class="name"><span class="turn-dot"></span><span id="t3P2Name">Player 2</span></span>
+          <span class="score mono" id="t3P2Score">0</span>
+        </div>
+        <div class="status-line" id="t3StatusLine">Player 1's move &mdash; place a mark to begin.</div>
+        <div class="tally" id="t3Tally"></div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="site">
@@ -789,6 +968,8 @@
   var viewDab = document.getElementById('view-dab');
   var viewDots = document.getElementById('view-dots');
   var viewC4 = document.getElementById('view-c4');
+  var viewRev = document.getElementById('view-rev');
+  var viewT3 = document.getElementById('view-t3');
   var backNote = document.getElementById('backNote');
   var activeView = 'hub';
 
@@ -796,6 +977,8 @@
     viewDab.hidden = true;
     viewDots.hidden = true;
     viewC4.hidden = true;
+    viewRev.hidden = true;
+    viewT3.hidden = true;
     viewHub.hidden = false;
     backNote.hidden = true;
     activeView = 'hub';
@@ -805,6 +988,8 @@
     viewHub.hidden = true;
     viewDots.hidden = true;
     viewC4.hidden = true;
+    viewRev.hidden = true;
+    viewT3.hidden = true;
     viewDab.hidden = false;
     backNote.hidden = false;
     backNote.textContent = 'Playing: Dots & Boxes';
@@ -816,6 +1001,8 @@
     viewHub.hidden = true;
     viewDab.hidden = true;
     viewC4.hidden = true;
+    viewRev.hidden = true;
+    viewT3.hidden = true;
     viewDots.hidden = false;
     backNote.hidden = false;
     backNote.textContent = 'Playing: Dots';
@@ -827,6 +1014,8 @@
     viewHub.hidden = true;
     viewDab.hidden = true;
     viewDots.hidden = true;
+    viewRev.hidden = true;
+    viewT3.hidden = true;
     viewC4.hidden = false;
     backNote.hidden = false;
     backNote.textContent = 'Playing: Connect Four';
@@ -834,17 +1023,47 @@
     window.scrollTo({top:0, behavior:'smooth'});
     if (!c4BoardBuilt) newC4Game();
   }
+  function showRev(){
+    viewHub.hidden = true;
+    viewDab.hidden = true;
+    viewDots.hidden = true;
+    viewC4.hidden = true;
+    viewT3.hidden = true;
+    viewRev.hidden = false;
+    backNote.hidden = false;
+    backNote.textContent = 'Playing: Reversi';
+    activeView = 'rev';
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (!revBoardBuilt) newRevGame();
+  }
+  function showT3(){
+    viewHub.hidden = true;
+    viewDab.hidden = true;
+    viewDots.hidden = true;
+    viewC4.hidden = true;
+    viewRev.hidden = true;
+    viewT3.hidden = false;
+    backNote.hidden = false;
+    backNote.textContent = 'Playing: 3D Tic-Tac-Toe';
+    activeView = 't3';
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (!t3BoardBuilt) newT3Game();
+  }
 
   document.getElementById('logoBtn').addEventListener('click', showHub);
   document.getElementById('hubLink').addEventListener('click', showHub);
   document.getElementById('backToHubDab').addEventListener('click', showHub);
   document.getElementById('backToHubDots').addEventListener('click', showHub);
   document.getElementById('backToHubC4').addEventListener('click', showHub);
+  document.getElementById('backToHubRev').addEventListener('click', showHub);
+  document.getElementById('backToHubT3').addEventListener('click', showHub);
   document.getElementById('playFromHero').addEventListener('click', showDab);
   document.getElementById('playFromCard').addEventListener('click', showDab);
   document.getElementById('playFromHeroDots').addEventListener('click', showDots);
   document.getElementById('playFromCardDots').addEventListener('click', showDots);
   document.getElementById('playFromCardC4').addEventListener('click', showC4);
+  document.getElementById('playFromCardRev').addEventListener('click', showRev);
+  document.getElementById('playFromCardT3').addEventListener('click', showT3);
 
   /* =====================================================================
      GAME 1 — DOTS & BOXES
@@ -2318,6 +2537,964 @@
   }
 
   /* =====================================================================
+     GAME 4 — REVERSI
+  ===================================================================== */
+  var revSvg = document.getElementById('revBoard');
+  var revModeSelect = document.getElementById('revModeSelect');
+  var revDifficultySelect = document.getElementById('revDifficultySelect');
+  var revDifficultyField = document.getElementById('revDifficultyField');
+  var revNewGameBtn = document.getElementById('revNewGameBtn');
+  var revStatusLine = document.getElementById('revStatusLine');
+  var revP1Card = document.getElementById('revP1Card');
+  var revP2Card = document.getElementById('revP2Card');
+  var revP1Score = document.getElementById('revP1Score');
+  var revP2Score = document.getElementById('revP2Score');
+  var revP1Name = document.getElementById('revP1Name');
+  var revP2Name = document.getElementById('revP2Name');
+  var revTallyEl = document.getElementById('revTally');
+  var revRemotePanel = document.getElementById('revRemotePanel');
+  var revRemoteIdle = document.getElementById('revRemoteIdle');
+  var revRemoteConnected = document.getElementById('revRemoteConnected');
+  var revRoomCodeLabel = document.getElementById('revRoomCodeLabel');
+  var revCreateRoomBtn = document.getElementById('revCreateRoomBtn');
+  var revJoinRoomBtn = document.getElementById('revJoinRoomBtn');
+  var revJoinCodeInput = document.getElementById('revJoinCodeInput');
+  var revLeaveRoomBtn = document.getElementById('revLeaveRoomBtn');
+
+  var REV_CELL = 70;
+  var REV_DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+  var revBoard = [];
+  var revCurrent = 1, revGameOver = false, revMode = 'pvp', revDifficulty = 'medium';
+  var revBoardBuilt = false;
+  var revScores = [2,2];
+  var revTally = loadTally('dotden-rev-tally');
+  var revRoomUnsub = null, revRoomCode = null, revMyPlayer = null;
+  var revDiscEls = [], revCellHits = [];
+
+  function revInitBoard(){
+    var b = [];
+    for (var r=0;r<8;r++) b.push(new Array(8).fill(0));
+    b[3][3]=2; b[3][4]=1; b[4][3]=1; b[4][4]=2;
+    return b;
+  }
+  function revFlipsForMove(board, r, c, player){
+    if (board[r][c] !== 0) return [];
+    var opp = player === 1 ? 2 : 1;
+    var allFlips = [];
+    for (var d=0; d<REV_DIRS.length; d++){
+      var dr = REV_DIRS[d][0], dc = REV_DIRS[d][1];
+      var rr = r+dr, cc = c+dc;
+      var line = [];
+      while (rr>=0 && rr<8 && cc>=0 && cc<8 && board[rr][cc]===opp){
+        line.push([rr,cc]); rr+=dr; cc+=dc;
+      }
+      if (line.length>0 && rr>=0 && rr<8 && cc>=0 && cc<8 && board[rr][cc]===player){
+        allFlips = allFlips.concat(line);
+      }
+    }
+    return allFlips;
+  }
+  function revLegalMoves(board, player){
+    var moves = [];
+    for (var r=0;r<8;r++){
+      for (var c=0;c<8;c++){
+        if (board[r][c]===0 && revFlipsForMove(board,r,c,player).length>0) moves.push([r,c]);
+      }
+    }
+    return moves;
+  }
+  function revApplyMove(board, r, c, player){
+    var flips = revFlipsForMove(board, r, c, player);
+    if (flips.length===0) return null;
+    var nb = board.map(function(row){ return row.slice(); });
+    nb[r][c] = player;
+    flips.forEach(function(p){ nb[p[0]][p[1]] = player; });
+    return {board: nb, flips: flips};
+  }
+  function revCount(board){
+    var c1=0, c2=0;
+    for (var r=0;r<8;r++){ for (var c=0;c<8;c++){ if (board[r][c]===1) c1++; else if (board[r][c]===2) c2++; } }
+    return [c1,c2];
+  }
+  function revGameOverBoard(board){
+    return revLegalMoves(board,1).length===0 && revLegalMoves(board,2).length===0;
+  }
+  function revNextPlayerOrGameOver(board, justMoved){
+    var opp = justMoved === 1 ? 2 : 1;
+    if (revLegalMoves(board,opp).length>0) return {next: opp, over: false};
+    if (revLegalMoves(board,justMoved).length>0) return {next: justMoved, over: false};
+    return {next: null, over: true};
+  }
+
+  function buildRevBoard(){
+    revSvg.innerHTML = '';
+    revBoard = revInitBoard();
+    revDiscEls = [];
+    revCellHits = [];
+    for (var r=0;r<8;r++) revDiscEls.push([]);
+    for (var i=0;i<=8;i++){
+      var vline = svgNS('line');
+      vline.setAttribute('class','rev-grid-line');
+      vline.setAttribute('x1', i*REV_CELL); vline.setAttribute('y1', 0);
+      vline.setAttribute('x2', i*REV_CELL); vline.setAttribute('y2', 560);
+      revSvg.appendChild(vline);
+      var hline = svgNS('line');
+      hline.setAttribute('class','rev-grid-line');
+      hline.setAttribute('x1', 0); hline.setAttribute('y1', i*REV_CELL);
+      hline.setAttribute('x2', 560); hline.setAttribute('y2', i*REV_CELL);
+      revSvg.appendChild(hline);
+    }
+    var _loop = function(r2,c2){
+      var cx = c2*REV_CELL + REV_CELL/2, cy = r2*REV_CELL + REV_CELL/2;
+      var hit = svgNS('rect');
+      hit.setAttribute('class','rev-cell-hit');
+      hit.setAttribute('x', c2*REV_CELL); hit.setAttribute('y', r2*REV_CELL);
+      hit.setAttribute('width', REV_CELL); hit.setAttribute('height', REV_CELL);
+      hit.setAttribute('tabindex','0');
+      hit.setAttribute('role','button');
+      hit.setAttribute('aria-label', 'Row '+(r2+1)+' column '+(c2+1));
+      hit.addEventListener('click', function(){ handleRevCellClick(r2,c2); });
+      hit.addEventListener('keydown', function(e){
+        if (e.key==='Enter' || e.key===' '){ e.preventDefault(); handleRevCellClick(r2,c2); }
+      });
+      revSvg.appendChild(hit);
+      revCellHits[r2].push(hit);
+      var disc = svgNS('circle');
+      disc.setAttribute('class','rev-disc');
+      disc.setAttribute('cx', cx); disc.setAttribute('cy', cy); disc.setAttribute('r', REV_CELL/2-6);
+      disc.style.opacity = 0;
+      revSvg.appendChild(disc);
+      revDiscEls[r2].push(disc);
+    };
+    for (var r=0;r<8;r++){
+      revCellHits.push([]);
+      for (var c=0;c<8;c++) _loop(r,c);
+    }
+    renderRevBoard();
+    revBoardBuilt = true;
+  }
+  function renderRevBoard(){
+    for (var r=0;r<8;r++){
+      for (var c=0;c<8;c++){
+        var el = revDiscEls[r][c];
+        var v = revBoard[r][c];
+        el.classList.remove('p1','p2','hint','win');
+        if (v===1){ el.classList.add('p1'); el.style.opacity=1; }
+        else if (v===2){ el.classList.add('p2'); el.style.opacity=1; }
+        else { el.style.opacity=0; }
+        revCellHits[r][c].classList.remove('legal');
+      }
+    }
+    if (!revGameOver){
+      revLegalMoves(revBoard, revCurrent).forEach(function(p){ revCellHits[p[0]][p[1]].classList.add('legal'); });
+    }
+  }
+
+  function handleRevCellClick(r,c){
+    if (revGameOver) return;
+    if (revMode==='ai' && revCurrent===2) return;
+    if (revMode==='remote'){
+      if (!revRoomCode || revMyPlayer !== revCurrent) return;
+      revRemoteMakeMove(r,c);
+      return;
+    }
+    makeRevMove(r,c);
+  }
+  function makeRevMove(r,c){
+    var res = revApplyMove(revBoard, r, c, revCurrent);
+    if (!res) return false;
+    revBoard = res.board;
+    var counts = revCount(revBoard);
+    revScores = counts;
+    updateRevScores();
+    var nx = revNextPlayerOrGameOver(revBoard, revCurrent);
+    if (nx.over){
+      renderRevBoard();
+      finishRevGame();
+      return true;
+    }
+    var passed = nx.next === revCurrent;
+    revCurrent = nx.next;
+    renderRevBoard();
+    updateRevTurnUI(passed);
+    if (!revGameOver && revMode==='ai' && revCurrent===2){
+      revStatusLine.innerHTML = 'Computer is thinking&hellip;';
+      setTimeout(revAiTurn, 550);
+    }
+    return true;
+  }
+  function finishRevGame(){
+    revGameOver = true;
+    revP1Card.classList.remove('active'); revP2Card.classList.remove('active');
+    var counts = revCount(revBoard);
+    revScores = counts;
+    updateRevScores();
+    var winner = 0;
+    if (counts[0]>counts[1]) winner=1; else if (counts[1]>counts[0]) winner=2;
+    if (winner){
+      var wn = winner===1 ? revP1Name.textContent : revP2Name.textContent;
+      revStatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; '+counts[winner-1]+' to '+counts[winner===1?1:0]+'.';
+      if (revMode!=='remote') recordWin(revTally, winner, 'dotden-rev-tally');
+    } else {
+      revStatusLine.innerHTML = 'It\'s a tie &mdash; '+counts[0]+' to '+counts[1]+'.';
+    }
+    renderRevTally();
+  }
+  function updateRevScores(){ revP1Score.textContent = revScores[0]; revP2Score.textContent = revScores[1]; }
+  function updateRevTurnUI(passed){
+    revP1Card.classList.toggle('active', revCurrent===1 && !revGameOver);
+    revP2Card.classList.toggle('active', revCurrent===2 && !revGameOver);
+    if (!revGameOver){
+      var who = revCurrent===1 ? revP1Name.textContent : revP2Name.textContent;
+      if (passed){
+        var other = revCurrent===1 ? revP2Name.textContent : revP1Name.textContent;
+        revStatusLine.innerHTML = other+' has no legal move &mdash; passes. <strong>'+who+'</strong>&rsquo;s move';
+      } else {
+        revStatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+      }
+    }
+  }
+  function renderRevTally(){
+    var total = revTally.p1 + revTally.p2;
+    if (!total){ revTallyEl.textContent = 'No completed games yet on this device.'; return; }
+    revTallyEl.textContent = 'On this device: P1 '+revTally.p1+' win'+(revTally.p1===1?'':'s')+' · '+(revMode==='ai'?'CPU':'P2')+' '+revTally.p2+' win'+(revTally.p2===1?'':'s');
+  }
+  function newRevGame(){
+    revMode = revModeSelect.value;
+    revDifficulty = revDifficultySelect.value;
+    revDifficultyField.hidden = revMode !== 'ai';
+    revCurrent = 1;
+    revGameOver = false;
+    revP1Name.textContent = 'Player 1';
+    revP2Name.textContent = revMode==='ai' ? 'Computer' : 'Player 2';
+    revTallyEl.hidden = false;
+    buildRevBoard();
+    var counts = revCount(revBoard);
+    revScores = counts;
+    updateRevScores();
+    updateRevTurnUI(false);
+    renderRevTally();
+  }
+  revNewGameBtn.addEventListener('click', function(){ if (revMode==='remote') return; newRevGame(); });
+  revDifficultySelect.addEventListener('change', function(){ revDifficulty = revDifficultySelect.value; });
+  revModeSelect.addEventListener('change', function(){
+    revDifficultyField.hidden = revModeSelect.value !== 'ai';
+    if (revModeSelect.value === 'remote'){
+      revLeaveRoom();
+      revMode = 'remote';
+      revRemotePanel.hidden = false;
+      revRemoteIdle.hidden = false;
+      revRemoteConnected.hidden = true;
+      revNewGameBtn.hidden = true;
+      revTallyEl.hidden = true;
+      buildRevBoard();
+      revStatusLine.textContent = 'Create a room, or enter a code to join one.';
+      revP1Name.textContent = 'Player 1';
+      revP2Name.textContent = 'Player 2';
+    } else {
+      revLeaveRoom();
+      revRemotePanel.hidden = true;
+      revNewGameBtn.hidden = false;
+      newRevGame();
+    }
+  });
+
+  // ---- AI (minimax + positional weights + mobility, alpha-beta pruning) ----
+  var REV_WEIGHTS = [
+    [120,-20,20,5,5,20,-20,120],
+    [-20,-40,-5,-5,-5,-5,-40,-20],
+    [20,-5,15,3,3,15,-5,20],
+    [5,-5,3,3,3,3,-5,5],
+    [5,-5,3,3,3,3,-5,5],
+    [20,-5,15,3,3,15,-5,20],
+    [-20,-40,-5,-5,-5,-5,-40,-20],
+    [120,-20,20,5,5,20,-20,120]
+  ];
+  function revEvaluate(board, player){
+    var opp = player===1?2:1;
+    var score = 0;
+    for (var r=0;r<8;r++){
+      for (var c=0;c<8;c++){
+        if (board[r][c]===player) score += REV_WEIGHTS[r][c];
+        else if (board[r][c]===opp) score -= REV_WEIGHTS[r][c];
+      }
+    }
+    var myMoves = revLegalMoves(board, player).length;
+    var oppMoves = revLegalMoves(board, opp).length;
+    score += (myMoves - oppMoves) * 8;
+    return score;
+  }
+  function revMinimax(board, depth, alpha, beta, player, aiPlayer){
+    if (depth===0 || revGameOverBoard(board)){
+      return {score: revEvaluate(board, aiPlayer), move: null};
+    }
+    var moves = revLegalMoves(board, player);
+    var opp = player===1?2:1;
+    if (moves.length===0){
+      var res = revMinimax(board, depth-1, alpha, beta, opp, aiPlayer);
+      return {score: res.score, move: null};
+    }
+    var maximizing = player === aiPlayer;
+    var best = maximizing ? -Infinity : Infinity;
+    var bestMove = moves[0];
+    for (var i=0;i<moves.length;i++){
+      var m = moves[i];
+      var applied = revApplyMove(board, m[0], m[1], player);
+      var val = revMinimax(applied.board, depth-1, alpha, beta, opp, aiPlayer).score;
+      if (maximizing){
+        if (val>best){ best=val; bestMove=m; }
+        alpha = Math.max(alpha, best);
+      } else {
+        if (val<best){ best=val; bestMove=m; }
+        beta = Math.min(beta, best);
+      }
+      if (alpha>=beta) break;
+    }
+    return {score: best, move: bestMove};
+  }
+  var REV_AI_DEPTH = {easy:1, medium:2, hard:3, expert:4};
+  function pickRevMove(){
+    var moves = revLegalMoves(revBoard, 2);
+    if (moves.length===0) return null;
+    if (revDifficulty==='easy'){
+      for (var i=0;i<moves.length;i++){
+        var m = moves[i];
+        if ((m[0]===0||m[0]===7) && (m[1]===0||m[1]===7)) return m;
+      }
+      return moves[Math.floor(Math.random()*moves.length)];
+    }
+    var depth = REV_AI_DEPTH[revDifficulty] || 2;
+    var result = revMinimax(revBoard, depth, -Infinity, Infinity, 2, 2);
+    return result.move || moves[Math.floor(Math.random()*moves.length)];
+  }
+  function revAiTurn(){
+    if (revGameOver || revCurrent!==2) return;
+    var m = pickRevMove();
+    if (m) makeRevMove(m[0], m[1]);
+  }
+
+  // ---- pure move logic (used for remote play, no DOM) ----
+  function revApplyMovePure(state, r, c){
+    if (state.gameOver) return state;
+    var res = revApplyMove(state.board, r, c, state.current);
+    if (!res) return state;
+    var board = res.board;
+    var nx = revNextPlayerOrGameOver(board, state.current);
+    var gameOver = nx.over;
+    var current = gameOver ? state.current : nx.next;
+    var counts = revCount(board);
+    return {board: board, current: current, gameOver: gameOver, scores: counts};
+  }
+
+  // ---- remote room wiring ----
+  function revShowRemoteMsg(text){ revStatusLine.textContent = text; }
+  function revRemoteAvailable(){
+    if (!firebaseReady){
+      revShowRemoteMsg('Remote play needs a one-time setup (Firebase) by whoever hosts this page — see the comment near the top of the file.');
+      return false;
+    }
+    return true;
+  }
+  function revLeaveRoom(){
+    if (revRoomUnsub){ revRoomUnsub(); revRoomUnsub = null; }
+    revRoomCode = null;
+    revMyPlayer = null;
+    revRemoteIdle.hidden = false;
+    revRemoteConnected.hidden = true;
+    revJoinCodeInput.value = '';
+  }
+  revCreateRoomBtn.addEventListener('click', function(){
+    if (!revRemoteAvailable()) return;
+    var code = makeRoomCode();
+    var initial = {
+      game:'rev', board: flatten2D(revInitBoard()), scores:[2,2], current:1, gameOver:false,
+      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+    };
+    rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
+      subscribeRevRoom(code);
+    }).catch(function(err){ revShowRemoteMsg('Could not create room: '+err.message); });
+  });
+  revJoinRoomBtn.addEventListener('click', function(){
+    if (!revRemoteAvailable()) return;
+    var code = revJoinCodeInput.value.trim().toUpperCase();
+    if (!code) return;
+    var ref = rdb.collection('dotden-rooms').doc(code);
+    ref.get().then(function(snap){
+      if (!snap.exists){ revShowRemoteMsg('No room with that code.'); return; }
+      var data = snap.data();
+      if (data.players.p2 && data.players.p2 !== CLIENT_ID){ revShowRemoteMsg('That room is already full.'); return; }
+      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeRevRoom(code); });
+    }).catch(function(err){ revShowRemoteMsg('Could not join: '+err.message); });
+  });
+  revLeaveRoomBtn.addEventListener('click', function(){
+    revLeaveRoom();
+    revStatusLine.textContent = 'Create a room, or enter a code to join one.';
+    revP1Name.textContent = 'Player 1';
+    revP2Name.textContent = 'Player 2';
+    buildRevBoard();
+    updateRevScores();
+  });
+
+  var revLastSnapshotAt = 0;
+  function subscribeRevRoom(code){
+    if (revRoomUnsub) revRoomUnsub();
+    revRoomCode = code;
+    revMode = 'remote';
+    revRoomCodeLabel.textContent = code;
+    revRemoteIdle.hidden = true;
+    revRemoteConnected.hidden = false;
+    revLastSnapshotAt = Date.now();
+    revRoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot({includeMetadataChanges:true}, function(snap){
+      revLastSnapshotAt = Date.now();
+      if (!snap.exists) return;
+      applyRevRemoteState(snap.data());
+    }, function(err){
+      revShowRemoteMsg('Connection lost: '+err.message);
+    });
+  }
+  setInterval(function(){
+    if (revRoomCode && rdb && Date.now() - revLastSnapshotAt > 12000){
+      subscribeRevRoom(revRoomCode);
+    }
+  }, 6000);
+
+  function applyRevRemoteState(data){
+    restoreRev({mode:'remote', board: unflatten2D(data.board, 8, 8), scores: data.scores, current: data.current, gameOver: data.gameOver});
+    var amP1 = data.players.p1 === CLIENT_ID;
+    var amP2 = data.players.p2 === CLIENT_ID;
+    revMyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
+    revP1Name.textContent = amP1 ? 'You' : 'Opponent';
+    revP2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    if (!data.players.p2){
+      revStatusLine.innerHTML = 'Room <strong>'+revRoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+    } else if (!data.gameOver){
+      var myTurn = data.current === revMyPlayer;
+      revStatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+    }
+  }
+
+  function revRemoteMakeMove(r,c){
+    if (!revRoomCode) return;
+    var state = {board: revBoard, current: revCurrent, gameOver: revGameOver};
+    var ns = revApplyMovePure(state, r, c);
+    rdb.collection('dotden-rooms').doc(revRoomCode).update({
+      board: flatten2D(ns.board), scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+    }).catch(function(err){ revShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function restoreRev(data){
+    if (!data || !data.board) return false;
+    revMode = data.mode;
+    if (data.mode !== 'remote') revModeSelect.value = data.mode;
+    buildRevBoard();
+    revBoard = data.board || revBoard;
+    revScores = data.scores || revCount(revBoard);
+    revCurrent = data.current || 1;
+    revGameOver = !!data.gameOver;
+    renderRevBoard();
+    if (data.mode !== 'remote'){
+      revP1Name.textContent = 'Player 1';
+      revP2Name.textContent = revMode==='ai' ? 'Computer' : 'Player 2';
+    }
+    updateRevScores();
+    if (revGameOver){
+      revP1Card.classList.remove('active'); revP2Card.classList.remove('active');
+      var counts = revCount(revBoard);
+      var winner = 0;
+      if (counts[0]>counts[1]) winner=1; else if (counts[1]>counts[0]) winner=2;
+      if (winner){
+        var wn = winner===1 ? revP1Name.textContent : revP2Name.textContent;
+        revStatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; '+counts[winner-1]+' to '+counts[winner===1?1:0]+'.';
+      } else {
+        revStatusLine.innerHTML = 'It\'s a tie &mdash; '+counts[0]+' to '+counts[1]+'.';
+      }
+    } else if (data.mode !== 'remote'){
+      updateRevTurnUI(false);
+    }
+    if (data.mode !== 'remote') renderRevTally();
+    return true;
+  }
+
+  /* =====================================================================
+     GAME 5 — 3D TIC-TAC-TOE
+  ===================================================================== */
+  var t3BoardsEl = document.getElementById('t3Boards');
+  var t3ModeSelect = document.getElementById('t3ModeSelect');
+  var t3DifficultySelect = document.getElementById('t3DifficultySelect');
+  var t3DifficultyField = document.getElementById('t3DifficultyField');
+  var t3NewGameBtn = document.getElementById('t3NewGameBtn');
+  var t3StatusLine = document.getElementById('t3StatusLine');
+  var t3P1Card = document.getElementById('t3P1Card');
+  var t3P2Card = document.getElementById('t3P2Card');
+  var t3P1Score = document.getElementById('t3P1Score');
+  var t3P2Score = document.getElementById('t3P2Score');
+  var t3P1Name = document.getElementById('t3P1Name');
+  var t3P2Name = document.getElementById('t3P2Name');
+  var t3TallyEl = document.getElementById('t3Tally');
+  var t3RemotePanel = document.getElementById('t3RemotePanel');
+  var t3RemoteIdle = document.getElementById('t3RemoteIdle');
+  var t3RemoteConnected = document.getElementById('t3RemoteConnected');
+  var t3RoomCodeLabel = document.getElementById('t3RoomCodeLabel');
+  var t3CreateRoomBtn = document.getElementById('t3CreateRoomBtn');
+  var t3JoinRoomBtn = document.getElementById('t3JoinRoomBtn');
+  var t3JoinCodeInput = document.getElementById('t3JoinCodeInput');
+  var t3LeaveRoomBtn = document.getElementById('t3LeaveRoomBtn');
+
+  function t3GenerateLines(){
+    var dirs = [];
+    for (var dx=-1;dx<=1;dx++){
+      for (var dy=-1;dy<=1;dy++){
+        for (var dz=-1;dz<=1;dz++){
+          if (dx===0 && dy===0 && dz===0) continue;
+          dirs.push([dx,dy,dz]);
+        }
+      }
+    }
+    var canonicalDirs = dirs.filter(function(d){
+      if (d[0]!==0) return d[0]>0;
+      if (d[1]!==0) return d[1]>0;
+      return d[2]>0;
+    });
+    var seen = {};
+    var lines = [];
+    canonicalDirs.forEach(function(d){
+      for (var x=0;x<4;x++){
+        for (var y=0;y<4;y++){
+          for (var z=0;z<4;z++){
+            var cells = [];
+            var ok = true;
+            for (var i=0;i<4;i++){
+              var xi=x+d[0]*i, yi=y+d[1]*i, zi=z+d[2]*i;
+              if (xi<0||xi>3||yi<0||yi>3||zi<0||zi>3){ ok=false; break; }
+              cells.push([xi,yi,zi]);
+            }
+            if (ok){
+              var key = cells.map(function(p){ return p.join(','); }).sort().join('|');
+              if (!seen[key]){ seen[key]=true; lines.push(cells); }
+            }
+          }
+        }
+      }
+    });
+    return lines;
+  }
+  var T3_LINES = t3GenerateLines();
+  function t3Idx(l,r,c){ return l*16 + r*4 + c; }
+  function t3EmptyBoard(){ return new Array(64).fill(0); }
+  function t3Winner(board){
+    for (var i=0;i<T3_LINES.length;i++){
+      var line = T3_LINES[i];
+      var v = board[t3Idx(line[0][0],line[0][1],line[0][2])];
+      if (!v) continue;
+      var win = true;
+      for (var j=1;j<4;j++){
+        if (board[t3Idx(line[j][0],line[j][1],line[j][2])] !== v){ win=false; break; }
+      }
+      if (win) return {player:v, line:line};
+    }
+    return null;
+  }
+  function t3BoardFull(board){
+    for (var i=0;i<64;i++) if (board[i]===0) return false;
+    return true;
+  }
+
+  var t3Board = [];
+  var t3Current = 1, t3GameOver = false, t3Mode = 'pvp', t3Difficulty = 'medium';
+  var t3BoardBuilt = false;
+  var t3Scores = [0,0];
+  var t3Tally = loadTally('dotden-t3-tally');
+  var t3RoomUnsub = null, t3RoomCode = null, t3MyPlayer = null;
+  var t3CellEls = [];
+
+  function buildT3Board(){
+    t3BoardsEl.innerHTML = '';
+    t3Board = t3EmptyBoard();
+    t3CellEls = new Array(64);
+    var _mk = function(l,r,c,grid){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 't3-cell';
+      var idx = t3Idx(l,r,c);
+      btn.setAttribute('aria-label', 'Layer '+(l+1)+' row '+(r+1)+' column '+(c+1));
+      btn.addEventListener('click', function(){ handleT3CellClick(l,r,c); });
+      grid.appendChild(btn);
+      t3CellEls[idx] = btn;
+    };
+    for (var l=0;l<4;l++){
+      var layerDiv = document.createElement('div');
+      layerDiv.className = 't3-layer';
+      var label = document.createElement('div');
+      label.className = 't3-layer-label';
+      label.textContent = 'Layer '+(l+1);
+      layerDiv.appendChild(label);
+      var grid = document.createElement('div');
+      grid.className = 't3-grid';
+      for (var r=0;r<4;r++){
+        for (var c=0;c<4;c++) _mk(l,r,c,grid);
+      }
+      layerDiv.appendChild(grid);
+      t3BoardsEl.appendChild(layerDiv);
+    }
+    renderT3Board();
+    t3BoardBuilt = true;
+  }
+  function renderT3Board(){
+    for (var i=0;i<64;i++){
+      var btn = t3CellEls[i];
+      var v = t3Board[i];
+      btn.classList.remove('p1','p2','win');
+      btn.disabled = v !== 0 || t3GameOver;
+      if (v===1){ btn.classList.add('p1'); btn.textContent = '●'; }
+      else if (v===2){ btn.classList.add('p2'); btn.textContent = '●'; }
+      else { btn.textContent = ''; }
+    }
+  }
+
+  function handleT3CellClick(l,r,c){
+    if (t3GameOver) return;
+    if (t3Mode==='ai' && t3Current===2) return;
+    var idx = t3Idx(l,r,c);
+    if (t3Board[idx] !== 0) return;
+    if (t3Mode==='remote'){
+      if (!t3RoomCode || t3MyPlayer !== t3Current) return;
+      t3RemoteMakeMove(idx);
+      return;
+    }
+    makeT3Move(idx);
+  }
+  function makeT3Move(idx){
+    if (t3Board[idx] !== 0) return false;
+    t3Board[idx] = t3Current;
+    renderT3Board();
+    var win = t3Winner(t3Board);
+    if (win){
+      t3GameOver = true;
+      t3Scores[t3Current-1]++;
+      win.line.forEach(function(p){ t3CellEls[t3Idx(p[0],p[1],p[2])].classList.add('win'); });
+      updateT3Scores();
+      t3P1Card.classList.remove('active'); t3P2Card.classList.remove('active');
+      var winnerName = t3Current===1 ? t3P1Name.textContent : t3P2Name.textContent;
+      t3StatusLine.innerHTML = '<strong>'+winnerName+' wins</strong> &mdash; four in a row.';
+      if (t3Mode!=='remote') recordWin(t3Tally, t3Current, 'dotden-t3-tally');
+      renderT3Tally();
+      return true;
+    }
+    if (t3BoardFull(t3Board)){
+      t3GameOver = true;
+      t3P1Card.classList.remove('active'); t3P2Card.classList.remove('active');
+      t3StatusLine.innerHTML = 'It\'s a tie &mdash; the cube filled up.';
+      renderT3Tally();
+      return true;
+    }
+    t3Current = t3Current===1 ? 2 : 1;
+    updateT3TurnUI();
+    if (!t3GameOver && t3Mode==='ai' && t3Current===2){
+      t3StatusLine.innerHTML = 'Computer is thinking&hellip;';
+      setTimeout(t3AiTurn, 550);
+    }
+    return true;
+  }
+  function updateT3Scores(){ t3P1Score.textContent = t3Scores[0]; t3P2Score.textContent = t3Scores[1]; }
+  function updateT3TurnUI(){
+    t3P1Card.classList.toggle('active', t3Current===1 && !t3GameOver);
+    t3P2Card.classList.toggle('active', t3Current===2 && !t3GameOver);
+    if (!t3GameOver){
+      var who = t3Current===1 ? t3P1Name.textContent : t3P2Name.textContent;
+      t3StatusLine.innerHTML = '<strong>'+who+'</strong>&rsquo;s move';
+    }
+  }
+  function renderT3Tally(){
+    var total = t3Tally.p1 + t3Tally.p2;
+    if (!total){ t3TallyEl.textContent = 'No completed games yet on this device.'; return; }
+    t3TallyEl.textContent = 'On this device: P1 '+t3Tally.p1+' win'+(t3Tally.p1===1?'':'s')+' · '+(t3Mode==='ai'?'CPU':'P2')+' '+t3Tally.p2+' win'+(t3Tally.p2===1?'':'s');
+  }
+  function newT3Game(){
+    t3Mode = t3ModeSelect.value;
+    t3Difficulty = t3DifficultySelect.value;
+    t3DifficultyField.hidden = t3Mode !== 'ai';
+    t3Scores = [0,0];
+    t3Current = 1;
+    t3GameOver = false;
+    t3P1Name.textContent = 'Player 1';
+    t3P2Name.textContent = t3Mode==='ai' ? 'Computer' : 'Player 2';
+    t3TallyEl.hidden = false;
+    buildT3Board();
+    updateT3Scores();
+    updateT3TurnUI();
+    renderT3Tally();
+  }
+  t3NewGameBtn.addEventListener('click', function(){ if (t3Mode==='remote') return; newT3Game(); });
+  t3DifficultySelect.addEventListener('change', function(){ t3Difficulty = t3DifficultySelect.value; });
+  t3ModeSelect.addEventListener('change', function(){
+    t3DifficultyField.hidden = t3ModeSelect.value !== 'ai';
+    if (t3ModeSelect.value === 'remote'){
+      t3LeaveRoom();
+      t3Mode = 'remote';
+      t3RemotePanel.hidden = false;
+      t3RemoteIdle.hidden = false;
+      t3RemoteConnected.hidden = true;
+      t3NewGameBtn.hidden = true;
+      t3TallyEl.hidden = true;
+      buildT3Board();
+      t3StatusLine.textContent = 'Create a room, or enter a code to join one.';
+      t3P1Name.textContent = 'Player 1';
+      t3P2Name.textContent = 'Player 2';
+    } else {
+      t3LeaveRoom();
+      t3RemotePanel.hidden = true;
+      t3NewGameBtn.hidden = false;
+      newT3Game();
+    }
+  });
+
+  // ---- AI (candidate-restricted minimax with alpha-beta pruning) ----
+  function t3Evaluate(board, player){
+    var opp = player===1?2:1;
+    var score = 0;
+    for (var i=0;i<T3_LINES.length;i++){
+      var line = T3_LINES[i];
+      var pc=0, oc=0;
+      for (var j=0;j<4;j++){
+        var v = board[t3Idx(line[j][0],line[j][1],line[j][2])];
+        if (v===player) pc++; else if (v===opp) oc++;
+      }
+      if (pc>0 && oc>0) continue;
+      if (pc===4) score += 100000;
+      else if (pc===3) score += 100;
+      else if (pc===2) score += 10;
+      else if (pc===1) score += 1;
+      if (oc===4) score -= 100000;
+      else if (oc===3) score -= 100;
+      else if (oc===2) score -= 10;
+      else if (oc===1) score -= 1;
+    }
+    return score;
+  }
+  function t3CandidateMoves(board){
+    var empties = [];
+    for (var i=0;i<64;i++) if (board[i]===0) empties.push(i);
+    if (empties.length > 20){
+      var relSet = {};
+      var relevant = [];
+      for (var li=0; li<T3_LINES.length; li++){
+        var line = T3_LINES[li];
+        var hasMark = false;
+        for (var j=0;j<4;j++){
+          if (board[t3Idx(line[j][0],line[j][1],line[j][2])] !== 0){ hasMark = true; break; }
+        }
+        if (hasMark){
+          for (var k=0;k<4;k++){
+            var idx = t3Idx(line[k][0],line[k][1],line[k][2]);
+            if (board[idx]===0 && !relSet[idx]){ relSet[idx]=true; relevant.push(idx); }
+          }
+        }
+      }
+      if (relevant.length>0) return relevant;
+    }
+    return empties;
+  }
+  function t3Minimax(board, depth, alpha, beta, maximizing, aiPlayer){
+    var winner = t3Winner(board);
+    if (winner) return {score: winner.player===aiPlayer ? (100000+depth) : (-100000-depth), move: null};
+    var moves = t3CandidateMoves(board);
+    if (moves.length===0) return {score: 0, move: null};
+    if (depth===0) return {score: t3Evaluate(board, aiPlayer), move: null};
+    var human = aiPlayer===1?2:1;
+    if (maximizing){
+      var best = -Infinity, bestMove = moves[0];
+      for (var i=0;i<moves.length;i++){
+        var nb = board.slice(); nb[moves[i]] = aiPlayer;
+        var val = t3Minimax(nb, depth-1, alpha, beta, false, aiPlayer).score;
+        if (val>best){ best=val; bestMove=moves[i]; }
+        alpha = Math.max(alpha, best);
+        if (alpha>=beta) break;
+      }
+      return {score: best, move: bestMove};
+    } else {
+      var best2 = Infinity, bestMove2 = moves[0];
+      for (var j=0;j<moves.length;j++){
+        var nb2 = board.slice(); nb2[moves[j]] = human;
+        var val2 = t3Minimax(nb2, depth-1, alpha, beta, true, aiPlayer).score;
+        if (val2<best2){ best2=val2; bestMove2=moves[j]; }
+        beta = Math.min(beta, best2);
+        if (alpha>=beta) break;
+      }
+      return {score: best2, move: bestMove2};
+    }
+  }
+  var T3_AI_DEPTH = {easy:1, medium:2, hard:2, expert:3};
+  function pickT3Move(){
+    var moves = t3CandidateMoves(t3Board);
+    if (moves.length===0) return null;
+    if (t3Difficulty==='easy'){
+      for (var i=0;i<moves.length;i++){
+        var nb = t3Board.slice(); nb[moves[i]] = 2;
+        var w = t3Winner(nb);
+        if (w && w.player===2) return moves[i];
+      }
+      return moves[Math.floor(Math.random()*moves.length)];
+    }
+    var depth = T3_AI_DEPTH[t3Difficulty] || 2;
+    var result = t3Minimax(t3Board, depth, -Infinity, Infinity, true, 2);
+    return (result.move!==null && result.move!==undefined) ? result.move : moves[Math.floor(Math.random()*moves.length)];
+  }
+  function t3AiTurn(){
+    if (t3GameOver || t3Current!==2) return;
+    var idx = pickT3Move();
+    if (idx!==null && idx!==undefined) makeT3Move(idx);
+  }
+
+  // ---- pure move logic (used for remote play, no DOM) ----
+  function t3ApplyMovePure(state, idx){
+    if (state.gameOver) return state;
+    if (state.board[idx] !== 0) return state;
+    var board = state.board.slice();
+    board[idx] = state.current;
+    var scores = state.scores.slice();
+    var winner = t3Winner(board);
+    var gameOver = false;
+    if (winner){
+      gameOver = true;
+      scores[winner.player-1]++;
+    } else if (t3BoardFull(board)){
+      gameOver = true;
+    }
+    var current = state.current;
+    if (!gameOver) current = current===1?2:1;
+    return {board: board, scores: scores, current: current, gameOver: gameOver};
+  }
+
+  // ---- remote room wiring ----
+  function t3ShowRemoteMsg(text){ t3StatusLine.textContent = text; }
+  function t3RemoteAvailable(){
+    if (!firebaseReady){
+      t3ShowRemoteMsg('Remote play needs a one-time setup (Firebase) by whoever hosts this page — see the comment near the top of the file.');
+      return false;
+    }
+    return true;
+  }
+  function t3LeaveRoom(){
+    if (t3RoomUnsub){ t3RoomUnsub(); t3RoomUnsub = null; }
+    t3RoomCode = null;
+    t3MyPlayer = null;
+    t3RemoteIdle.hidden = false;
+    t3RemoteConnected.hidden = true;
+    t3JoinCodeInput.value = '';
+  }
+  t3CreateRoomBtn.addEventListener('click', function(){
+    if (!t3RemoteAvailable()) return;
+    var code = makeRoomCode();
+    var initial = {
+      game:'t3', board: t3EmptyBoard(), scores:[0,0], current:1, gameOver:false,
+      players:{p1:CLIENT_ID, p2:null}, updatedAt: Date.now()
+    };
+    rdb.collection('dotden-rooms').doc(code).set(initial).then(function(){
+      subscribeT3Room(code);
+    }).catch(function(err){ t3ShowRemoteMsg('Could not create room: '+err.message); });
+  });
+  t3JoinRoomBtn.addEventListener('click', function(){
+    if (!t3RemoteAvailable()) return;
+    var code = t3JoinCodeInput.value.trim().toUpperCase();
+    if (!code) return;
+    var ref = rdb.collection('dotden-rooms').doc(code);
+    ref.get().then(function(snap){
+      if (!snap.exists){ t3ShowRemoteMsg('No room with that code.'); return; }
+      var data = snap.data();
+      if (data.players.p2 && data.players.p2 !== CLIENT_ID){ t3ShowRemoteMsg('That room is already full.'); return; }
+      return ref.update({'players.p2': CLIENT_ID}).then(function(){ subscribeT3Room(code); });
+    }).catch(function(err){ t3ShowRemoteMsg('Could not join: '+err.message); });
+  });
+  t3LeaveRoomBtn.addEventListener('click', function(){
+    t3LeaveRoom();
+    t3StatusLine.textContent = 'Create a room, or enter a code to join one.';
+    t3P1Name.textContent = 'Player 1';
+    t3P2Name.textContent = 'Player 2';
+    buildT3Board();
+    updateT3Scores();
+  });
+
+  var t3LastSnapshotAt = 0;
+  function subscribeT3Room(code){
+    if (t3RoomUnsub) t3RoomUnsub();
+    t3RoomCode = code;
+    t3Mode = 'remote';
+    t3RoomCodeLabel.textContent = code;
+    t3RemoteIdle.hidden = true;
+    t3RemoteConnected.hidden = false;
+    t3LastSnapshotAt = Date.now();
+    t3RoomUnsub = rdb.collection('dotden-rooms').doc(code).onSnapshot({includeMetadataChanges:true}, function(snap){
+      t3LastSnapshotAt = Date.now();
+      if (!snap.exists) return;
+      applyT3RemoteState(snap.data());
+    }, function(err){
+      t3ShowRemoteMsg('Connection lost: '+err.message);
+    });
+  }
+  setInterval(function(){
+    if (t3RoomCode && rdb && Date.now() - t3LastSnapshotAt > 12000){
+      subscribeT3Room(t3RoomCode);
+    }
+  }, 6000);
+
+  function applyT3RemoteState(data){
+    restoreT3({mode:'remote', board: data.board, scores: data.scores, current: data.current, gameOver: data.gameOver});
+    var amP1 = data.players.p1 === CLIENT_ID;
+    var amP2 = data.players.p2 === CLIENT_ID;
+    t3MyPlayer = amP1 ? 1 : (amP2 ? 2 : null);
+    t3P1Name.textContent = amP1 ? 'You' : 'Opponent';
+    t3P2Name.textContent = amP2 ? 'You' : (data.players.p2 ? 'Opponent' : 'Waiting…');
+    if (!data.players.p2){
+      t3StatusLine.innerHTML = 'Room <strong>'+t3RoomCode+'</strong> &mdash; share this code. Waiting for your opponent&hellip;';
+    } else if (!data.gameOver){
+      var myTurn = data.current === t3MyPlayer;
+      t3StatusLine.innerHTML = myTurn ? '<strong>Your move</strong>' : 'Waiting for opponent&hellip;';
+    }
+  }
+
+  function t3RemoteMakeMove(idx){
+    if (!t3RoomCode) return;
+    var state = {board: t3Board, scores: t3Scores, current: t3Current, gameOver: t3GameOver};
+    var ns = t3ApplyMovePure(state, idx);
+    rdb.collection('dotden-rooms').doc(t3RoomCode).update({
+      board: ns.board, scores: ns.scores, current: ns.current, gameOver: ns.gameOver, updatedAt: Date.now()
+    }).catch(function(err){ t3ShowRemoteMsg('Move failed: '+err.message); });
+  }
+
+  function restoreT3(data){
+    if (!data || !data.board) return false;
+    t3Mode = data.mode;
+    if (data.mode !== 'remote') t3ModeSelect.value = data.mode;
+    buildT3Board();
+    t3Board = data.board || t3Board;
+    t3Scores = data.scores || [0,0];
+    t3Current = data.current || 1;
+    t3GameOver = !!data.gameOver;
+    renderT3Board();
+    if (data.mode !== 'remote'){
+      t3P1Name.textContent = 'Player 1';
+      t3P2Name.textContent = t3Mode==='ai' ? 'Computer' : 'Player 2';
+    }
+    updateT3Scores();
+    if (t3GameOver){
+      t3P1Card.classList.remove('active'); t3P2Card.classList.remove('active');
+      var winner = t3Winner(t3Board);
+      if (winner){
+        var wn = winner.player===1 ? t3P1Name.textContent : t3P2Name.textContent;
+        t3StatusLine.innerHTML = '<strong>'+wn+' wins</strong> &mdash; four in a row.';
+        winner.line.forEach(function(p){ t3CellEls[t3Idx(p[0],p[1],p[2])].classList.add('win'); });
+      } else {
+        t3StatusLine.innerHTML = 'It\'s a tie &mdash; the cube filled up.';
+      }
+    } else if (data.mode !== 'remote'){
+      updateT3TurnUI();
+    }
+    if (data.mode !== 'remote') renderT3Tally();
+    return true;
+  }
+
+
+  /* =====================================================================
      shared: per-device tally storage
   ===================================================================== */
   function loadTally(storageKey){
@@ -2452,6 +3629,8 @@
       if (dabRoomCode) subscribeDabRoom(dabRoomCode);
       if (dotsRoomCode) subscribeDotsRoom(dotsRoomCode);
       if (c4RoomCode) subscribeC4Room(c4RoomCode);
+      if (revRoomCode) subscribeRevRoom(revRoomCode);
+      if (t3RoomCode) subscribeT3Room(t3RoomCode);
     }
   });
 
