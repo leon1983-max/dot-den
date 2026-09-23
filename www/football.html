@@ -2431,7 +2431,15 @@ function makeFireRoom(){
   let sched = false, writeTimer = null;
   let link = null;                // {partner, pc, dc, open, relay, ...}
 
-  const ICE = [{urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302']}];
+  // Several public STUN servers so each phone learns its public address even on mobile data.
+  // window.FC_TURN (optional) can add a TURN relay server for networks that block direct links.
+  const ICE = [
+    {urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']},
+    {urls: 'stun:stun.cloudflare.com:3478'},
+    {urls: 'stun:global.stun.twilio.com:3478'},
+  ].concat(Array.isArray(window.FC_TURN) ? window.FC_TURN : []);
+  const RELAY_SLOTS = 6;          // the relay rotates over several documents (Firestore allows ~1 write/s per document)
+  const RELAY_GAP = 180;          // ms between relay writes at most ~5.5/s
 
   function presenceOf(peer, d){
     const p = {};
@@ -2487,10 +2495,18 @@ function makeFireRoom(){
     if (lobby.sdp){ lobby.sdp = null; writeLobby(); }
   }
   function waitIce(pc){
+    // wait for the public-address (srflx) candidates; mobile networks can take a few seconds
     return new Promise(res => {
       if (pc.iceGatheringState === 'complete') return res();
-      const t = setTimeout(res, 2500);
-      pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete'){ clearTimeout(t); res(); } });
+      let done = false, early = null;
+      const fin = () => { if (done) return; done = true; clearTimeout(t); clearTimeout(early); res(); };
+      const t = setTimeout(fin, 6000);
+      pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') fin(); });
+      pc.addEventListener('icecandidate', ev => {
+        const c = ev.candidate;
+        if (!c) return fin();
+        if (/ typ (srflx|relay)/.test(c.candidate) && !early) early = setTimeout(fin, 900);
+      });
     });
   }
   function wireChannel(L, dc){
@@ -2511,7 +2527,8 @@ function makeFireRoom(){
   async function startLink(p){
     closeLink();
     const L = link = {partner: p.peer, offerer: p.offerer, id: me + '-' + Date.now().toString(36), open: false, relay: false};
-    L.fallbackTimer = setTimeout(() => { if (link === L && !L.open) startRelay(L); }, 9000);
+    // the relay covers the start; the direct link takes over the moment it opens
+    L.fallbackTimer = setTimeout(() => { if (link === L && !L.open) startRelay(L); }, 7000);
     if (typeof RTCPeerConnection !== 'function'){ startRelay(L); return; }
     try {
       const pc = L.pc = new RTCPeerConnection({iceServers: ICE});
@@ -2550,28 +2567,40 @@ function makeFireRoom(){
     try { await L.pc.setRemoteDescription({type: 'answer', sdp: sdp.sdp}); } catch(e){ startRelay(L); }
   }
   // ---------------- fallback relay through Firestore ----------------
+  // Each phone writes its latest state to one of RELAY_SLOTS documents in turn, never more than one
+  // write in flight, so nothing queues up: the other phone always gets the newest state, not an old backlog.
   function startRelay(L){
     if (link !== L || L.relay) return;
-    L.relay = true;
-    const theirs = col.doc('fc-' + L.partner + '-rt');
-    L.relayUnsub = theirs.onSnapshot(snap => {
-      const d = snap.exists ? snap.data() : null;
-      if (!d || L.open) return;
+    L.relay = true; relayUsed = true;
+    L.relaySeq = 0; L.relaySeen = 0; L.relaySlot = 0; L.relayBusy = false; L.relayLast = 0;
+    const onSnap = snap => {
+      if (link !== L || L.open) return;
+      let best = null;
+      snap.forEach(doc => { const d = doc.data(); if (d && d.to === me && (d.n|0) > L.relaySeen && (!best || d.n > best.n)) best = d; });
+      if (!best) return;
+      L.relaySeen = best.n;
       const r = {};
-      if (d.s) { try { r.s = JSON.parse(d.s); } catch(e){} }
-      if (d.in) r.in = d.in;
+      if (best.s) { try { r.s = JSON.parse(best.s); } catch(e){} }
+      if (best.in) r.in = best.in;
       remote[L.partner] = Object.assign({}, remote[L.partner], r);
       notify();
-    }, () => {});
+    };
+    L.relayUnsub = col.where('rfrom', '==', L.partner).onSnapshot(onSnap, () => {});
     L.relayDirty = true;
-    L.relayTimer = setInterval(() => {
-      if (link !== L || L.open || !L.relayDirty) return;
-      L.relayDirty = false;
-      const data = {at: Date.now()};
-      if (fast.s) data.s = JSON.stringify(fast.s);
-      if (fast.in) data.in = fast.in;
-      col.doc('fc-' + me + '-rt').set(data).catch(() => {});
-    }, 250);
+    L.relayTimer = setInterval(() => relayPump(L), 30);
+  }
+  function relayPump(L){
+    if (link !== L || L.open || !L.relay || L.relayBusy || !L.relayDirty) return;
+    const now = performance.now();
+    if (now - L.relayLast < RELAY_GAP) return;
+    L.relayDirty = false; L.relayBusy = true; L.relayLast = now;
+    L.relaySlot = (L.relaySlot + 1) % RELAY_SLOTS;
+    const data = {rfrom: me, to: L.partner, n: ++L.relaySeq, at: Date.now()};
+    if (fast.s) data.s = JSON.stringify(fast.s);
+    if (fast.in) data.in = fast.in;
+    const done = () => { L.relayBusy = false; };
+    const guard = setTimeout(done, 2500);          // never stall on a lost acknowledgement
+    col.doc('fc-' + me + '-r' + L.relaySlot).set(data).then(() => { clearTimeout(guard); done(); }, () => { clearTimeout(guard); done(); });
   }
   function stopRelay(L){
     L.relay = false;
@@ -2603,7 +2632,8 @@ function makeFireRoom(){
     notify();
   }, () => {});
   setInterval(() => { writeLobby(); }, 20000);
-  const bye = () => { try { myDoc.delete(); col.doc('fc-' + me + '-rt').delete(); } catch(e){} };
+  let relayUsed = false;
+  const bye = () => { try { myDoc.delete(); if (relayUsed) for (let i = 0; i < RELAY_SLOTS; i++) col.doc('fc-' + me + '-r' + i).delete(); } catch(e){} };
   addEventListener('pagehide', bye);
   writeLobby();
 
@@ -2873,9 +2903,10 @@ function applySnap(s){
   if (s.r && !S.resultShown){ S.goals = s.r.map(x => ({team:x[0], min:x[1]})); S.resultShown = true; onFullTime(); }
 }
 function guestTick(dt){
-  // smooth motion between snapshots (dead reckoning for at most 0.15 s)
+  // smooth motion between snapshots (dead reckoning; longer when updates come through the slower relay)
   const since = (performance.now() - NET.lastSnapAt)/1000;
-  if (since < 0.15){
+  const relay = NET.room && NET.room.linkState && NET.room.linkState() === 'relay';
+  if (since < (relay ? 0.4 : 0.15)){
     for (const p of S.players){
       if (p.state === 'run' || p.state === 'slide'){ p.x += p.vx*dt; p.y += p.vy*dt; }
       p.anim += hyp(p.vx,p.vy)*dt*2.2;
@@ -2900,7 +2931,9 @@ function guestTick(dt){
   if (now - NET.pingAt > 1000) NET.pingAt = Math.round(now);
   const arr = [Math.round(raw.dx*100)*f, Math.round(raw.dy*100)*f, raw.a?1:0, raw.b?1:0, NET.myAc, NET.myBc, NET.pingAt, Math.round(NET.rtt)];
   const key = arr.join(',');
-  if (key !== NET.lastSentIn){ NET.lastSentIn = key; netPresence({in: arr}); }
+  // resend now and then on the direct link: its packets are never retried, so a lost "stop" must not stick
+  const direct = NET.room && NET.room.linkState && NET.room.linkState() === 'direct';
+  if (key !== NET.lastSentIn || (direct && now - (NET.lastInAt||0) > 150)){ NET.lastSentIn = key; NET.lastInAt = now; netPresence({in: arr}); }
 }
 function updateFlip(){
   // in online matches each player always attacks up the screen
