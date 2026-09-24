@@ -561,7 +561,7 @@
           A small arcade, growing one game at a time
         </div>
         <h1 style="margin-top:14px;">Claim the box.<br>Surround the <em>rival.</em></h1>
-        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Six are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots, the drop-and-line classic <strong>Connect Four</strong>, the flanking-capture classic <strong>Reversi</strong>, a cube-sized <strong>3D Tic-Tac-Toe</strong>, and <strong>Floodlight Cup</strong>, a fast 3D football match under the lights. All six play hot-seat, against the computer, or online against someone in another location.</p>
+        <p style="margin-top:14px;">The Dot Den is a personal games page &mdash; built to collect the small, sharp, two-minute games worth coming back to. Seven are live so far: the boxes-and-lines classic <strong>Dots and Boxes</strong>, its stranger cousin <strong>Dots</strong>, where you fence in the other player's own dots, the drop-and-line classic <strong>Connect Four</strong>, the flanking-capture classic <strong>Reversi</strong>, a cube-sized <strong>3D Tic-Tac-Toe</strong>, <strong>Floodlight Cup</strong>, a fast 3D football match under the lights, and <strong>Veyl Holdfast</strong>, a single-player base-defense strategy game. The first six play hot-seat, against the computer, or online against someone in another location.</p>
         <div class="hero-actions" style="margin-top:18px;">
           <button class="btn primary" id="playFromHero">Play Dots &amp; Boxes</button>
           <button class="btn ghost" id="playFromHeroDots">Play Dots</button>
@@ -571,7 +571,7 @@
 
     <div class="section-head">
       <h2>Games</h2>
-      <span class="count" id="gameCount">6 playable · 1 in the works</span>
+      <span class="count" id="gameCount">7 playable · 1 in the works</span>
     </div>
     <div class="games-grid">
 
@@ -643,6 +643,16 @@
         <h3>Floodlight Cup</h3>
         <p>Fast 3D football under the lights. Take on the computer, a friend on the same keyboard, or someone online &mdash; phone to phone.</p>
         <button class="btn primary" id="playFromCardFC">Play now</button>
+      </div>
+
+      <div class="game-card playable">
+        <span class="badge">Playable</span>
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="3.5" height="15" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="16.5" y="5" width="3.5" height="15" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="7.5" y="7" width="9" height="11" rx="1.5" stroke="currentColor" stroke-width="1.6" opacity=".6"/><circle cx="12" cy="13" r="2.8" fill="currentColor"/><path d="M12 10V2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <h3>Veyl Holdfast</h3>
+        <p>Build a base, drill glass and hold off raider waves in a desert strategy game. Your whole base carries over to six ever-bigger maps, ending in an assault on the enemy's lair.</p>
+        <button class="btn primary" id="playFromCardVH">Play now</button>
       </div>
 
     </div>
@@ -1339,6 +1349,7 @@
   document.getElementById('playFromCardRev').addEventListener('click', showRev);
   document.getElementById('playFromCardT3').addEventListener('click', showT3);
   document.getElementById('playFromCardFC').addEventListener('click', function(){ window.location.href = 'football.html'; });
+  document.getElementById('playFromCardVH').addEventListener('click', function(){ window.location.href = 'holdfast.html'; });
 
   /* =====================================================================
      GAME 1 — DOTS & BOXES
