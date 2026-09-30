@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,7 +9,7 @@
 <title>Silverun · The Dot Den</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -18,15 +18,16 @@
     --bg:#f3f5f8; --surface:#ffffff; --surface-2:#eaedf3; --ink:#161a22; --muted:#5f6778; --line:#d6dbe4;
     --accent:#1f7a8c; --accent-ink:#ffffff; --accent-soft:#1f7a8c1a;
     --silver:#8a94a6; --gold:#b7791f; --gold-soft:#b7791f1f; --good:#1e8e4e; --good-soft:#1e8e4e1a;
-    --warn:#b45309; --warn-soft:#b453091a; --hb:#c2410c; --swim:#2563eb;
+    --warn:#b45309; --warn-soft:#b453091a;
     --shadow:0 18px 36px -24px rgba(20,24,40,.35); --radius:18px;
+    --body:'Work Sans',system-ui,sans-serif; --display:'Unbounded',system-ui,sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#0f1117; --surface:#181b24; --surface-2:#222633; --ink:#eef1f7; --muted:#9aa3b5; --line:#2e3342;
       --accent:#5cc8d9; --accent-ink:#0b1a1e; --accent-soft:#5cc8d91f;
       --silver:#b7c0d0; --gold:#f2b84b; --gold-soft:#f2b84b1f; --good:#4fd08a; --good-soft:#4fd08a1c;
-      --warn:#f59e0b; --warn-soft:#f59e0b1c; --hb:#fb923c; --swim:#60a5fa;
+      --warn:#f59e0b; --warn-soft:#f59e0b1c;
       --shadow:0 18px 40px -20px rgba(0,0,0,.6);
     }
   }
@@ -34,17 +35,20 @@
     --bg:#0f1117; --surface:#181b24; --surface-2:#222633; --ink:#eef1f7; --muted:#9aa3b5; --line:#2e3342;
     --accent:#5cc8d9; --accent-ink:#0b1a1e; --accent-soft:#5cc8d91f;
     --silver:#b7c0d0; --gold:#f2b84b; --gold-soft:#f2b84b1f; --good:#4fd08a; --good-soft:#4fd08a1c;
-    --warn:#f59e0b; --warn-soft:#f59e0b1c; --hb:#fb923c; --swim:#60a5fa;
+    --warn:#f59e0b; --warn-soft:#f59e0b1c;
     --shadow:0 18px 40px -20px rgba(0,0,0,.6);
   }
+  :root[lang="he"]{ --body:'Rubik','Work Sans',system-ui,sans-serif; --display:'Rubik','Unbounded',system-ui,sans-serif; }
+  :root[lang="he"] h1,:root[lang="he"] h2,:root[lang="he"] h3,:root[lang="he"] .brand,:root[lang="he"] .tm-kind{font-weight:800;letter-spacing:0}
   *{box-sizing:border-box}
   html,body{background:var(--bg)}
-  body{margin:0;color:var(--ink);font-family:'Work Sans',system-ui,sans-serif;font-size:16px;line-height:1.45;
+  body{margin:0;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;
     padding:0 16px calc(90px + env(safe-area-inset-bottom,0px));-webkit-text-size-adjust:100%}
-  h1,h2,h3,.brand{font-family:'Unbounded',system-ui,sans-serif;margin:0;text-wrap:balance}
+  h1,h2,h3,.brand{font-family:var(--display);margin:0;text-wrap:balance}
   h2{font-size:1.15rem} h3{font-size:1rem}
   p{margin:0}
-  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;unicode-bidi:isolate;direction:ltr}
+  .num{unicode-bidi:isolate;direction:ltr;display:inline-block}
   .wrap{max-width:720px;margin:0 auto}
   button,input,select,textarea{font:inherit;color:inherit}
   button{cursor:pointer}
@@ -52,13 +56,15 @@
 
   header.site{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(14px,env(safe-area-inset-top)) 0 10px}
   .brand{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
-  .brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--silver),var(--accent));color:#fff}
+  .brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--silver),var(--accent));color:#fff}
   .brand-mark svg{width:20px;height:20px}
+  :root[dir="rtl"] .brand-mark svg{transform:scaleX(-1)}
   .back{font-size:.85rem;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:8px 0}
   .back:hover{color:var(--ink)}
-  .iconbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+  .hdr-r{display:flex;gap:8px}
+  .iconbtn{min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0 8px;font-weight:700}
   .iconbtn svg{width:20px;height:20px}
+  .iconbtn:disabled{opacity:.4}
 
   .goal{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:10px;align-items:end;
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px}
@@ -66,19 +72,20 @@
   .goal .val{font-weight:700}
   .goal-bar{grid-column:1/-1;height:6px;border-radius:6px;background:var(--surface-2);overflow:hidden}
   .goal-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--silver),var(--accent));border-radius:6px}
+  :root[dir="rtl"] .goal-bar i{background:linear-gradient(270deg,var(--silver),var(--accent))}
 
   nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb,var(--surface) 92%,transparent);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);
     padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
   nav.tabs .in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-  nav.tabs button{border:0;background:none;padding:8px 4px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;
-    font-size:.75rem;font-weight:600;color:var(--muted)}
+  nav.tabs button{border:0;background:none;padding:8px 4px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;font-weight:600;color:var(--muted)}
   nav.tabs button svg{width:22px;height:22px}
   nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
 
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
   .card.flat{box-shadow:none}
   .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+  :root[lang="he"] .eyebrow,:root[lang="he"] .goal .lbl{letter-spacing:0;font-size:.8rem}
   .muted{color:var(--muted)}
   .small{font-size:.875rem}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -93,7 +100,7 @@
   .btn.block{width:100%}
 
   .daynav{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px}
-  .daynav h1{font-size:1.35rem}
+  .daynav h1{font-size:1.35rem;text-align:center}
   .daynav .sub{font-size:.85rem;color:var(--muted);text-align:center}
 
   .q h3{margin-bottom:10px}
@@ -101,18 +108,15 @@
   @media (max-width:420px){.chips{grid-template-columns:repeat(2,1fr)}}
   .chip{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 6px;font-weight:600;font-size:.9rem;min-height:46px}
   .chip.suggest{border-style:dashed;border-color:var(--muted)}
-  .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
   .answered{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-  .note{border-radius:12px;padding:10px 12px;font-size:.9rem;margin-bottom:12px;display:flex;gap:8px}
+  .note{border-radius:12px;padding:10px 12px;font-size:.9rem;margin-bottom:12px}
   .note.info{background:var(--accent-soft)}
   .note.warn{background:var(--warn-soft)}
-  .note.good{background:var(--good-soft)}
 
   .sess-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
   .sess-head h2{font-size:1.3rem;margin-top:4px}
-  .tag{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;
-    background:var(--surface-2);color:var(--muted);white-space:nowrap}
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
   .tag.hard{background:var(--warn-soft);color:var(--warn)}
   .tag.easy{background:var(--good-soft);color:var(--good)}
   .tag.done{background:var(--good);color:#fff}
@@ -124,14 +128,12 @@
   .group > .eyebrow{margin-bottom:4px}
   .check{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
   .check:last-child{border-bottom:0}
-  .check input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line);
-    background:var(--surface);display:grid;place-items:center;margin:0;cursor:pointer}
+  .check input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;margin:0;cursor:pointer}
   .check input[type=checkbox]:checked{background:var(--good);border-color:var(--good)}
   .check input[type=checkbox]:checked::after{content:"";width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
   .check .txt{flex:1;padding-top:2px}
   .check.on .tt{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
-  .check.on .sub{color:var(--muted)}
-  .check .sub{display:block;font-size:.82rem;color:var(--muted);text-decoration:none}
+  .check .sub{display:block;font-size:.82rem;color:var(--muted)}
   .timein{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
   .timein input{width:96px}
   .parsed{font-size:.82rem;color:var(--muted)}
@@ -139,25 +141,24 @@
   label.f{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin:14px 0 6px}
   input[type=text],input[type=date],input[type=number],input[type=email],input[type=password],select,textarea{
     width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;min-height:44px}
+  input.ltr,input[type=email],input[type=password]{direction:ltr;text-align:start}
+  :root[dir="rtl"] input.ltr{text-align:right}
   textarea{min-height:70px;resize:vertical}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .feel{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .feel{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;direction:ltr}
   .feel button{border:1px solid var(--line);background:var(--surface);border-radius:8px;min-height:40px;font-weight:700;font-size:.9rem;padding:0}
   .feel button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .feel-legend{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:4px}
+  .feel-legend{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:4px;direction:ltr}
 
   .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-  .actions .btn{flex:1}
+  .actions .btn,.actions select{flex:1}
 
-  .ideas{margin:10px 0 0;padding-left:20px}
+  .ideas{margin:10px 0 0;padding-inline-start:20px;padding-inline-end:0}
   .ideas li{margin:4px 0}
 
   table.t{width:100%;border-collapse:collapse;font-size:.9rem}
-  table.t th,table.t td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.t th,table.t td{text-align:start;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
   table.t th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-  table.t tr.cur td{background:var(--accent-soft)}
-  table.t tr.cur td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
-  .scrollx{overflow-x:auto}
   .wk{padding:10px 12px;border-radius:12px;margin-top:8px;border:1px solid var(--line)}
   .wk.cur{border-color:var(--accent);background:var(--accent-soft)}
   .wk-n{font-weight:700;margin-bottom:4px;display:flex;gap:8px;align-items:center}
@@ -167,7 +168,7 @@
   .log-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}
   .log-item:last-child{border-bottom:0}
   .log-date{flex:none;width:52px;text-align:center;border-radius:10px;background:var(--surface-2);padding:6px 0}
-  .log-date b{display:block;font-family:'Unbounded',sans-serif;font-size:1.05rem}
+  .log-date b{display:block;font-family:var(--display);font-size:1.05rem}
   .log-date span{font-size:.7rem;text-transform:uppercase;color:var(--muted)}
   .log-body{flex:1;min-width:0}
   .log-body .ttl{font-weight:600}
@@ -185,38 +186,38 @@
   .ach .star{flex:none;width:32px;height:32px;border-radius:10px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:1rem}
   .ach .when{font-size:.8rem;color:var(--muted)}
 
-  .chart-wrap{position:relative}
+  .chart-wrap{position:relative;direction:ltr}
   .chart-wrap svg{width:100%;height:auto;display:block;overflow:visible}
   .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 8px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%)}
 
-  /* timer overlay */
-  .overlay{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;
-    padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
-  .tm-top{display:flex;justify-content:space-between;align-items:center;max-width:720px;width:100%;margin:0 auto}
+  .overlay{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+  .tm-top{display:flex;justify-content:space-between;align-items:center;max-width:720px;width:100%;margin:0 auto;gap:8px}
   .tm-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;max-width:720px;width:100%;margin:0 auto}
-  .tm-kind{font-family:'Unbounded',sans-serif;font-weight:900;font-size:clamp(2.2rem,11vw,4.5rem);letter-spacing:-.02em}
+  .tm-kind{font-family:var(--display);font-weight:900;font-size:clamp(2.2rem,11vw,4.5rem);letter-spacing:-.02em}
   .tm-kind.run{color:var(--accent)} .tm-kind.walk{color:var(--good)} .tm-kind.rep{color:var(--warn)}
-  .tm-clock{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:clamp(4rem,24vw,9rem);line-height:1;font-variant-numeric:tabular-nums}
+  .tm-clock{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:clamp(4rem,24vw,9rem);line-height:1;font-variant-numeric:tabular-nums;direction:ltr}
   .tm-sub{color:var(--muted);font-size:1.05rem;max-width:32ch}
   .tm-next{color:var(--muted);font-size:.9rem}
   .tm-bar{height:6px;background:var(--surface-2);border-radius:6px;overflow:hidden;max-width:720px;width:100%;margin:0 auto 14px}
   .tm-bar i{display:block;height:100%;background:var(--accent)}
   .tm-ctrl{display:flex;gap:10px;max-width:720px;width:100%;margin:0 auto}
   .tm-ctrl .btn{flex:1;min-height:56px;font-size:1.05rem}
-  .tm-big{min-height:84px!important;font-size:1.4rem!important;font-family:'Unbounded',sans-serif}
+  .tm-big{min-height:84px!important;font-size:1.4rem!important;font-family:var(--display)}
 
   dialog{border:0;border-radius:20px;padding:0;width:min(560px,calc(100% - 24px));max-height:88vh;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.4)}
   dialog::backdrop{background:rgba(10,12,18,.5)}
   .dlg-in{padding:20px;overflow-y:auto;max-height:88vh}
   .dlg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .seg{display:inline-grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .seg button{border:0;background:var(--surface);padding:8px 16px;font-weight:600;min-height:40px}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
   .days7{display:grid;grid-template-columns:auto repeat(7,1fr);gap:4px 2px;align-items:center;font-size:.8rem;text-align:center}
   .days7 .h{font-weight:700;color:var(--muted)}
-  .days7 .r{text-align:left;font-weight:600;padding-right:6px}
+  .days7 .r{text-align:start;font-weight:600;padding-inline-end:6px}
   .days7 input{width:22px;height:22px;margin:auto;accent-color:var(--accent)}
   .sync-state{font-size:.85rem;padding:8px 10px;border-radius:10px;background:var(--surface-2)}
-  pre.rules{font-size:.72rem;background:var(--surface-2);padding:10px;border-radius:10px;overflow-x:auto;white-space:pre}
-  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);
-    padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;box-shadow:var(--shadow)}
+  pre.rules{font-size:.72rem;background:var(--surface-2);padding:10px;border-radius:10px;overflow-x:auto;white-space:pre;direction:ltr;text-align:left}
+  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;box-shadow:var(--shadow)}
   .celebrate{text-align:center;padding:8px 0 4px;font-size:2rem}
 </style>
 </head>
@@ -224,13 +225,16 @@
 <div class="wrap">
   <header class="site">
     <div>
-      <a class="back" href="index.html">← The Dot Den</a>
+      <a class="back" href="index.html" id="backLink">← The Dot Den</a>
       <div class="brand">
         <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><circle cx="14.5" cy="4.5" r="2.2" fill="currentColor"/><path d="M8 21l3-6 3 2v5M6 11l3-3 4 1 3 4 3 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         Silverun
       </div>
     </div>
-    <button class="iconbtn" id="settingsBtn" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+    <div class="hdr-r">
+      <button class="iconbtn" id="langBtn" aria-label="Switch language">עב</button>
+      <button class="iconbtn" id="settingsBtn" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+    </div>
   </header>
 
   <div class="goal" id="goalStrip"></div>
@@ -245,10 +249,10 @@
 
 <nav class="tabs" aria-label="Sections">
   <div class="in">
-    <button data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8.5 15l2.5 2.5 4.5-4.5"/></svg>Today</button>
-    <button data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Plan</button>
-    <button data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Log</button>
-    <button data-tab="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/></svg>Records</button>
+    <button data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8.5 15l2.5 2.5 4.5-4.5"/></svg><span id="tabToday">Today</span></button>
+    <button data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span id="tabPlan">Plan</span></button>
+    <button data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span id="tabLog">Log</span></button>
+    <button data-tab="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/></svg><span id="tabRecords">Records</span></button>
   </div>
 </nav>
 
@@ -262,6 +266,24 @@
 'use strict';
 
 /* ==========================================================
+   Language (per device)
+========================================================== */
+var LANG='en';
+try{ LANG=localStorage.getItem('silverun-lang')||((navigator.language||'').slice(0,2)==='he'?'he':'en'); }catch(e){}
+function L(en,he){ return LANG==='he'?he:en; }
+function applyLang(){
+  var r=document.documentElement; r.lang=LANG; r.dir=L('ltr','rtl');
+  document.title=L('Silverun · The Dot Den','Silverun · סילברן');
+  $('backLink').textContent=L('← The Dot Den','→ The Dot Den');
+  $('langBtn').textContent=L('עב','EN');
+  $('langBtn').setAttribute('aria-label',L('עברית','English'));
+  $('settingsBtn').setAttribute('aria-label',L('Settings','הגדרות'));
+  $('tabToday').textContent=L('Today','היום'); $('tabPlan').textContent=L('Plan','תוכנית');
+  $('tabLog').textContent=L('Log','יומן'); $('tabRecords').textContent=L('Records','שיאים');
+}
+function setLang(l){ LANG=l; try{ localStorage.setItem('silverun-lang',l); }catch(e){} applyLang(); render(); if (TM) drawTimer(); }
+
+/* ==========================================================
    Dates (local time, YYYY-MM-DD strings)
 ========================================================== */
 function pad(n){ return (n<10?'0':'')+n; }
@@ -271,30 +293,38 @@ function addDays(s,n){ var d=pd(s); d.setDate(d.getDate()+n); return ds(d); }
 function dow(s){ return pd(s).getDay(); }
 function weekStart(s){ return addDays(s,-dow(s)); }
 function diffDays(a,b){ return Math.round((pd(b)-pd(a))/86400000); } // b - a
-var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-var DOWL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function nice(s){ var d=pd(s); return DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]; }
-function realToday(){
-  var q=/[?&]today=(\d{4}-\d{2}-\d{2})/.exec(location.search);
-  return q?q[1]:ds(new Date());
-}
+var DOW_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], DOW_HE=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+var DOWL_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], DOWL_HE=['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי','יום שישי','שבת'];
+var MON_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], MON_HE=['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+function DOW(i){ return L(DOW_EN[i],DOW_HE[i]); }
+function DOWL(i){ return L(DOWL_EN[i],DOWL_HE[i]); }
+function MON(i){ return L(MON_EN[i],MON_HE[i]); }
+function nice(s){ var d=pd(s); return L(DOW_EN[d.getDay()]+' '+d.getDate()+' '+MON_EN[d.getMonth()], 'יום '+DOW_HE[d.getDay()]+', '+d.getDate()+' ב'+MON_HE[d.getMonth()]); }
+function longDate(s){ var d=pd(s); return L(DOWL_EN[d.getDay()]+' '+d.getDate()+' '+MON_EN[d.getMonth()], DOWL_HE[d.getDay()]+', '+d.getDate()+' ב'+MON_HE[d.getMonth()]); }
+function realToday(){ var q=/[?&]today=(\d{4}-\d{2}-\d{2})/.exec(location.search); return q?q[1]:ds(new Date()); }
 var TODAY=realToday();
 
 /* ==========================================================
-   Time parsing / formatting
+   Units, time parsing / formatting
 ========================================================== */
-function fmt(sec){
+function MIN(n){ return n+L(' min',' דק׳'); }
+function M(n){ return n+L(' m',' מ׳'); }
+function dname(d){ return d>=1000 ? (d/1000)+L(' km',' ק״מ') : M(d); }
+// number only (no unit): "1:32" or "9.8"
+function fmtN(sec){
   if (sec==null || isNaN(sec)) return '—';
-  if (sec<60){ return (Math.round(sec*10)/10).toFixed(1)+' s'; }
+  if (sec<60) return (Math.round(sec*10)/10).toFixed(1);
   var m=Math.floor(sec/60), s=sec-m*60;
-  var ss = (Math.abs(s-Math.round(s))<0.05) ? pad(Math.round(s)) : (s<10?'0':'')+s.toFixed(1);
+  var ss=(Math.abs(s-Math.round(s))<0.05) ? pad(Math.round(s)) : (s<10?'0':'')+s.toFixed(1);
   if (ss==='60'){ m++; ss='00'; }
   return m+':'+ss;
 }
+function fmt(sec){ if (sec==null||isNaN(sec)) return '—'; return sec<60 ? fmtN(sec)+L(' s',' שנ׳') : fmtN(sec); }
 function fmtClock(sec){ sec=Math.max(0,Math.ceil(sec)); return Math.floor(sec/60)+':'+pad(sec%60); }
 function fmtWatch(sec){ var m=Math.floor(sec/60), s=sec-m*60; return m+':'+(s<10?'0':'')+s.toFixed(1); }
-function pace(sec,d){ if(!sec||!d||d<200) return ''; var p=sec/d*1000; return fmtClock(p)+'/km'; }
+function pace(sec,d){ if(!sec||!d||d<200) return ''; return fmtClock(sec/d*1000)+L('/km',' לק״מ'); }
+function nn(x){ return '<span class="num">'+x+'</span>'; }
+function np(x){ return LANG==='he' ? '<span style="unicode-bidi:isolate">'+x+'</span>' : nn(x); }
 // Accepts "1:32", "1:32.5", "9.8" (seconds), "1.32" (=1:32 for 200 m+), plain "95" (seconds) or "10" (minutes for 1 km+)
 function parseTime(str,d){
   if (str==null) return null; str=String(str).trim().replace(',', '.');
@@ -302,11 +332,7 @@ function parseTime(str,d){
   var m;
   if ((m=/^(\d{1,3}):(\d{1,2}(?:\.\d+)?)$/.exec(str))) { var s=+m[2]; if (s>=60) return null; return +m[1]*60+s; }
   if ((m=/^(\d{1,2})\.(\d{2})$/.exec(str)) && d>=200 && +m[1]<=30 && +m[2]<60) return +m[1]*60+ +m[2];
-  if (/^\d+(\.\d+)?$/.test(str)){
-    var v=+str;
-    if (d>=1000 && v<=40) return v*60;
-    return v>0?v:null;
-  }
+  if (/^\d+(\.\d+)?$/.test(str)){ var v=+str; if (d>=1000 && v<=40) return v*60; return v>0?v:null; }
   return null;
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
@@ -319,120 +345,104 @@ function now(){ return Date.now(); }
 function rw(n,run,walk){ var a=[]; for(var i=0;i<n;i++){ a.push(['r',run]); if(i<n-1) a.push(['w',walk]); } return a; }
 var WEEKS=8;
 var KEYS={
-  L:{name:'Longest run', tag:'Endurance', why:'Builds the engine — the ability to keep running. Chatting pace: if he can’t talk, slow down. Walk only where written.'},
-  E:{name:'Easy run + strength', tag:'Easy', why:'Easy running plus a little strength for strong legs and fewer injuries. It should feel easy.'},
-  I:{name:'Goal-pace intervals', tag:'Hard', why:'Teaches goal pace: 5:00 per km = 60 s per 200 m. Controlled and even — do NOT sprint the reps.'},
-  F:{name:'Fun run', tag:'Easy', why:'Relaxed and fun — run together, try a new route. The strides wake the legs up.'}
+  L:{name:['Longest run','הריצה הארוכה'], tag:['Endurance','סיבולת'], why:['Builds the engine — the ability to keep running. Chatting pace: if he can’t talk, slow down. Walk only where written.','בונה את המנוע — היכולת להמשיך לרוץ. קצב שיחה: אם אי אפשר לדבר, מאטים. הולכים רק איפה שכתוב.']},
+  E:{name:['Easy run + strength','ריצה קלה + כוח'], tag:['Easy','קל'], why:['Easy running plus a little strength for strong legs and fewer injuries. It should feel easy.','ריצה קלה ועוד קצת כוח — רגליים חזקות ופחות פציעות. צריך להרגיש קל.']},
+  I:{name:['Goal-pace intervals','אינטרוולים בקצב היעד'], tag:['Hard','קשה'], why:['Teaches goal pace: 5:00 per km = 60 s per 200 m. Controlled and even — do NOT sprint the reps.','מלמד את קצב היעד: 5:00 לק״מ = 60 שניות ל־200 מ׳. מבוקר ואחיד — לא עושים ספרינט בחזרות.']},
+  F:{name:['Fun run','ריצת כיף'], tag:['Easy','קל'], why:['Relaxed and fun — run together, try a new route. The strides wake the legs up.','רגוע וכיפי — רצים יחד, מנסים מסלול חדש. הסטריידים מעירים את הרגליים.']}
 };
 var PLAN={
   L:[{segs:rw(3,6,1)},{segs:rw(2,9,1)},{segs:[['r',12],['w',1],['r',5]]},
-     {test:{d:2000,easy:true},title:'First nonstop 2 km',why:'Easy pace, no stopping — speed doesn’t matter today. Just finish the 2 km. Time it for the record.'},
-     {segs:[['r',15]]},{segs:[['r',18]]},{segs:[['r',20]]},{segs:[['r',15]],why:'Test week — keep this one relaxed.'}],
+     {test:{d:2000,easy:true},title:['First nonstop 2 km','2 ק״מ ראשונים ברצף'],why:['Easy pace, no stopping — speed doesn’t matter today. Just finish the 2 km. Time it for the record.','קצב קל, בלי לעצור — המהירות לא משנה היום. רק לסיים 2 ק״מ. מודדים זמן בשביל השיאים.']},
+     {segs:[['r',15]]},{segs:[['r',18]]},{segs:[['r',20]]},{segs:[['r',15]],why:['Test week — keep this one relaxed.','שבוע המבחן — ריצה רגועה.']}],
   E:[{segs:rw(3,4,1),str:1},{segs:rw(2,6,1),str:1},{segs:[['r',8],['w',1],['r',4]],str:1},{segs:[['r',12]],str:1},
      {segs:[['r',12]],str:1},{segs:[['r',14]],str:1},{segs:[['r',15]],str:1},
-     {segs:[['r',10]],strides:4,title:'Easy run + strides',why:'No strength this week — fresh legs for the 2 km test.'}],
+     {segs:[['r',10]],strides:4,title:['Easy run + strides','ריצה קלה + סטריידים'],why:['No strength this week — fresh legs for the 2 km test.','בלי כוח השבוע — רגליים רעננות למבחן ה־2 ק״מ.']}],
   I:[{reps:[4,300,95,120]},{reps:[4,300,90,120]},{reps:[5,300,90,120]},{reps:[4,400,120,150]},
      {reps:[5,400,120,120]},{reps:[3,600,180,180]},{reps:[2,800,240,180]},
-     {test:{d:2000,goal:600},title:'The 2 km test',why:'The big one. First km controlled (4:55–5:00), then push the last 500 m. Starting too fast is the #1 mistake.'}],
+     {test:{d:2000,goal:600},title:['The 2 km test','מבחן ה־2 ק״מ'],why:['The big one. First km controlled (4:55–5:00), then push the last 500 m. Starting too fast is the #1 mistake.','הגדול. ק״מ ראשון מבוקר (4:55–5:00), ואז לוחצים ב־500 המטרים האחרונים. לפתוח מהר מדי זו הטעות מספר 1.']}],
   F:[{segs:rw(3,3,1),strides:4},{segs:rw(3,3,1),strides:4},{segs:rw(2,5,1),strides:4},
-     {test:{d:1000,goal:320},title:'1 km time check',why:'Warm up well, then 1 km at a strong, even effort. Goal: 5:20 or better.'},
+     {test:{d:1000,goal:320},title:['1 km time check','בדיקת זמן 1 ק״מ'],why:['Warm up well, then 1 km at a strong, even effort. Goal: 5:20 or better.','חימום טוב, ואז 1 ק״מ במאמץ חזק ואחיד. יעד: 5:20 או פחות.']},
      {segs:[['r',10]],strides:4},
-     {test:{d:1000,goal:305},title:'1 km time check',why:'Strong, even 1 km. Goal: about 5:05 — goal pace is getting close.'},
+     {test:{d:1000,goal:305},title:['1 km time check','בדיקת זמן 1 ק״מ'],why:['Strong, even 1 km. Goal: about 5:05 — goal pace is getting close.','ק״מ אחד חזק ואחיד. יעד: בערך 5:05 — קצב היעד מתקרב.']},
      {segs:[['r',12]],strides:4},
-     {segs:[['r',10]],title:'Very easy jog',why:'After the test — enjoy an easy jog, or take the day off.'}]
+     {segs:[['r',10]],title:['Very easy jog','ריצה קלה מאוד'],why:['After the test — enjoy an easy jog, or take the day off.','אחרי המבחן — ריצה קלה ונעימה, או יום חופש.']}]
 };
-// Default 6am slot per weekday (Sun=0)
+function T2(a){ return a ? L(a[0],a[1]) : null; }
 var SLOT={1:'L',4:'E',5:'I',6:'F'};
 function def(key,lvl){
   lvl=Math.max(1,Math.min(WEEKS,lvl||1));
   var p=PLAN[key][lvl-1], k=KEYS[key];
-  var d={key:key,lvl:lvl,title:p.title||k.name,why:p.why||k.why,segs:p.segs||null,str:!!p.str,strides:p.strides||0,test:p.test||null,reps:null};
+  var d={key:key,lvl:lvl,title:T2(p.title)||T2(k.name),special:!!p.title,why:T2(p.why)||T2(k.why),segs:p.segs||null,str:!!p.str,strides:p.strides||0,test:p.test||null,reps:null};
   if (p.reps) d.reps={n:p.reps[0],d:p.reps[1],t:p.reps[2],rest:p.reps[3]};
   d.hard = key==='I' || !!(d.test && !d.test.easy);
   return d;
 }
 function summary(d){
-  if (d.reps) return d.reps.n+' × '+d.reps.d+' m in ~'+fmt(d.reps.t)+', '+fmt(d.reps.rest)+' walk between';
-  if (d.test) return (d.test.d/1000)+' km'+(d.test.goal?' — goal '+fmt(d.test.goal):' nonstop, easy');
+  if (d.reps) return d.reps.n+' × '+M(d.reps.d)+L(' in ~',' ב־~')+fmtN(d.reps.t)+L(', '+fmtN(d.reps.rest)+' walk between',', '+fmtN(d.reps.rest)+' הליכה בין החזרות');
+  if (d.test) return dname(d.test.d)+(d.test.goal?L(' — goal ',' — יעד ')+fmtN(d.test.goal):L(' nonstop, easy',' ברצף, קל'));
   var s=[], runs=d.segs.filter(function(x){return x[0]==='r';});
   var same = runs.length>1 && d.segs.every(function(x,i){ return x[0]===(i%2?'w':'r') && x[1]===d.segs[i%2][1]; });
-  if (same) s.push(runs.length+' × ('+runs[0][1]+' min run + '+d.segs[1][1]+' min walk)');
-  else s.push(d.segs.map(function(x){return x[1]+' min '+(x[0]==='r'?'run':'walk');}).join(' → '));
-  if (d.str) s.push('strength');
-  if (d.strides) s.push(d.strides+' strides');
+  if (same) s.push(runs.length+' × ('+MIN(runs[0][1])+L(' run + ',' ריצה + ')+MIN(d.segs[1][1])+L(' walk)',' הליכה)'));
+  else s.push(d.segs.map(function(x){return MIN(x[1])+(x[0]==='r'?L(' run',' ריצה'):L(' walk',' הליכה'));}).join(L(' → ',' ← ')));
+  if (d.str) s.push(L('strength','כוח'));
+  if (d.strides) s.push(d.strides+L(' strides',' סטריידים'));
   return s.join(' + ');
 }
 function items(d){
   var g=[];
-  g.push({name:'Before',items:[{id:'pre',t:'Half a banana + a glass of water'}]});
-  var w=[{id:'warm',t:'5 min warm-up: brisk walk, then easy jog'},{id:'drills',t:'Drills: 10 leg swings per leg, high knees 20 m, butt kicks 20 m'}];
-  if (d.reps || d.test) w.push({id:'prime',t:'2 relaxed strides (60 m) to get ready'});
-  g.push({name:'Warm-up',items:w});
+  g.push({name:L('Before','לפני'),items:[{id:'pre',t:L('Half a banana + a glass of water','חצי בננה + כוס מים')}]});
+  var w=[{id:'warm',t:L('5 min warm-up: brisk walk, then easy jog','5 דק׳ חימום: הליכה מהירה ואז ריצה קלה')},
+         {id:'drills',t:L('Drills: 10 leg swings per leg, high knees 20 m, butt kicks 20 m','תרגילים: 10 הנפות לכל רגל, הרמות ברכיים 20 מ׳, עקבים לישבן 20 מ׳')}];
+  if (d.reps || d.test) w.push({id:'prime',t:L('2 relaxed strides (60 m) to get ready','2 סטריידים רגועים (60 מ׳) כדי להתכונן')});
+  g.push({name:L('Warm-up','חימום'),items:w});
   var m=[];
-  if (d.segs){
-    d.segs.forEach(function(s,i){
-      if (s[0]!=='r') return;
-      var nx=d.segs[i+1];
-      m.push({id:'b'+i,t:'Run '+s[1]+' min — easy',sub: nx && nx[0]==='w' ? 'then walk '+nx[1]+' min' : ''});
-    });
-  }
-  if (d.reps){
-    for (var i=0;i<d.reps.n;i++) m.push({id:'r'+i,t:'Rep '+(i+1)+': '+d.reps.d+' m — target '+fmt(d.reps.t),sub: i<d.reps.n-1?'then '+fmt(d.reps.rest)+' walk / slow jog':'',time:{idx:i,d:d.reps.d,t:d.reps.t}});
-  }
-  if (d.test) m.push({id:'test',t: d.test.easy ? (d.test.d/1000)+' km nonstop, easy pace' : (d.test.d/1000)+' km — goal under '+fmt(d.test.goal),sub:'Time it',time:{idx:'test',d:d.test.d,t:d.test.goal}});
-  if (d.strides) m.push({id:'strides',t:d.strides+' × 60 m relaxed-fast strides',sub:'walk back between'});
-  g.push({name:'Main',items:m});
-  if (d.str) g.push({name:'Strength — 2 rounds',items:[{id:'s1',t:'10 squats'},{id:'s2',t:'8 lunges per leg'},{id:'s3',t:'20–30 s plank'},{id:'s4',t:'15 calf raises'}]});
-  g.push({name:'Finish',items:[{id:'cool',t:'3–5 min cool-down walk'},{id:'stretch',t:'Stretch calves, thighs, hips — 20 s each'}]});
+  if (d.segs) d.segs.forEach(function(s,i){
+    if (s[0]!=='r') return;
+    var nx=d.segs[i+1];
+    m.push({id:'b'+i,t:L('Run '+s[1]+' min — easy','ריצה '+s[1]+' דק׳ — קל'),sub: nx && nx[0]==='w' ? L('then walk '+nx[1]+' min','ואז הליכה '+nx[1]+' דק׳') : ''});
+  });
+  if (d.reps) for (var i=0;i<d.reps.n;i++) m.push({id:'r'+i,t:L('Rep '+(i+1)+': '+d.reps.d+' m — target '+fmtN(d.reps.t),'חזרה '+(i+1)+': '+d.reps.d+' מ׳ — יעד '+fmtN(d.reps.t)),
+      sub: i<d.reps.n-1?L('then '+fmtN(d.reps.rest)+' walk / slow jog','ואז '+fmtN(d.reps.rest)+' הליכה / ריצה איטית'):'',time:{idx:i,d:d.reps.d,t:d.reps.t}});
+  if (d.test) m.push({id:'test',t: d.test.easy ? dname(d.test.d)+L(' nonstop, easy pace',' ברצף, קצב קל') : dname(d.test.d)+L(' — goal under ',' — יעד: מתחת ל־')+fmtN(d.test.goal),sub:L('Time it','למדוד זמן'),time:{idx:'test',d:d.test.d,t:d.test.goal}});
+  if (d.strides) m.push({id:'strides',t:L(d.strides+' × 60 m relaxed-fast strides',d.strides+' × 60 מ׳ סטריידים — מהיר ורגוע'),sub:L('walk back between','חוזרים בהליכה')});
+  g.push({name:L('Main','עיקר האימון'),items:m});
+  if (d.str) g.push({name:L('Strength — 2 rounds','כוח — 2 סבבים'),items:[{id:'s1',t:L('10 squats','10 סקוואטים')},{id:'s2',t:L('8 lunges per leg','8 מכרעים לכל רגל')},{id:'s3',t:L('20–30 s plank','20–30 שנ׳ פלאנק')},{id:'s4',t:L('15 calf raises','15 הרמות עקבים')}]});
+  g.push({name:L('Finish','סיום'),items:[{id:'cool',t:L('3–5 min cool-down walk','3–5 דק׳ הליכת שחרור')},{id:'stretch',t:L('Stretch calves, thighs, hips — 20 s each','מתיחות: שוקיים, ירכיים, אגן — 20 שנ׳ כל אחת')}]});
   return g;
 }
 function allItemIds(d){ var a=[]; items(d).forEach(function(g){ g.items.forEach(function(it){ a.push(it.id); }); }); return a; }
 
 /* ==========================================================
-   State
+   State (saved on the device; synced when signed in)
 ========================================================== */
 var LS='silverun-v1';
 var DEFAULT_START='2026-10-01';
-function blank(){
-  return {v:1,days:{},measures:[],settings:{t:0,name:'',start:DEFAULT_START,practice:{0:['h'],2:['h'],3:['h','s'],5:['s']},voice:true,shift:null}};
-}
+function blank(){ return {v:1,days:{},measures:[],settings:{t:0,name:'',start:DEFAULT_START,practice:{0:['h'],2:['h'],3:['h','s'],5:['s']},voice:true,shift:null}}; }
 var S;
 try{ S=JSON.parse(localStorage.getItem(LS)||'null'); }catch(e){ S=null; }
 if (!S || !S.days) S=blank();
-(function fill(){ var b=blank(); for (var k in b.settings) if (!(k in S.settings)) S.settings[k]=b.settings[k]; if(!S.measures) S.measures=[]; })();
-
-var saveTimer=null;
-function save(noSync){
-  try{ localStorage.setItem(LS,JSON.stringify(S)); }catch(e){}
-  if (!noSync) queuePush();
-}
-function day(date,create){
-  if (!S.days[date] && create) S.days[date]={t:0};
-  return S.days[date];
-}
+(function(){ var b=blank(); for (var k in b.settings) if (!(k in S.settings)) S.settings[k]=b.settings[k]; if(!S.measures) S.measures=[]; })();
+function save(noSync){ try{ localStorage.setItem(LS,JSON.stringify(S)); }catch(e){} if (!noSync) queuePush(); }
+function day(date,create){ if (!S.days[date] && create) S.days[date]={t:0}; return S.days[date]; }
 function touch(date){ var d=day(date,true); d.t=now(); save(); }
 function touchSettings(){ S.settings.t=now(); save(); }
+try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 
 /* ==========================================================
    Engine
 ========================================================== */
-function practiceFor(date){
-  var d=S.days[date];
-  if (d && d.pa) return d.p||[];
-  return (S.settings.practice[dow(date)]||[]).slice();
-}
+function practiceFor(date){ var d=S.days[date]; if (d && d.pa) return d.p||[]; return (S.settings.practice[dow(date)]||[]).slice(); }
 function answered(date){ var d=S.days[date]; return !!(d&&d.pa); }
 function doneSess(date){ var d=S.days[date]; return d && d.s && d.s.st==='done' ? d.s : null; }
 function levelFor(ws){
-  var start=weekStart(S.settings.start), lvl=1, w=start, zero=0;
-  var sh=S.settings.shift;
+  var start=weekStart(S.settings.start), lvl=1, w=start, zero=0, sh=S.settings.shift;
   if (sh && sh.from<=ws && sh.from>=start){ w=sh.from; lvl=sh.lvl; }
   while (w<ws){
     var keys={}, runs=0;
     for (var i=0;i<7;i++){ var s=doneSess(addDays(w,i)); if (s){ runs++; keys[s.key]=1; } }
     var key=(keys.L?1:0)+(keys.I?1:0)+(keys.E?1:0);
     if (key>=2){ lvl=Math.min(WEEKS,lvl+1); zero=0; }
-    else if (runs===0 && w>=weekStart(S.settings.start)){ zero++; if (zero>=2){ lvl=Math.max(1,lvl-1); zero=0; } }
+    else if (runs===0){ zero++; if (zero>=2){ lvl=Math.max(1,lvl-1); zero=0; } }
     else zero=0;
     w=addDays(w,7);
   }
@@ -449,48 +459,32 @@ function lastRunBefore(date){
   return null;
 }
 function wasHard(date){
-  var p=practiceFor(date);
-  if (p.indexOf('h')>=0) return true;
-  var s=doneSess(date); if (s && def(s.key,s.lvl).hard) return true;
-  return false;
+  if (practiceFor(date).indexOf('h')>=0) return true;
+  var s=doneSess(date); return !!(s && def(s.key,s.lvl).hard);
 }
 function suggest(date){
-  var res={date:date,notes:[]};
-  var start=S.settings.start;
+  var res={date:date,notes:[]}, start=S.settings.start;
   if (date<start){ res.type='before'; return res; }
   var ws=weekStart(date), lvl=levelFor(ws);
-  res.lvl=lvl; res.week=lvl;
-  var dd=S.days[date];
-  var prac=practiceFor(date); res.practice=prac;
+  res.lvl=lvl;
+  var dd=S.days[date], prac=practiceFor(date); res.practice=prac;
   if (dd && dd.s && dd.s.key){ res.type='session'; res.key=dd.s.key; res.lvl=dd.s.lvl||lvl; res.stored=true; return res; }
   if (dd && dd.s && dd.s.st==='rest'){ res.type='rest'; res.reason='tired'; return res; }
   if (prac.indexOf('h')>=0){ res.type='practice'; return res; }
   var wk=weekKeysDone(date);
   if (wk.runs>=4){ res.type='rest'; res.reason='max'; return res; }
-  var r1=doneSess(addDays(date,-1)), r2=doneSess(addDays(date,-2)), r3=doneSess(addDays(date,-3));
-  if (r1&&r2&&r3){ res.type='rest'; res.reason='streak'; return res; }
-  var yHard=wasHard(addDays(date,-1));
-  var last=lastRunBefore(date), gap = last ? diffDays(last,date) : null;
-  var order=[];
-  var slot=SLOT[dow(date)];
-  var comeback = last && gap>=7;
-  if (comeback){ order=['E','F','L']; res.notes.push({k:'warn',t:'Welcome back! It’s been '+gap+' days since the last run, so today is an easy one.'}); }
-  else {
-    if (slot==='L'||slot==='I') order.push(slot);
-    order.push('L','I','E','F');
-  }
+  if (doneSess(addDays(date,-1))&&doneSess(addDays(date,-2))&&doneSess(addDays(date,-3))){ res.type='rest'; res.reason='streak'; return res; }
+  var yHard=wasHard(addDays(date,-1)), last=lastRunBefore(date), gap=last?diffDays(last,date):null;
+  var slot=SLOT[dow(date)], comeback=last && gap>=7, order=[];
+  if (comeback){ order=['E','F','L']; res.notes.push({k:'warn',t:L('Welcome back! It’s been '+gap+' days since the last run, so today is an easy one.','ברוך השב! עברו '+gap+' ימים מהריצה האחרונה, אז היום אימון קל.')}); }
+  else { if (slot==='L'||slot==='I') order.push(slot); order.push('L','I','E','F'); }
   var pick=null;
-  for (var i=0;i<order.length;i++){
-    var k=order[i];
-    if (wk.keys[k]) continue;
-    if (k==='I' && yHard){ continue; }
-    pick=k; break;
-  }
+  for (var i=0;i<order.length;i++){ var k=order[i]; if (wk.keys[k]) continue; if (k==='I' && yHard) continue; pick=k; break; }
   if (!pick){ res.type='rest'; res.reason= wk.keys.L&&wk.keys.I&&wk.keys.E ? 'weekdone' : 'recover'; return res; }
   var mon=addDays(ws,1);
-  if (!comeback && pick==='L' && slot!=='L' && date>mon && mon>=start) res.notes.push({k:'info',t:'Monday’s long run was missed, so it comes first today.'});
-  if (!comeback && pick!=='I' && slot==='I' && !wk.keys.I && yHard) res.notes.push({k:'info',t:'Yesterday was a hard day, so the intervals wait — easier session today.'});
-  if (prac.indexOf('s')>=0) res.notes.push({k:'info',t:'Swimming later today — that’s light, running is fine.'});
+  if (!comeback && pick==='L' && slot!=='L' && date>mon && mon>=start) res.notes.push({k:'info',t:L('Monday’s long run was missed, so it comes first today.','הריצה הארוכה של יום שני התפספסה, אז היא באה היום קודם.')});
+  if (!comeback && pick!=='I' && slot==='I' && !wk.keys.I && yHard) res.notes.push({k:'info',t:L('Yesterday was a hard day, so the intervals wait — easier session today.','אתמול היה יום קשה, אז האינטרוולים מחכים — היום אימון קל יותר.')});
+  if (prac.indexOf('s')>=0) res.notes.push({k:'info',t:L('Swimming later today — that’s light, running is fine.','יש שחייה אחר כך — זה קל, אפשר לרוץ.')});
   res.type='session'; res.key=pick; return res;
 }
 
@@ -509,20 +503,17 @@ function efforts(){
   out.sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:a.sec-b.sec; });
   return out;
 }
-function pbs(){
-  var best={}; efforts().forEach(function(e){ if(!best[e.d]||e.sec<best[e.d].sec) best[e.d]=e; }); return best;
-}
+function pbs(){ var best={}; efforts().forEach(function(e){ if(!best[e.d]||e.sec<best[e.d].sec) best[e.d]=e; }); return best; }
 function achievements(){
-  var list=[], seen={};
-  var dates=Object.keys(S.days).sort();
-  var first=null;
-  dates.forEach(function(date){
+  var list=[], seen={}, first=null;
+  Object.keys(S.days).sort().forEach(function(date){
     var d=S.days[date], s=d.s;
     if (s && s.st==='done'){
-      if (!first){ first=date; list.push({date:date,t:'First Silverun session done',auto:1}); }
-      if (s.key==='L' && s.lvl===3 && !seen.l3){ seen.l3=1; list.push({date:date,t:'First 12 minutes of nonstop running',auto:1}); }
-      if (s.key==='L' && s.lvl>=5 && !seen.l5){ seen.l5=1; list.push({date:date,t:'15 minutes nonstop',auto:1}); }
-      if (s.key==='L' && s.lvl===7 && !seen.l7){ seen.l7=1; list.push({date:date,t:'20 minutes nonstop',auto:1}); }
+      if (!first){ first=date; list.push({date:date,t:L('First Silverun session done','אימון Silverun ראשון הושלם'),auto:1}); }
+      if (s.key==='L' && s.lvl===3 && !seen.l3){ seen.l3=1; list.push({date:date,t:L('First 12 minutes of nonstop running','12 דקות ריצה ברצף — פעם ראשונה'),auto:1}); }
+      if (s.key==='L' && s.lvl===4 && !seen.l4){ seen.l4=1; list.push({date:date,t:L('First nonstop 2 km','2 ק״מ ראשונים ברצף'),auto:1}); }
+      if (s.key==='L' && s.lvl>=5 && !seen.l5){ seen.l5=1; list.push({date:date,t:L('15 minutes nonstop','15 דקות ברצף'),auto:1}); }
+      if (s.key==='L' && s.lvl===7 && !seen.l7){ seen.l7=1; list.push({date:date,t:L('20 minutes nonstop','20 דקות ברצף'),auto:1}); }
     }
     if (s && s.ach) list.push({date:date,t:s.ach});
     if (d.pl && d.pl.ach) list.push({date:date,t:d.pl.ach});
@@ -530,30 +521,25 @@ function achievements(){
   var best={};
   efforts().forEach(function(e){
     var b=best[e.d];
-    if (!b){ best[e.d]=e.sec; if (e.d===2000) list.push({date:e.date,t:'First timed 2 km: '+fmt(e.sec),auto:1}); else list.push({date:e.date,t:'First timed '+dname(e.d)+': '+fmt(e.sec),auto:1,minor:1}); }
-    else if (e.sec<b){ best[e.d]=e.sec; list.push({date:e.date,t:'New best '+dname(e.d)+': '+fmt(e.sec)+' (was '+fmt(b)+')',auto:1}); }
-    if (e.d===2000 && e.sec<600 && !seen.goal){ seen.goal=1; list.push({date:e.date,t:'🏆 GOAL: 2 km under 10:00 — '+fmt(e.sec),auto:1,big:1}); }
-    if (e.d===1000 && e.sec<=300 && !seen.k1){ seen.k1=1; list.push({date:e.date,t:'1 km at goal pace (5:00 or better)',auto:1}); }
+    if (!b){ best[e.d]=e.sec; list.push({date:e.date,t:L('First timed '+dname(e.d)+': ','זמן ראשון ל־'+dname(e.d)+': ')+fmt(e.sec),auto:1,minor:e.d!==2000}); }
+    else if (e.sec<b){ best[e.d]=e.sec; list.push({date:e.date,t:L('New best '+dname(e.d)+': '+fmt(e.sec)+' (was '+fmt(b)+')','שיא חדש ב־'+dname(e.d)+': '+fmt(e.sec)+' (היה '+fmt(b)+')'),auto:1}); }
+    if (e.d===2000 && e.sec<600 && !seen.goal){ seen.goal=1; list.push({date:e.date,t:L('🏆 GOAL: 2 km under 10:00 — ','🏆 היעד הושג: 2 ק״מ מתחת ל־10:00 — ')+fmt(e.sec),auto:1,big:1}); }
+    if (e.d===1000 && e.sec<=300 && !seen.k1){ seen.k1=1; list.push({date:e.date,t:L('1 km at goal pace (5:00 or better)','1 ק״מ בקצב היעד (5:00 או פחות)'),auto:1}); }
   });
-  // week level-ups
   var start=weekStart(S.settings.start), cur=weekStart(TODAY), prev=levelFor(start);
   for (var w=addDays(start,7); w<=cur; w=addDays(w,7)){
-    var l=levelFor(w); if (l>prev){ list.push({date:addDays(w,-1),t:'Week '+prev+' complete → on to week '+l,auto:1}); } prev=l;
+    var l=levelFor(w); if (l>prev) list.push({date:addDays(w,-1),t:L('Week '+prev+' complete → on to week '+l,'שבוע '+prev+' הושלם ← ממשיכים לשבוע '+l),auto:1}); prev=l;
   }
   list.sort(function(a,b){ return a.date<b.date?1:a.date>b.date?-1:0; });
   return list;
 }
-function dname(d){ return d>=1000 ? (d/1000)+' km' : d+' m'; }
 
 /* ==========================================================
    UI helpers
 ========================================================== */
-var $=function(id){ return document.getElementById(id); };
+function $(id){ return document.getElementById(id); }
 var view='today', cur=TODAY;
-function toast(msg){
-  var t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); },2200);
-}
+function toast(msg){ var t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.remove(); },2200); }
 function setTab(t){
   view=t;
   ['today','plan','log','records'].forEach(function(x){ $('view-'+x).hidden = x!==t; });
@@ -561,61 +547,57 @@ function setTab(t){
   render(); window.scrollTo(0,0);
 }
 document.querySelectorAll('nav.tabs button').forEach(function(b){ b.addEventListener('click',function(){ if (b.dataset.tab==='today' && view==='today') cur=TODAY; setTab(b.dataset.tab); }); });
+$('langBtn').onclick=function(){ setLang(LANG==='he'?'en':'he'); };
 
 function render(){
   renderGoal();
-  if (view==='today') renderToday();
-  else if (view==='plan') renderPlan();
-  else if (view==='log') renderLog();
-  else renderRecords();
+  if (view==='today') renderToday(); else if (view==='plan') renderPlan(); else if (view==='log') renderLog(); else renderRecords();
 }
 function renderGoal(){
   var b=pbs()[2000], lvl=levelFor(weekStart(TODAY < S.settings.start ? S.settings.start : TODAY));
   var pct = b ? Math.max(4,Math.min(100, Math.round((1 - (b.sec-600)/360)*100))) : 0;
-  var name=S.settings.name?esc(S.settings.name)+'’s goal':'Goal';
-  $('goalStrip').innerHTML=
-    '<div><div class="lbl">'+name+'</div><div class="val">2 km under 10:00</div></div>'+
-    '<div><div class="lbl">Best 2 km</div><div class="val mono">'+(b?fmt(b.sec):'not yet')+'</div></div>'+
-    '<div><div class="lbl">Plan</div><div class="val">Week '+lvl+' of '+WEEKS+'</div></div>'+
-    '<div class="goal-bar" title="Progress toward 10:00"><i style="width:'+(b?pct:0)+'%"></i></div>';
+  var nm=S.settings.name?L(esc(S.settings.name)+'’s goal','היעד של '+esc(S.settings.name)):L('Goal','היעד');
+  $('goalStrip').innerHTML='<div><div class="lbl">'+nm+'</div><div class="val">'+L('2 km under 10:00','2 ק״מ מתחת ל־10:00')+'</div></div>'+
+    '<div><div class="lbl">'+L('Best 2 km','שיא 2 ק״מ')+'</div><div class="val'+(b?' mono':'')+'">'+(b?fmt(b.sec):L('not yet','עוד לא'))+'</div></div>'+
+    '<div><div class="lbl">'+L('Plan','תוכנית')+'</div><div class="val">'+L('Week '+lvl+' of '+WEEKS,'שבוע '+lvl+' מתוך '+WEEKS)+'</div></div>'+
+    '<div class="goal-bar"><i style="width:'+(b?pct:0)+'%"></i></div>';
 }
 
 /* ---------------- TODAY ---------------- */
-var PRACTICE_OPTS=[['none','No practice',[]],['h','Handball',['h']],['s','Swimming',['s']],['hs','Both',['h','s']]];
+var PRACTICE_OPTS=[['none',['No practice','אין אימון'],[]],['h',['Handball','כדוריד'],['h']],['s',['Swimming','שחייה'],['s']],['hs',['Both','שניהם'],['h','s']]];
 function pkey(arr){ var h=arr.indexOf('h')>=0, s=arr.indexOf('s')>=0; return h&&s?'hs':h?'h':s?'s':'none'; }
-function plabel(arr){ var k=pkey(arr); return {none:'No practice',h:'Handball',s:'Swimming',hs:'Handball + swimming'}[k]; }
+function plabel(arr){ var k=pkey(arr); return {none:L('No practice','אין אימון'),h:L('Handball','כדוריד'),s:L('Swimming','שחייה'),hs:L('Handball + swimming','כדוריד + שחייה')}[k]; }
 
 function renderToday(){
   var el=$('view-today'), date=cur, isToday=date===TODAY;
   var min=S.settings.start<TODAY?addDays(S.settings.start,-1):addDays(TODAY,-1);
   var h='<div class="daynav">'+
-    '<button class="iconbtn" id="dPrev" aria-label="Previous day" '+(date<=min?'disabled':'')+'>‹</button>'+
-    '<div><h1 style="text-align:center">'+(isToday?'Today':nice(date))+'</h1><div class="sub">'+(isToday?DOWL[dow(date)]+' '+pd(date).getDate()+' '+MON[pd(date).getMonth()]:(date<TODAY?'Past day — you can still log it':'Preview'))+'</div></div>'+
-    '<button class="iconbtn" id="dNext" aria-label="Next day" '+(diffDays(TODAY,date)>=7?'disabled':'')+'>›</button></div>';
-  if (!isToday) h+='<div class="row" style="justify-content:center;margin:-4px 0 12px"><button class="btn sm ghost" id="dToday">Back to today</button></div>';
+    '<button class="iconbtn" id="dPrev" aria-label="'+L('Previous day','היום הקודם')+'" '+(date<=min?'disabled':'')+'>'+L('‹','›')+'</button>'+
+    '<div><h1>'+(isToday?L('Today','היום'):nice(date))+'</h1><div class="sub">'+(isToday?longDate(date):(date<TODAY?L('Past day — you can still log it','יום שעבר — עדיין אפשר לתעד'):L('Preview','תצוגה מקדימה')))+'</div></div>'+
+    '<button class="iconbtn" id="dNext" aria-label="'+L('Next day','היום הבא')+'" '+(diffDays(TODAY,date)>=7?'disabled':'')+'>'+L('›','‹')+'</button></div>';
+  if (!isToday) h+='<div class="row" style="justify-content:center;margin:-4px 0 12px"><button class="btn sm ghost" id="dToday">'+L('Back to today','חזרה להיום')+'</button></div>';
 
   var sg=suggest(date);
   if (sg.type==='before'){
     var st=S.settings.start;
-    h+='<div class="card"><div class="eyebrow">Almost time</div><h2 style="margin-top:6px">Silverun starts '+(diffDays(TODAY,st)===1?'tomorrow':'on '+nice(st))+'</h2>'+
-       '<p class="why">'+nice(st)+', 6:00. Tap below to see the first session, or change the start date in settings.</p>'+
-       '<button class="btn primary" id="goStart">See the first session →</button></div>';
+    h+='<div class="card"><div class="eyebrow">'+L('Almost time','כמעט מתחילים')+'</div><h2 style="margin-top:6px">'+
+       (diffDays(TODAY,st)===1?L('Silverun starts tomorrow','Silverun מתחיל מחר'):L('Silverun starts on ','Silverun מתחיל ב')+nice(st))+'</h2>'+
+       '<p class="why">'+nice(st)+L(', 6:00. Tap below to see the first session, or change the start date in settings.',', 6:00. לחצו למטה כדי לראות את האימון הראשון, או שנו את תאריך ההתחלה בהגדרות.')+'</p>'+
+       '<button class="btn primary" id="goStart">'+L('See the first session →','לאימון הראשון ←')+'</button></div>';
     el.innerHTML=h; bindDayNav();
     $('goStart').onclick=function(){ cur=st; renderToday(); };
     return;
   }
-  // practice question
   var ans=answered(date), prac=practiceFor(date), usual=(S.settings.practice[dow(date)]||[]);
   if (!ans){
-    h+='<div class="card q"><h3>Is there a practice '+(isToday?'today':'on this day')+'?</h3>'+
-      '<p class="small muted" style="margin:-4px 0 10px">Usually on '+DOWL[dow(date)]+': <b>'+plabel(usual)+'</b>. Holiday or cancelled? Tap “No practice”.</p><div class="chips">';
-    PRACTICE_OPTS.forEach(function(o){ h+='<button class="chip'+(o[0]===pkey(usual)?' suggest':'')+'" data-p="'+o[0]+'">'+o[1]+'</button>'; });
+    h+='<div class="card q"><h3>'+(isToday?L('Is there a practice today?','יש היום אימון?'):L('Was there a practice on this day?','היה אימון ביום הזה?'))+'</h3>'+
+      '<p class="small muted" style="margin:-4px 0 10px">'+L('Usually on '+DOWL_EN[dow(date)]+': ','בדרך כלל ב'+DOWL_HE[dow(date)]+': ')+'<b>'+plabel(usual)+'</b>. '+L('Holiday or cancelled? Tap “No practice”.','חג או ביטול? לחצו ״אין אימון״.')+'</p><div class="chips">';
+    PRACTICE_OPTS.forEach(function(o){ h+='<button class="chip'+(o[0]===pkey(usual)?' suggest':'')+'" data-p="'+o[0]+'">'+T2(o[1])+'</button>'; });
     h+='</div></div>';
   } else {
-    h+='<div class="card flat q" style="padding:12px 16px"><div class="answered"><span class="small muted">Practice:</span> <b>'+plabel(prac)+'</b><span class="spacer"></span><button class="btn sm ghost" id="pChange">Change</button></div></div>';
+    h+='<div class="card flat q" style="padding:12px 16px"><div class="answered"><span class="small muted">'+L('Practice:','אימון:')+'</span> <b>'+plabel(prac)+'</b><span class="spacer"></span><button class="btn sm ghost" id="pChange">'+L('Change','שינוי')+'</button></div></div>';
   }
   sg.notes.forEach(function(n){ h+='<div class="note '+n.k+'">'+esc(n.t)+'</div>'; });
-
   if (sg.type==='practice') h+=practiceCard(date,prac);
   else if (sg.type==='rest') h+=restCard(date,sg);
   else h+=sessionCard(date,sg);
@@ -629,31 +611,31 @@ function bindDayNav(){
   if (t) t.onclick=function(){ cur=TODAY; renderToday(); };
 }
 function practiceCard(date,prac){
-  var d=day(date)||{}, pl=d.pl||{};
-  var h='<div class="card"><div class="sess-head"><div><div class="eyebrow">No running today</div><h2>'+plabel(prac)+' day</h2></div><span class="tag hard">Practice</span></div>'+
-    '<p class="why">Handball is full of sprints — that’s his speed work today. No 6am run: legs need to be fresh for practice.</p>'+
-    '<div class="group"><div class="eyebrow">Optional</div>'+
-    chk(date,'pl',{id:'w',t:'Drink water through the day (bring a bottle to practice)'},pl.c)+
-    chk(date,'pl',{id:'st',t:'5 min stretch after practice'},pl.c)+
-    chk(date,'pl',{id:'sl',t:'In bed by 21:00'},pl.c)+'</div>'+
-    '<div class="group"><div class="eyebrow">How was practice?</div>'+feelHtml(pl.feel)+
-    '<label class="f" for="plNotes">Notes</label><textarea id="plNotes" placeholder="e.g. scored 3 goals, felt fast">'+esc(pl.notes)+'</textarea>'+
-    '<label class="f" for="plAch">⭐ Achievement (optional)</label><input type="text" id="plAch" placeholder="Something to remember" value="'+esc(pl.ach)+'"></div>'+
-    '<div class="actions"><button class="btn ghost" id="runAnyway">No practice after all</button></div></div>';
-  return h;
+  var pl=(day(date)||{}).pl||{};
+  return '<div class="card"><div class="sess-head"><div><div class="eyebrow">'+L('No running today','אין ריצה היום')+'</div><h2>'+L(plabel(prac)+' day','יום '+plabel(prac))+'</h2></div><span class="tag hard">'+L('Practice','אימון')+'</span></div>'+
+    '<p class="why">'+L('Handball is full of sprints — that’s his speed work today. No 6am run: legs need to be fresh for practice.','כדוריד מלא בספרינטים — זה אימון המהירות של היום. אין ריצה ב־6:00: הרגליים צריכות להיות רעננות לאימון.')+'</p>'+
+    '<div class="group"><div class="eyebrow">'+L('Optional','רשות')+'</div>'+
+    chk(date,'pl',{id:'w',t:L('Drink water through the day (bring a bottle to practice)','לשתות מים במשך היום (בקבוק לאימון)')},pl.c)+
+    chk(date,'pl',{id:'st',t:L('5 min stretch after practice','5 דק׳ מתיחות אחרי האימון')},pl.c)+
+    chk(date,'pl',{id:'sl',t:L('In bed by 21:00','במיטה עד 21:00')},pl.c)+'</div>'+
+    '<div class="group"><div class="eyebrow">'+L('How was practice?','איך היה האימון?')+'</div>'+feelHtml(pl.feel)+
+    '<label class="f" for="plNotes">'+L('Notes','הערות')+'</label><textarea id="plNotes" placeholder="'+L('e.g. scored 3 goals, felt fast','למשל: הבקיע 3 גולים, הרגיש מהיר')+'">'+esc(pl.notes)+'</textarea>'+
+    '<label class="f" for="plAch">⭐ '+L('Achievement (optional)','הישג (רשות)')+'</label><input type="text" id="plAch" placeholder="'+L('Something to remember','משהו לזכור')+'" value="'+esc(pl.ach)+'"></div>'+
+    '<div class="actions"><button class="btn ghost" id="runAnyway">'+L('No practice after all','בסוף לא היה אימון')+'</button></div></div>';
 }
 function restCard(date,sg){
-  var why={tired:'Rest day — marked as tired or sore. Good call: recovery is when legs get faster.',
-    max:'Four runs done this week — that’s the most he needs. Rest today.',
-    streak:'He ran the last three days in a row. Today is a rest day so his legs can absorb the work.',
-    weekdone:'This week’s key sessions are all done! Rest, or something light and fun.',
-    recover:'Nothing that suits today is left this week (hard sessions don’t go right after a hard day). Rest day.'}[sg.reason]||'Rest day.';
-  var h='<div class="card"><div class="sess-head"><div><div class="eyebrow">Rest day</div><h2>Recover & recharge</h2></div><span class="tag easy">Rest</span></div>'+
-    '<p class="why">'+why+'</p><div class="eyebrow">Good things to do today</div><ul class="ideas">'+
-    '<li>Walk, or an easy bike ride</li><li>5–10 min stretching</li><li>Play for fun — shoot hoops, kick a ball</li><li>Sleep 9–10 hours</li></ul>'+
-    '<p class="small muted" style="margin-top:10px">Avoid hard running and lots of jumping.</p>';
-  if (sg.reason==='tired') h+='<div class="actions"><button class="btn" id="undoRest">Undo — he’s OK to train</button></div>';
-  else h+='<div class="actions"><button class="btn ghost" id="pickAny">He wants to run anyway…</button></div>';
+  var why={tired:L('Rest day — marked as tired or sore. Good call: recovery is when legs get faster.','יום מנוחה — סומן עייף או כואב. החלטה טובה: בזמן ההתאוששות הרגליים משתפרות.'),
+    max:L('Four runs done this week — that’s the most he needs. Rest today.','ארבע ריצות השבוע — זה המקסימום שצריך. היום מנוחה.'),
+    streak:L('He ran the last three days in a row. Today is a rest day so his legs can absorb the work.','הוא רץ שלושה ימים ברצף. היום מנוחה כדי שהרגליים יספגו את העבודה.'),
+    weekdone:L('This week’s key sessions are all done! Rest, or something light and fun.','כל האימונים החשובים של השבוע בוצעו! מנוחה, או משהו קל וכיפי.'),
+    recover:L('Nothing that suits today is left this week (hard sessions don’t go right after a hard day). Rest day.','לא נשאר השבוע אימון שמתאים להיום (אימון קשה לא בא אחרי יום קשה). יום מנוחה.')}[sg.reason];
+  var h='<div class="card"><div class="sess-head"><div><div class="eyebrow">'+L('Rest day','יום מנוחה')+'</div><h2>'+L('Recover & recharge','מתאוששים וטוענים מצברים')+'</h2></div><span class="tag easy">'+L('Rest','מנוחה')+'</span></div>'+
+    '<p class="why">'+why+'</p><div class="eyebrow">'+L('Good things to do today','מה כדאי לעשות היום')+'</div><ul class="ideas">'+
+    L('<li>Walk, or an easy bike ride</li><li>5–10 min stretching</li><li>Play for fun — shoot hoops, kick a ball</li><li>Sleep 9–10 hours</li>',
+      '<li>הליכה, או רכיבה קלה על אופניים</li><li>5–10 דק׳ מתיחות</li><li>משחק בשביל הכיף — לקלוע לסל, לבעוט בכדור</li><li>לישון 9–10 שעות</li>')+'</ul>'+
+    '<p class="small muted" style="margin-top:10px">'+L('Avoid hard running and lots of jumping.','להימנע מריצה קשה ומהרבה קפיצות.')+'</p>';
+  h+= sg.reason==='tired' ? '<div class="actions"><button class="btn" id="undoRest">'+L('Undo — he’s OK to train','ביטול — הוא בסדר להתאמן')+'</button></div>'
+                          : '<div class="actions"><button class="btn ghost" id="pickAny">'+L('He wants to run anyway…','הוא רוצה לרוץ בכל זאת…')+'</button></div>';
   return h+'</div>';
 }
 function chk(date,scope,it,checks){
@@ -661,49 +643,43 @@ function chk(date,scope,it,checks){
   var h='<div class="check'+(on?' on':'')+'"><input type="checkbox" data-scope="'+scope+'" data-id="'+it.id+'"'+(on?' checked':'')+' aria-label="'+esc(it.t)+'"><div class="txt"><span class="tt">'+esc(it.t)+'</span>'+(it.sub?'<span class="sub">'+esc(it.sub)+'</span>':'');
   if (it.time){
     var s=(day(date)||{}).s||{}, v= it.time.idx==='test' ? s.test : (s.reps||[])[it.time.idx];
-    h+='<div class="timein"><input type="text" inputmode="decimal" class="mono" placeholder="m:ss" data-time="'+it.time.idx+'" data-d="'+it.time.d+'" value="'+(v?fmt(v).replace(' s',''):'')+'" aria-label="Time for '+esc(it.t)+'"><span class="parsed" data-parsed="'+it.time.idx+'">'+parsedTxt(v,it.time)+'</span></div>';
+    h+='<div class="timein"><input type="text" inputmode="decimal" class="mono ltr" placeholder="m:ss" data-time="'+it.time.idx+'" data-d="'+it.time.d+'" value="'+(v?fmtN(v):'')+'" aria-label="'+esc(it.t)+'"><span class="parsed" data-parsed="'+it.time.idx+'">'+parsedTxt(v,it.time)+'</span></div>';
   }
   return h+'</div></div>';
 }
 function parsedTxt(v,tm){
   if (!v) return '';
-  var p=pace(v,tm.d), diff=tm.t? v-tm.t : null, t=fmt(v)+(p?' · '+p:'');
-  if (diff!=null && tm.d<2000){ t+= Math.abs(diff)<=2 ? ' · on target ✓' : diff<0 ? ' · '+fmt(-diff).replace(' s','')+'s fast' : ' · '+fmt(diff).replace(' s','')+'s slow'; }
-  if (tm.d===2000 && v<600) t+=' · 🏆 GOAL!';
-  return esc(t);
+  var p=pace(v,tm.d), diff=tm.t? v-tm.t : null, t=nn(fmt(v))+(p?' · '+nn(p):'');
+  if (diff!=null && tm.d<2000){ t+= Math.abs(diff)<=2 ? L(' · on target ✓',' · בדיוק ביעד ✓') : diff<0 ? ' · '+nn(Math.round(-diff))+L(' s fast',' שנ׳ מהר') : ' · '+nn(Math.round(diff))+L(' s slow',' שנ׳ לאט'); }
+  if (tm.d===2000 && v<600) t+=L(' · 🏆 GOAL!',' · 🏆 יעד!');
+  return t;
 }
 function feelHtml(v){
-  var h='<div class="feel" role="group" aria-label="How did it feel, 1 to 10">';
+  var h='<div class="feel" role="group" aria-label="'+L('How did it feel, 1 to 10','איך הרגיש, 1 עד 10')+'">';
   for (var i=1;i<=10;i++) h+='<button type="button" data-feel="'+i+'" aria-pressed="'+(v===i)+'">'+i+'</button>';
-  return h+'</div><div class="feel-legend"><span>1 = very easy</span><span>10 = hardest ever</span></div>';
+  return h+'</div><div class="feel-legend"><span>'+L('1 = very easy','1 = קל מאוד')+'</span><span>'+L('10 = hardest ever','10 = הכי קשה שיש')+'</span></div>';
 }
 function sessionCard(date,sg){
-  var d=def(sg.key,sg.lvl), dd=day(date)||{}, s=dd.s||{};
-  var done=s.st==='done';
+  var d=def(sg.key,sg.lvl), s=(day(date)||{}).s||{}, done=s.st==='done';
   var ids=allItemIds(d), n=ids.filter(function(id){ return s.checks&&s.checks[id]; }).length;
   var tagc=d.hard?'hard':(sg.key==='L'?'':'easy');
-  var h='<div class="card" id="sessCard"><div class="sess-head"><div><div class="eyebrow">Week '+d.lvl+' · 6:00 · ~25–30 min</div><h2>'+esc(d.title)+'</h2></div>'+
-    (done?'<span class="tag done">Done ✓</span>':'<span class="tag '+tagc+'">'+KEYS[d.key].tag+'</span>')+'</div>'+
-    '<p class="why">'+esc(d.why)+'</p>'+
-    '<div class="row small" style="margin-bottom:8px"><b>'+esc(summary(d))+'</b></div>'+
+  var h='<div class="card" id="sessCard"><div class="sess-head"><div><div class="eyebrow">'+L('Week '+d.lvl+' · 6:00 · ~25–30 min','שבוע '+d.lvl+' · 6:00 · כ־25–30 דק׳')+'</div><h2>'+esc(d.title)+'</h2></div>'+
+    (done?'<span class="tag done">'+L('Done ✓','בוצע ✓')+'</span>':'<span class="tag '+tagc+'">'+T2(KEYS[d.key].tag)+'</span>')+'</div>'+
+    '<p class="why">'+esc(d.why)+'</p><div class="small" style="margin-bottom:8px"><b>'+esc(summary(d))+'</b></div>'+
     '<div class="progress"><i id="prog" style="width:'+Math.round(n/ids.length*100)+'%"></i></div>'+
-    '<button class="btn primary block" id="startTimer">▶ Start guided timer</button>'+
-    '<p class="small muted" style="margin-top:6px;text-align:center">Counts down each block with voice cues. Or just tick the list.</p>';
-  items(d).forEach(function(g){
-    h+='<div class="group"><div class="eyebrow">'+esc(g.name)+'</div>';
-    g.items.forEach(function(it){ h+=chk(date,'s',it,s.checks); });
-    h+='</div>';
-  });
-  h+='<div class="group"><div class="eyebrow">Log</div>';
-  if (d.segs) h+='<div class="grid2"><div><label class="f" for="sDist">Distance (km)</label><input type="text" inputmode="decimal" id="sDist" placeholder="e.g. 2.4" value="'+esc(s.dist||'')+'"></div>'+
-     '<div><label class="f" for="sNon">Longest nonstop (min)</label><input type="text" inputmode="decimal" id="sNon" placeholder="e.g. 6" value="'+esc(s.non||'')+'"></div></div>';
-  h+='<label class="f">How did it feel?</label>'+feelHtml(s.feel)+
-    '<label class="f" for="sNotes">Notes</label><textarea id="sNotes" placeholder="Anything worth remembering">'+esc(s.notes)+'</textarea>'+
-    '<label class="f" for="sAch">⭐ Achievement (optional)</label><input type="text" id="sAch" placeholder="e.g. first time running 6 min without stopping" value="'+esc(s.ach)+'"></div>';
-  h+='<div class="actions">'+(done?'<button class="btn" id="unfinish">Mark not done</button>':'<button class="btn good" id="finish">Finish session ✓</button>')+'</div>'+
-    '<div class="actions" style="margin-top:8px"><select id="swap" aria-label="Do a different session"><option value="">Do something else instead…</option>'+
+    '<button class="btn primary block" id="startTimer">▶ '+L('Start guided timer','הפעלת טיימר מודרך')+'</button>'+
+    '<p class="small muted" style="margin-top:6px;text-align:center">'+L('Counts down each block with voice cues. Or just tick the list.','סופר לאחור כל שלב עם הנחיות קוליות. או פשוט מסמנים ברשימה.')+'</p>';
+  items(d).forEach(function(g){ h+='<div class="group"><div class="eyebrow">'+esc(g.name)+'</div>'; g.items.forEach(function(it){ h+=chk(date,'s',it,s.checks); }); h+='</div>'; });
+  h+='<div class="group"><div class="eyebrow">'+L('Log','תיעוד')+'</div>';
+  if (d.segs) h+='<div class="grid2"><div><label class="f" for="sDist">'+L('Distance (km)','מרחק (ק״מ)')+'</label><input type="text" inputmode="decimal" class="ltr" id="sDist" placeholder="2.4" value="'+esc(s.dist||'')+'"></div>'+
+     '<div><label class="f" for="sNon">'+L('Longest nonstop (min)','הכי ארוך ברצף (דק׳)')+'</label><input type="text" inputmode="decimal" class="ltr" id="sNon" placeholder="6" value="'+esc(s.non||'')+'"></div></div>';
+  h+='<label class="f">'+L('How did it feel?','איך הרגיש?')+'</label>'+feelHtml(s.feel)+
+    '<label class="f" for="sNotes">'+L('Notes','הערות')+'</label><textarea id="sNotes" placeholder="'+L('Anything worth remembering','משהו ששווה לזכור')+'">'+esc(s.notes)+'</textarea>'+
+    '<label class="f" for="sAch">⭐ '+L('Achievement (optional)','הישג (רשות)')+'</label><input type="text" id="sAch" placeholder="'+L('e.g. first time running 6 min without stopping','למשל: פעם ראשונה 6 דק׳ בלי לעצור')+'" value="'+esc(s.ach)+'"></div>';
+  h+='<div class="actions">'+(done?'<button class="btn" id="unfinish">'+L('Mark not done','סימון כלא בוצע')+'</button>':'<button class="btn good" id="finish">'+L('Finish session ✓','סיום אימון ✓')+'</button>')+'</div>'+
+    '<div class="actions" style="margin-top:8px"><select id="swap" aria-label="'+L('Do a different session','אימון אחר')+'"><option value="">'+L('Do something else instead…','לעשות משהו אחר במקום…')+'</option>'+
     ['L','I','E','F'].filter(function(k){return k!==d.key;}).map(function(k){ return '<option value="'+k+'">'+esc(def(k,sg.lvl).title)+'</option>'; }).join('')+
-    '<option value="rest">Rest today — tired or sore</option></select></div></div>';
+    '<option value="rest">'+L('Rest today — tired or sore','מנוחה היום — עייף או כואב')+'</option></select></div></div>';
   return h;
 }
 function ensureSess(date,sg){
@@ -719,25 +695,22 @@ function bindToday(date,sg){
     b.onclick=function(){
       var o=PRACTICE_OPTS.filter(function(x){return x[0]===b.dataset.p;})[0];
       var d=day(date,true); d.pa=true; d.p=o[2].slice();
-      // if a session was only suggested (nothing ticked), let it be re-suggested
       if (d.s && d.s.st==='open' && !Object.keys(d.s.checks||{}).length && !d.s.test && !(d.s.reps||[]).some(Boolean)) delete d.s;
       touch(date); render();
     };
   });
-  var pc=$('pChange'); if (pc) pc.onclick=function(){ var d=day(date,true); d.pa=false; touch(date); render(); };
-  var ra=$('runAnyway'); if (ra) ra.onclick=function(){ var d=day(date,true); d.pa=true; d.p=[]; touch(date); render(); };
-  var ur=$('undoRest'); if (ur) ur.onclick=function(){ var d=day(date,true); delete d.s; touch(date); render(); };
-  var pa=$('pickAny'); if (pa) pa.onclick=function(){
-    var d=day(date,true); var k=weekKeysDone(date).keys.F?'E':'F'; d.s={key:k,lvl:sg.lvl||levelFor(weekStart(date)),st:'open',checks:{},reps:[]}; touch(date); render();
-  };
+  var x;
+  if ((x=$('pChange'))) x.onclick=function(){ day(date,true).pa=false; touch(date); render(); };
+  if ((x=$('runAnyway'))) x.onclick=function(){ var d=day(date,true); d.pa=true; d.p=[]; touch(date); render(); };
+  if ((x=$('undoRest'))) x.onclick=function(){ delete day(date,true).s; touch(date); render(); };
+  if ((x=$('pickAny'))) x.onclick=function(){ var d=day(date,true); d.s={key:weekKeysDone(date).keys.F?'E':'F',lvl:sg.lvl||levelFor(weekStart(date)),st:'open',checks:{},reps:[]}; touch(date); render(); };
   root.querySelectorAll('input[type=checkbox]').forEach(function(cb){
     cb.onchange=function(){
-      var d=day(date,true), scope=cb.dataset.scope, c;
-      if (scope==='pl'){ d.pl=d.pl||{}; d.pl.c=d.pl.c||{}; c=d.pl.c; }
-      else { c=ensureSess(date,sg).checks; }
+      var d=day(date,true), c;
+      if (cb.dataset.scope==='pl'){ d.pl=d.pl||{}; d.pl.c=d.pl.c||{}; c=d.pl.c; } else c=ensureSess(date,sg).checks;
       if (cb.checked) c[cb.dataset.id]=1; else delete c[cb.dataset.id];
       cb.closest('.check').classList.toggle('on',cb.checked);
-      touch(date); updateProg(date,sg);
+      touch(date); updateProg(date);
     };
   });
   root.querySelectorAll('input[data-time]').forEach(function(inp){
@@ -745,17 +718,16 @@ function bindToday(date,sg){
       var idx=inp.dataset.time, dd=+inp.dataset.d, v=parseTime(inp.value,dd), s=ensureSess(date,sg);
       if (idx==='test') s.test=v||null; else s.reps[+idx]=v||null;
       var d=def(s.key,s.lvl), t= idx==='test' ? (d.test.goal||null) : d.reps.t;
-      var span=root.querySelector('[data-parsed="'+idx+'"]');
-      span.innerHTML = inp.value && !v ? 'Type like 1:32 or 9.8' : parsedTxt(v,{d:dd,t:t});
+      root.querySelector('[data-parsed="'+idx+'"]').innerHTML = inp.value && !v ? L('Type like 1:32 or 9.8','להקליד כמו 1:32 או 9.8') : parsedTxt(v,{d:dd,t:t});
       if (v){ var id= idx==='test'?'test':'r'+idx; s.checks[id]=1; var cb=root.querySelector('input[data-id="'+id+'"]'); if(cb){ cb.checked=true; cb.closest('.check').classList.add('on'); } }
-      touch(date); updateProg(date,sg); renderGoal();
+      touch(date); updateProg(date); renderGoal();
     };
   });
   root.querySelectorAll('[data-feel]').forEach(function(b){
     b.onclick=function(){
       var v=+b.dataset.feel, d=day(date,true);
       if (sg.type==='practice'){ d.pl=d.pl||{}; d.pl.feel=v; } else ensureSess(date,sg).feel=v;
-      root.querySelectorAll('[data-feel]').forEach(function(x){ x.setAttribute('aria-pressed', String(+x.dataset.feel===v)); });
+      root.querySelectorAll('[data-feel]').forEach(function(y){ y.setAttribute('aria-pressed', String(+y.dataset.feel===v)); });
       touch(date);
     };
   });
@@ -766,25 +738,23 @@ function bindToday(date,sg){
   bindText('sAch',function(v){ ensureSess(date,sg).ach=v.trim(); });
   bindText('sDist',function(v){ ensureSess(date,sg).dist=v; });
   bindText('sNon',function(v){ ensureSess(date,sg).non=v; });
-  var fin=$('finish'); if (fin) fin.onclick=function(){
+  if ((x=$('finish'))) x.onclick=function(){
     var s=ensureSess(date,sg); s.st='done'; touch(date); render();
     var d=def(s.key,s.lvl);
-    if (d.test && d.test.d===2000 && s.test && s.test<600) toast('🏆 2 km under 10:00 — GOAL!');
-    else toast('Session done — nice work! 💪');
+    toast(d.test && d.test.d===2000 && s.test && s.test<600 ? L('🏆 2 km under 10:00 — GOAL!','🏆 2 ק״מ מתחת ל־10:00 — היעד הושג!') : L('Session done — nice work! 💪','האימון הושלם — כל הכבוד! 💪'));
   };
-  var uf=$('unfinish'); if (uf) uf.onclick=function(){ var s=ensureSess(date,sg); s.st='open'; touch(date); render(); };
-  var sw=$('swap'); if (sw) sw.onchange=function(){
-    var v=sw.value; if (!v) return; var d=day(date,true);
-    if (v==='rest'){ d.s={st:'rest'}; }
+  if ((x=$('unfinish'))) x.onclick=function(){ ensureSess(date,sg).st='open'; touch(date); render(); };
+  if ((x=$('swap'))) x.onchange=function(){
+    var v=x.value; if (!v) return; var d=day(date,true);
+    if (v==='rest') d.s={st:'rest'};
     else { var old=d.s||{}; d.s={key:v,lvl:sg.lvl,st:'open',checks:{},reps:[],feel:old.feel,notes:old.notes,ach:old.ach}; }
     touch(date); render();
   };
-  var tb=$('startTimer'); if (tb) tb.onclick=function(){ ensureSess(date,sg); save(); openTimer(date); };
+  if ((x=$('startTimer'))) x.onclick=function(){ ensureSess(date,sg); save(); openTimer(date); };
 }
-function updateProg(date,sg){
-  var p=$('prog'); if (!p) return; var s=(day(date)||{}).s; if(!s||!s.key) return;
-  var ids=allItemIds(def(s.key,s.lvl)); var n=ids.filter(function(id){return s.checks[id];}).length;
-  p.style.width=Math.round(n/ids.length*100)+'%';
+function updateProg(date){
+  var p=$('prog'), s=(day(date)||{}).s; if (!p||!s||!s.key) return;
+  var ids=allItemIds(def(s.key,s.lvl)); p.style.width=Math.round(ids.filter(function(id){return s.checks[id];}).length/ids.length*100)+'%';
 }
 
 /* ---------------- GUIDED TIMER ---------------- */
@@ -792,49 +762,62 @@ var TM=null, audioCtx=null, wakeLock=null;
 function beep(freq,dur,vol){
   try{
     if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    var o=audioCtx.createOscillator(), g=audioCtx.createGain();
-    o.frequency.value=freq; o.type='sine'; g.gain.value=vol||0.25;
-    o.connect(g); g.connect(audioCtx.destination);
-    var t=audioCtx.currentTime; g.gain.setValueAtTime(vol||0.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    var o=audioCtx.createOscillator(), g=audioCtx.createGain(), t=audioCtx.currentTime;
+    o.frequency.value=freq; o.type='sine'; o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(vol||0.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
     o.start(t); o.stop(t+dur+0.02);
   }catch(e){}
 }
 function say(txt){
-  if (!S.settings.voice) return;
-  try{ if (window.speechSynthesis){ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(txt); u.rate=1; speechSynthesis.speak(u); } }catch(e){}
+  if (!S.settings.voice || !txt) return;
+  try{
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt); u.lang=L('en-US','he-IL');
+    var vs=speechSynthesis.getVoices().filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(L('en','he'))===0; });
+    if (vs.length) u.voice=vs[0];
+    speechSynthesis.speak(u);
+  }catch(e){}
 }
 function buzz(p){ try{ if (navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+function minsSay(n){ return L(n+(n===1?' minute':' minutes'), n===1?'דקה אחת':n===2?'שתי דקות':n+' דקות'); }
 function timeline(d){
   var st=[];
-  st.push({t:'count',kind:'walk',label:'Warm-up',sub:'Brisk walk, then easy jog',sec:300,check:'warm',say:'Warm up. Five minutes. Walk, then easy jog.'});
-  st.push({t:'manual',kind:'walk',label:'Drills',sub:'10 leg swings per leg · high knees 20 m · butt kicks 20 m',check:'drills',say:'Drills. Leg swings, high knees, butt kicks.'});
-  if (d.reps||d.test) st.push({t:'manual',kind:'walk',label:'Strides',sub:'2 relaxed strides of 60 m, walk back',check:'prime',say:'Two relaxed strides.'});
-  if (d.segs) d.segs.forEach(function(s,i){
-    var run=s[0]==='r', runs=d.segs.filter(function(x){return x[0]==='r';}).length, ri=d.segs.slice(0,i+1).filter(function(x){return x[0]==='r';}).length;
-    st.push({t:'count',kind:run?'run':'walk',label:run?'Run':'Walk',sub:run?(runs>1?'Block '+ri+' of '+runs+' · ':'')+'easy, chatting pace':'Walk and breathe — next run coming',sec:s[1]*60,check:run?'b'+i:null,say:(run?'Run ':'Walk ')+s[1]+(s[1]===1?' minute':' minutes')});
-  });
-  if (d.reps) for (var i=0;i<d.reps.n;i++){
-    st.push({t:'rep',kind:'rep',label:'Rep '+(i+1)+' of '+d.reps.n,sub:d.reps.d+' m · target '+fmt(d.reps.t)+' · controlled, not a sprint',idx:i,d:d.reps.d,target:d.reps.t,check:'r'+i,say:'Rep '+(i+1)+'. '+d.reps.d+' metres. Get ready.'});
-    if (i<d.reps.n-1) st.push({t:'count',kind:'walk',label:'Recover',sub:'Walk or slow jog',sec:d.reps.rest,check:null,say:'Recover. Walk.'});
+  st.push({t:'count',kind:'walk',label:L('Warm-up','חימום'),sub:L('Brisk walk, then easy jog','הליכה מהירה, ואז ריצה קלה'),sec:300,check:'warm',say:L('Warm up. Five minutes. Walk, then easy jog.','חימום. חמש דקות. הליכה, ואז ריצה קלה.')});
+  st.push({t:'manual',kind:'walk',label:L('Drills','תרגילים'),sub:L('10 leg swings per leg · high knees 20 m · butt kicks 20 m','10 הנפות לכל רגל · הרמות ברכיים 20 מ׳ · עקבים לישבן 20 מ׳'),check:'drills',say:L('Drills. Leg swings, high knees, butt kicks.','תרגילים. הנפות רגליים, הרמות ברכיים, עקבים לישבן.')});
+  if (d.reps||d.test) st.push({t:'manual',kind:'walk',label:L('Strides','סטריידים'),sub:L('2 relaxed strides of 60 m, walk back','2 סטריידים רגועים של 60 מ׳, חזרה בהליכה'),check:'prime',say:L('Two relaxed strides.','שני סטריידים רגועים.')});
+  if (d.segs){
+    var runs=d.segs.filter(function(x){return x[0]==='r';}).length, ri=0;
+    d.segs.forEach(function(s,i){
+      var run=s[0]==='r'; if (run) ri++;
+      st.push({t:'count',kind:run?'run':'walk',label:run?L('Run','ריצה'):L('Walk','הליכה'),
+        sub:run?(runs>1?L('Block '+ri+' of '+runs+' · ','שלב '+ri+' מתוך '+runs+' · '):'')+L('easy, chatting pace','קל, קצב שיחה'):L('Walk and breathe — next run coming','הולכים ונושמים — עוד מעט רצים'),
+        sec:s[1]*60,check:run?'b'+i:null,say:(run?L('Run ','ריצה. '):L('Walk ','הליכה. '))+minsSay(s[1])});
+    });
   }
-  if (d.test) st.push({t:'rep',kind:'rep',label:d.test.easy?'2 km nonstop':(d.test.d/1000)+' km test',sub:d.test.easy?'Easy pace — just keep going':'Goal '+fmt(d.test.goal)+' · even pace, strong finish',idx:'test',d:d.test.d,target:d.test.goal,check:'test',say:(d.test.d/1000)+' kilometres. Get ready.'});
-  if (d.strides) st.push({t:'manual',kind:'run',label:'Strides',sub:d.strides+' × 60 m relaxed-fast, walk back',check:'strides',say:d.strides+' strides. Relaxed and fast.'});
-  if (d.str) st.push({t:'manual',kind:'walk',label:'Strength',sub:'2 rounds: 10 squats · 8 lunges/leg · 20–30 s plank · 15 calf raises',checks:['s1','s2','s3','s4'],say:'Strength. Two rounds.'});
-  st.push({t:'count',kind:'walk',label:'Cool-down',sub:'Easy walk',sec:240,check:'cool',say:'Great work. Cool down walk.'});
-  st.push({t:'manual',kind:'walk',label:'Stretch',sub:'Calves, thighs, hips — 20 s each',check:'stretch',say:'Stretch. Calves, thighs, hips.'});
+  if (d.reps) for (var i=0;i<d.reps.n;i++){
+    st.push({t:'rep',kind:'rep',label:L('Rep '+(i+1)+' of '+d.reps.n,'חזרה '+(i+1)+' מתוך '+d.reps.n),sub:L(d.reps.d+' m · target '+fmtN(d.reps.t)+' · controlled, not a sprint',d.reps.d+' מ׳ · יעד '+fmtN(d.reps.t)+' · מבוקר, לא ספרינט'),idx:i,d:d.reps.d,target:d.reps.t,check:'r'+i,
+      say:L('Rep '+(i+1)+'. '+d.reps.d+' metres. Get ready.','חזרה '+(i+1)+'. '+d.reps.d+' מטר. להתכונן.')});
+    if (i<d.reps.n-1) st.push({t:'count',kind:'walk',label:L('Recover','התאוששות'),sub:L('Walk or slow jog','הליכה או ריצה איטית'),sec:d.reps.rest,check:null,say:L('Recover. Walk.','התאוששות. הליכה.')});
+  }
+  if (d.test) st.push({t:'rep',kind:'rep',label:d.test.easy?L('2 km nonstop','2 ק״מ ברצף'):L((d.test.d/1000)+' km test','מבחן '+(d.test.d/1000)+' ק״מ'),
+    sub:d.test.easy?L('Easy pace — just keep going','קצב קל — רק להמשיך'):L('Goal '+fmtN(d.test.goal)+' · even pace, strong finish','יעד '+fmtN(d.test.goal)+' · קצב אחיד, סיום חזק'),idx:'test',d:d.test.d,target:d.test.goal,check:'test',
+    say:L((d.test.d/1000)+' kilometres. Get ready.',(d.test.d===1000?'קילומטר אחד':'שני קילומטרים')+'. להתכונן.')});
+  if (d.strides) st.push({t:'manual',kind:'run',label:L('Strides','סטריידים'),sub:L(d.strides+' × 60 m relaxed-fast, walk back',d.strides+' × 60 מ׳ מהיר ורגוע, חזרה בהליכה'),check:'strides',say:L(d.strides+' strides. Relaxed and fast.',d.strides+' סטריידים. מהיר ורגוע.')});
+  if (d.str) st.push({t:'manual',kind:'walk',label:L('Strength','כוח'),sub:L('2 rounds: 10 squats · 8 lunges/leg · 20–30 s plank · 15 calf raises','2 סבבים: 10 סקוואטים · 8 מכרעים לרגל · 20–30 שנ׳ פלאנק · 15 הרמות עקבים'),checks:['s1','s2','s3','s4'],say:L('Strength. Two rounds.','כוח. שני סבבים.')});
+  st.push({t:'count',kind:'walk',label:L('Cool-down','שחרור'),sub:L('Easy walk','הליכה קלה'),sec:240,check:'cool',say:L('Great work. Cool down walk.','עבודה מצוינת. הליכת שחרור.')});
+  st.push({t:'manual',kind:'walk',label:L('Stretch','מתיחות'),sub:L('Calves, thighs, hips — 20 s each','שוקיים, ירכיים, אגן — 20 שנ׳ כל אחת'),check:'stretch',say:L('Stretch. Calves, thighs, hips.','מתיחות. שוקיים, ירכיים, אגן.')});
   return st;
 }
 function openTimer(date){
   var s=S.days[date].s, d=def(s.key,s.lvl), steps=timeline(d);
-  // start at first unchecked step
   var i0=0; while (i0<steps.length && stepDone(s,steps[i0])) i0++;
   if (i0>=steps.length) i0=0;
   TM={date:date,d:d,steps:steps,i:i0,t0:0,acc:0,running:false,phase:'ready',lastBeep:-1,iv:null};
   $('timer').hidden=false; document.body.style.overflow='hidden';
   try{ if (!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); }catch(e){}
   try{ if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock=w; }).catch(function(){}); }catch(e){}
-  enterStep();
-  TM.iv=setInterval(tick,200);
+  enterStep(); TM.iv=setInterval(tick,200);
 }
 function stepDone(s,st){ if (st.checks) return st.checks.every(function(c){return s.checks[c];}); return st.check? !!s.checks[st.check] : false; }
 function closeTimer(){
@@ -847,65 +830,49 @@ function closeTimer(){
 function elapsed(){ return TM.acc + (TM.running ? (now()-TM.t0)/1000 : 0); }
 function enterStep(){
   var st=TM.steps[TM.i]; TM.acc=0; TM.lastBeep=-1;
-  if (st.t==='count'){ TM.running=true; TM.t0=now(); TM.phase='count'; }
-  else if (st.t==='rep'){ TM.running=false; TM.phase='ready'; }
-  else { TM.running=false; TM.phase='manual'; }
-  say(st.say); beep(880,0.35); buzz(250);
-  drawTimer();
+  if (st.t==='count'){ TM.running=true; TM.t0=now(); TM.phase='count'; } else { TM.running=false; TM.phase= st.t==='rep'?'ready':'manual'; }
+  say(st.say); beep(880,0.35); buzz(250); drawTimer();
 }
-function markStep(st){
-  var s=S.days[TM.date].s;
-  if (st.check) s.checks[st.check]=1;
-  if (st.checks) st.checks.forEach(function(c){ s.checks[c]=1; });
-  touch(TM.date);
-}
-function nextStep(mark){
-  var st=TM.steps[TM.i];
-  if (mark) markStep(st);
-  if (TM.i>=TM.steps.length-1){ finishTimer(); return; }
-  TM.i++; enterStep();
-}
+function markStep(st){ var s=S.days[TM.date].s; if (st.check) s.checks[st.check]=1; if (st.checks) st.checks.forEach(function(c){ s.checks[c]=1; }); touch(TM.date); }
+function nextStep(mark){ if (mark) markStep(TM.steps[TM.i]); if (TM.i>=TM.steps.length-1){ finishTimer(); return; } TM.i++; enterStep(); }
 function finishTimer(){
-  TM.phase='end'; TM.running=false; say('Session complete. Well done!'); beep(660,0.2); setTimeout(function(){beep(880,0.2);},220); setTimeout(function(){beep(1320,0.4);},440);
-  drawTimer();
+  TM.phase='end'; TM.running=false; say(L('Session complete. Well done!','האימון הסתיים. כל הכבוד!'));
+  beep(660,0.2); setTimeout(function(){beep(880,0.2);},220); setTimeout(function(){beep(1320,0.4);},440); drawTimer();
 }
 function tick(){
   if (!TM || !TM.running) return;
   var st=TM.steps[TM.i];
   if (st.t==='count'){
-    var left=st.sec-elapsed();
-    var sLeft=Math.ceil(left);
+    var left=st.sec-elapsed(), sLeft=Math.ceil(left);
     if (sLeft<=3 && sLeft>0 && TM.lastBeep!==sLeft){ TM.lastBeep=sLeft; beep(660,0.12); }
     if (left<=0){ nextStep(true); return; }
   }
   drawClock();
 }
 function drawClock(){
-  var st=TM.steps[TM.i], c=$('tmClock'); if (!c) return;
-  if (st.t==='count') c.textContent=fmtClock(st.sec-elapsed());
-  else if (st.t==='rep') c.textContent= TM.phase==='ready' ? '0:00.0' : fmtWatch(elapsed());
-  var tot=TM.steps.length, pr=(TM.i + (st.t==='count'? Math.min(1,elapsed()/st.sec):0))/tot;
-  var b=$('tmBar'); if (b) b.style.width=Math.round(pr*100)+'%';
+  var st=TM.steps[TM.i], c=$('tmClock');
+  if (c){ if (st.t==='count') c.textContent=fmtClock(st.sec-elapsed()); else if (st.t==='rep') c.textContent= TM.phase==='ready' ? '0:00.0' : fmtWatch(elapsed()); }
+  var b=$('tmBar'); if (b) b.style.width=Math.round((TM.i + (st.t==='count'? Math.min(1,elapsed()/st.sec):0))/TM.steps.length*100)+'%';
 }
 function drawTimer(){
   var st=TM.steps[TM.i], nx=TM.steps[TM.i+1], el=$('timer'), h='';
-  h+='<div class="tm-top"><button class="btn sm ghost" id="tmClose">✕ Close</button><span class="small muted">'+esc(TM.d.title)+' · step '+(TM.i+1)+'/'+TM.steps.length+'</span>'+
-     '<button class="btn sm ghost" id="tmVoice">'+(S.settings.voice?'🔊':'🔇')+'</button></div>';
+  h+='<div class="tm-top"><button class="btn sm ghost" id="tmClose">✕ '+L('Close','סגירה')+'</button><span class="small muted">'+esc(TM.d.title)+' · '+L('step ','שלב ')+nn((TM.i+1)+'/'+TM.steps.length)+'</span>'+
+     '<button class="btn sm ghost" id="tmVoice" aria-label="'+L('Voice cues','הנחיות קוליות')+'">'+(S.settings.voice?'🔊':'🔇')+'</button></div>';
   if (TM.phase==='end'){
-    h+='<div class="tm-main"><div class="celebrate">🎉</div><div class="tm-kind run">Done!</div><p class="tm-sub">Great work. Add how it felt and any notes on the Today page.</p></div>'+
-       '<div class="tm-ctrl"><button class="btn primary tm-big" id="tmEnd">Back to today</button></div>';
+    h+='<div class="tm-main"><div class="celebrate">🎉</div><div class="tm-kind run">'+L('Done!','סיימנו!')+'</div><p class="tm-sub">'+L('Great work. Add how it felt and any notes on the Today page.','עבודה מצוינת. אפשר להוסיף איך הרגיש והערות בעמוד ״היום״.')+'</p></div>'+
+       '<div class="tm-ctrl"><button class="btn primary tm-big" id="tmEnd">'+L('Back to today','חזרה להיום')+'</button></div>';
     el.innerHTML=h; $('tmEnd').onclick=closeTimer; $('tmClose').onclick=closeTimer; bindVoice(); return;
   }
   h+='<div class="tm-main"><div class="tm-kind '+st.kind+'">'+esc(st.label)+'</div>';
   if (st.t!=='manual') h+='<div class="tm-clock" id="tmClock"></div>';
   h+='<p class="tm-sub">'+esc(st.sub)+'</p>';
-  if (st.t==='rep' && TM.lastRep) h+='<p class="tm-next">Last: '+esc(TM.lastRep)+'</p>';
-  if (nx) h+='<p class="tm-next">Next: '+esc(nx.label)+(nx.sec?' · '+fmtClock(nx.sec):'')+'</p>';
+  if (st.t==='rep' && TM.lastRep) h+='<p class="tm-next">'+L('Last: ','אחרון: ')+TM.lastRep+'</p>';
+  if (nx) h+='<p class="tm-next">'+L('Next: ','הבא: ')+esc(nx.label)+(nx.sec?' · '+nn(fmtClock(nx.sec)):'')+'</p>';
   h+='</div><div class="tm-bar"><i id="tmBar"></i></div><div class="tm-ctrl">';
-  h+='<button class="btn" id="tmBack" '+(TM.i===0?'disabled':'')+'>‹ Back</button>';
-  if (st.t==='count') h+='<button class="btn primary" id="tmPause">'+(TM.running?'Pause':'Resume')+'</button><button class="btn" id="tmSkip">Skip ›</button>';
-  else if (st.t==='rep') h+= TM.phase==='ready' ? '<button class="btn primary tm-big" id="tmGo">GO</button><button class="btn" id="tmSkip">Skip ›</button>' : '<button class="btn good tm-big" id="tmStop">STOP</button>';
-  else h+='<button class="btn primary tm-big" id="tmDone">Done ✓</button>';
+  h+='<button class="btn" id="tmBack" '+(TM.i===0?'disabled':'')+'>'+L('‹ Back','› הקודם')+'</button>';
+  if (st.t==='count') h+='<button class="btn primary" id="tmPause">'+(TM.running?L('Pause','השהיה'):L('Resume','המשך'))+'</button><button class="btn" id="tmSkip">'+L('Skip ›','דילוג ‹')+'</button>';
+  else if (st.t==='rep') h+= TM.phase==='ready' ? '<button class="btn primary tm-big" id="tmGo">'+L('GO','צא!')+'</button><button class="btn" id="tmSkip">'+L('Skip ›','דילוג ‹')+'</button>' : '<button class="btn good tm-big" id="tmStop">'+L('STOP','עצור')+'</button>';
+  else h+='<button class="btn primary tm-big" id="tmDone">'+L('Done ✓','בוצע ✓')+'</button>';
   h+='</div>';
   el.innerHTML=h; drawClock();
   $('tmClose').onclick=closeTimer; bindVoice();
@@ -914,125 +881,140 @@ function drawTimer(){
   if ((x=$('tmSkip'))) x.onclick=function(){ nextStep(false); };
   if ((x=$('tmDone'))) x.onclick=function(){ nextStep(true); };
   if ((x=$('tmPause'))) x.onclick=function(){ if (TM.running){ TM.acc=elapsed(); TM.running=false; } else { TM.t0=now(); TM.running=true; } drawTimer(); };
-  if ((x=$('tmGo'))) x.onclick=function(){ TM.phase='run'; TM.acc=0; TM.t0=now(); TM.running=true; beep(1046,0.4); buzz(400); say('Go!'); drawTimer(); };
+  if ((x=$('tmGo'))) x.onclick=function(){ TM.phase='run'; TM.acc=0; TM.t0=now(); TM.running=true; beep(1046,0.4); buzz(400); say(L('Go!','צא!')); drawTimer(); };
   if ((x=$('tmStop'))) x.onclick=function(){
-    var t=Math.round(elapsed()*10)/10; TM.running=false;
-    var s=S.days[TM.date].s;
+    var t=Math.round(elapsed()*10)/10, s=S.days[TM.date].s; TM.running=false;
     if (st.idx==='test') s.test=t; else s.reps[st.idx]=t;
-    var diff=st.target? t-st.target : null;
-    TM.lastRep=fmt(t)+(diff!=null && st.d<2000 ? (Math.abs(diff)<=2?' — on target!':diff<0?' — '+Math.round(-diff)+' s fast':' — '+Math.round(diff)+' s slow'):'');
-    say(spoken(t)+(diff!=null && st.d<2000 ? (Math.abs(diff)<=2?'. On target.':diff<0?'. A bit fast.':'. A bit slow.'):''));
+    var diff=st.target? t-st.target : null, near=diff!=null && st.d<2000;
+    TM.lastRep=nn(fmt(t))+(near ? (Math.abs(diff)<=2?L(' — on target!',' — בדיוק ביעד!'):diff<0?' — '+nn(Math.round(-diff))+L(' s fast',' שנ׳ מהר'):' — '+nn(Math.round(diff))+L(' s slow',' שנ׳ לאט')):'');
+    say(spoken(t)+(near ? (Math.abs(diff)<=2?L('. On target.','. בדיוק ביעד.'):diff<0?L('. A bit fast.','. קצת מהר.'):L('. A bit slow.','. קצת לאט.')):''));
     nextStep(true);
   };
 }
-function spoken(t){ var m=Math.floor(t/60), s=Math.round(t-m*60); return (m?m+' minute'+(m>1?'s ':' '):'')+s+' seconds'; }
+function spoken(t){ var m=Math.floor(t/60), s=Math.round(t-m*60); return L((m?m+' minute'+(m>1?'s ':' '):'')+s+' seconds', (m?(m===1?'דקה ':m+' דקות ו'):'')+s+' שניות'); }
 function bindVoice(){ $('tmVoice').onclick=function(){ S.settings.voice=!S.settings.voice; touchSettings(); drawTimer(); }; }
-document.addEventListener('visibilitychange',function(){
-  if (!document.hidden && TM){ try{ if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){wakeLock=w;}).catch(function(){}); }catch(e){} }
-});
+document.addEventListener('visibilitychange',function(){ if (!document.hidden && TM){ try{ if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){wakeLock=w;}).catch(function(){}); }catch(e){} } });
 
 /* ---------------- PLAN ---------------- */
 function renderPlan(){
   var el=$('view-plan'), ws=weekStart(TODAY<S.settings.start?S.settings.start:TODAY), lvl=levelFor(ws);
-  var h='<div class="card"><div class="eyebrow">The plan</div><h2 style="margin-top:6px">8 weeks to 2 km under 10:00</h2>'+
-    '<p class="why" style="margin-bottom:0">Goal pace is <b>5:00 per km</b> = 2:00 per 400 m = 60 s per 200 m. He’s on <b>week '+lvl+'</b>. A week moves him up when 2 of the 3 key sessions (long, intervals, easy) are done; otherwise he repeats it.</p>'+
-    '<div class="row" style="margin-top:12px"><button class="btn sm" id="repW" '+(lvl<=1?'disabled':'')+'>← Go back a week</button><button class="btn sm" id="skipW" '+(lvl>=WEEKS?'disabled':'')+'>Move up a week →</button></div></div>';
-  h+='<div class="card"><h3>His week</h3><div class="scrollx" style="margin-top:8px"><table class="t"><thead><tr><th>Day</th><th>6:00</th><th>Later</th></tr></thead><tbody>';
-  var slotName={L:'Longest run',E:'Easy run + strength',I:'Intervals (the real workout)',F:'Fun run (optional)'};
+  var h='<div class="card"><div class="eyebrow">'+L('The plan','התוכנית')+'</div><h2 style="margin-top:6px">'+L('8 weeks to 2 km under 10:00','8 שבועות ל־2 ק״מ מתחת ל־10:00')+'</h2>'+
+    '<p class="why" style="margin-bottom:0">'+L('Goal pace is <b>5:00 per km</b> = 2:00 per 400 m = 60 s per 200 m. He’s on <b>week '+lvl+'</b>. A week moves him up when 2 of the 3 key sessions (long, intervals, easy) are done; otherwise he repeats it.',
+      'קצב היעד הוא <b>5:00 לק״מ</b> = 2:00 ל־400 מ׳ = 60 שנ׳ ל־200 מ׳. הוא ב<b>שבוע '+lvl+'</b>. עולים שבוע כשבוצעו 2 מתוך 3 האימונים המרכזיים (ארוכה, אינטרוולים, קלה); אחרת חוזרים על השבוע.')+'</p>'+
+    '<div class="row" style="margin-top:12px"><button class="btn sm" id="repW" '+(lvl<=1?'disabled':'')+'>'+L('← Go back a week','→ שבוע אחורה')+'</button><button class="btn sm" id="skipW" '+(lvl>=WEEKS?'disabled':'')+'>'+L('Move up a week →','שבוע קדימה ←')+'</button></div></div>';
+  h+='<div class="card"><h3>'+L('His week','השבוע שלו')+'</h3><table class="t" style="margin-top:8px"><thead><tr><th>'+L('Day','יום')+'</th><th>6:00</th><th>'+L('Later','אחר כך')+'</th></tr></thead><tbody>';
+  var slotName={L:L('Longest run','הריצה הארוכה'),E:L('Easy run + strength','ריצה קלה + כוח'),I:L('Intervals (the real workout)','אינטרוולים (האימון העיקרי)'),F:L('Fun run (optional)','ריצת כיף (רשות)')};
   for (var i=0;i<7;i++){
     var p=S.settings.practice[i]||[];
-    var six = SLOT[i] && p.indexOf('h')<0 ? slotName[SLOT[i]] : (p.indexOf('h')>=0?'—':'Rest');
-    h+='<tr><td><b>'+DOW[i]+'</b></td><td>'+six+'</td><td>'+(p.length?plabel(p):'—')+'</td></tr>';
+    var six = SLOT[i] && p.indexOf('h')<0 ? slotName[SLOT[i]] : (p.indexOf('h')>=0?'—':L('Rest','מנוחה'));
+    h+='<tr><td><b>'+DOW(i)+'</b></td><td>'+six+'</td><td>'+(p.length?plabel(p):'—')+'</td></tr>';
   }
-  h+='</tbody></table></div><p class="small muted" style="margin-top:8px">Change practice days in ⚙︎ settings. The Today page asks about practice every day, so holidays and cancelled practices are handled automatically.</p></div>';
-  h+='<div class="card"><h3>Week by week</h3>';
-  var dayOf={L:'Mon · Long',E:'Thu · Easy',I:'Fri · Intervals',F:'Sat · Fun'};
+  h+='</tbody></table><p class="small muted" style="margin-top:8px">'+L('Change practice days in ⚙︎ settings. The Today page asks about practice every day, so holidays and cancelled practices are handled automatically.','את ימי האימונים משנים בהגדרות ⚙︎. עמוד ״היום״ שואל כל יום אם יש אימון, כך שחגים וביטולים מטופלים אוטומטית.')+'</p></div>';
+  h+='<div class="card"><h3>'+L('Week by week','שבוע אחרי שבוע')+'</h3>';
+  var dayOf={L:L('Mon · Long','ב׳ · ארוכה'),E:L('Thu · Easy','ה׳ · קלה'),I:L('Fri · Intervals','ו׳ · אינטרוולים'),F:L('Sat · Fun','ש׳ · כיף')};
   for (var w=1; w<=WEEKS; w++){
-    h+='<div class="wk'+(w===lvl?' cur':'')+'"><div class="wk-n">Week '+w+(w===lvl?' <span class="tag done">Now</span>':'')+'</div>'+['L','E','I','F'].map(function(k){ var d=def(k,w);
-      return '<div class="wk-r"><span>'+dayOf[k]+'</span><span>'+(d.title!==KEYS[k].name?'<b>'+esc(d.title)+'</b> — ':'')+esc(summary(d))+'</span></div>'; }).join('')+'</div>';
+    h+='<div class="wk'+(w===lvl?' cur':'')+'"><div class="wk-n">'+L('Week ','שבוע ')+w+(w===lvl?' <span class="tag done">'+L('Now','עכשיו')+'</span>':'')+'</div>'+
+      ['L','E','I','F'].map(function(k){ var d=def(k,w); return '<div class="wk-r"><span>'+dayOf[k]+'</span><span>'+(d.special?'<b>'+esc(d.title)+'</b> — ':'')+esc(summary(d))+'</span></div>'; }).join('')+'</div>';
   }
   h+='</div>';
-  h+='<div class="card"><h3>How “Today” decides</h3><ul class="ideas small">'+
-    '<li><b>Handball day</b> → no run (handball is his sprint work). Swimming is light, so running is fine.</li>'+
-    '<li>It picks the <b>most important session not yet done this week</b>: long run first, then intervals, then easy, then fun.</li>'+
-    '<li><b>Never hard after hard</b>: intervals don’t come the day after handball or another hard session.</li>'+
-    '<li><b>Missed days</b>: the missed session moves to the next free morning. A week or more off → an easy “welcome back” run first.</li>'+
-    '<li>Ran <b>3 days in a row</b> → rest day. Max <b>4 runs</b> a week.</li>'+
-    '<li>Tired or sore? Choose “Rest today” — a skipped day costs nothing, an injury costs weeks.</li></ul></div>';
-  h+='<div class="card"><h3>Rest days — what he can do</h3><ul class="ideas small"><li>Walk or easy bike ride</li><li>5–10 min stretching</li><li>Play for fun</li><li>Avoid hard running and lots of jumping</li></ul>'+
-    '<h3 style="margin-top:14px">Breathing tips</h3><ul class="ideas small"><li>Nose and mouth together is fine</li><li>Belly breathing — belly rises, shoulders stay down</li><li>Rhythm: in 3 steps, out 2 (easy) · in 2, out 1 (hard)</li><li>Side stitch: slow down, deep breath, press the spot, breathe out hard</li><li>Race day: the right starting pace is the best breathing trick</li></ul></div>';
+  h+='<div class="card"><h3>'+L('How “Today” decides','איך ״היום״ מחליט')+'</h3><ul class="ideas small">'+L(
+    '<li><b>Handball day</b> → no run (handball is his sprint work). Swimming is light, so running is fine.</li><li>It picks the <b>most important session not yet done this week</b>: long run first, then intervals, then easy, then fun.</li><li><b>Never hard after hard</b>: intervals don’t come the day after handball or another hard session.</li><li><b>Missed days</b>: the missed session moves to the next free morning. A week or more off → an easy “welcome back” run first.</li><li>Ran <b>3 days in a row</b> → rest day. Max <b>4 runs</b> a week.</li><li>Tired or sore? Choose “Rest today” — a skipped day costs nothing, an injury costs weeks.</li>',
+    '<li><b>יום כדוריד</b> ← אין ריצה (הכדוריד הוא אימון הספרינטים שלו). שחייה קלה, אז אפשר לרוץ.</li><li>נבחר <b>האימון הכי חשוב שעוד לא בוצע השבוע</b>: קודם הארוכה, אחר כך אינטרוולים, אחר כך הקלה, ואז הכיף.</li><li><b>אף פעם לא קשה אחרי קשה</b>: אינטרוולים לא באים יום אחרי כדוריד או אימון קשה אחר.</li><li><b>ימים שהתפספסו</b>: האימון שהתפספס עובר לבוקר הפנוי הבא. שבוע ויותר בלי ריצה ← קודם ריצת ״ברוך השב״ קלה.</li><li>רץ <b>3 ימים ברצף</b> ← יום מנוחה. מקסימום <b>4 ריצות</b> בשבוע.</li><li>עייף או כואב? בוחרים ״מנוחה היום״ — יום שדילגנו עליו לא עולה כלום, פציעה עולה שבועות.</li>')+'</ul></div>';
+  h+='<div class="card"><h3>'+L('Rest days — what he can do','ימי מנוחה — מה אפשר לעשות')+'</h3><ul class="ideas small">'+L('<li>Walk or easy bike ride</li><li>5–10 min stretching</li><li>Play for fun</li><li>Avoid hard running and lots of jumping</li>','<li>הליכה או רכיבה קלה</li><li>5–10 דק׳ מתיחות</li><li>משחק בשביל הכיף</li><li>להימנע מריצה קשה ומהרבה קפיצות</li>')+'</ul>'+
+    '<h3 style="margin-top:14px">'+L('Breathing tips','טיפים לנשימה')+'</h3><ul class="ideas small">'+L('<li>Nose and mouth together is fine</li><li>Belly breathing — belly rises, shoulders stay down</li><li>Rhythm: in 3 steps, out 2 (easy) · in 2, out 1 (hard)</li><li>Side stitch: slow down, deep breath, press the spot, breathe out hard</li><li>Race day: the right starting pace is the best breathing trick</li>',
+      '<li>לנשום מהאף ומהפה יחד — זה בסדר</li><li>נשימת בטן — הבטן עולה, הכתפיים למטה</li><li>קצב: שאיפה 3 צעדים, נשיפה 2 (קל) · שאיפה 2, נשיפה 1 (קשה)</li><li>דקירה בצד: להאט, לנשום עמוק, ללחוץ על המקום ולנשוף חזק</li><li>ביום המבחן: קצב פתיחה נכון הוא הטריק הכי טוב לנשימה</li>')+'</ul></div>';
   el.innerHTML=h;
-  $('repW').onclick=function(){ S.settings.shift={from:ws,lvl:Math.max(1,lvl-1)}; touchSettings(); render(); toast('Back to week '+Math.max(1,lvl-1)); };
-  $('skipW').onclick=function(){ S.settings.shift={from:ws,lvl:Math.min(WEEKS,lvl+1)}; touchSettings(); render(); toast('Moved to week '+Math.min(WEEKS,lvl+1)); };
+  $('repW').onclick=function(){ S.settings.shift={from:ws,lvl:Math.max(1,lvl-1)}; touchSettings(); render(); toast(L('Back to week ','חזרה לשבוע ')+Math.max(1,lvl-1)); };
+  $('skipW').onclick=function(){ S.settings.shift={from:ws,lvl:Math.min(WEEKS,lvl+1)}; touchSettings(); render(); toast(L('Moved to week ','עברנו לשבוע ')+Math.min(WEEKS,lvl+1)); };
 }
 
 /* ---------------- LOG ---------------- */
+function hasData(s){ return s && ((s.checks&&Object.keys(s.checks).length)||s.test||(s.reps||[]).some(Boolean)||s.notes||s.feel); }
 function renderLog(){
-  var el=$('view-log');
-  var dates={};
+  var el=$('view-log'), dates={};
   Object.keys(S.days).forEach(function(k){ var d=S.days[k]; if ((d.s&&(d.s.st==='done'||d.s.st==='rest'||hasData(d.s)))||(d.pl&&(d.pl.feel||d.pl.notes||d.pl.ach))) dates[k]=1; });
   S.measures.forEach(function(m){ if(!m.del) dates[m.date]=1; });
   var list=Object.keys(dates).sort().reverse();
-  var h='<div class="row" style="margin-bottom:12px"><h2>Log</h2><span class="spacer"></span><button class="btn sm primary" id="addM">+ Add a time</button></div>';
-  if (!list.length) h+='<div class="card"><p class="muted">Nothing logged yet. Sessions you finish on the Today page, practices and times you add show up here.</p></div>';
+  var h='<div class="row" style="margin-bottom:12px"><h2>'+L('Log','יומן')+'</h2><span class="spacer"></span><button class="btn sm primary" id="addM">+ '+L('Add a time','הוספת זמן')+'</button></div>';
+  if (!list.length) h+='<div class="card"><p class="muted">'+L('Nothing logged yet. Sessions you finish on the Today page, practices and times you add show up here.','עוד אין כלום ביומן. אימונים שמסיימים בעמוד ״היום״, אימוני כדוריד וזמנים שמוסיפים יופיעו כאן.')+'</p></div>';
   else {
     h+='<div class="card">';
     list.forEach(function(date){
       var d=S.days[date]||{}, lines=[];
       if (d.s && d.s.key){
         var df=def(d.s.key,d.s.lvl), bits=[];
-        if (d.s.reps && d.s.reps.some(Boolean)) bits.push(d.s.reps.map(function(v){return v?fmt(v):'—';}).join(', '));
-        if (d.s.test) bits.push(fmt(d.s.test)+(pace(d.s.test,df.test.d)?' ('+pace(d.s.test,df.test.d)+')':''));
-        if (d.s.dist) bits.push(esc(d.s.dist)+' km');
-        if (d.s.non) bits.push('nonstop '+esc(d.s.non)+' min');
-        if (d.s.feel) bits.push('feel '+d.s.feel+'/10');
-        lines.push('<div class="ttl">'+esc(df.title)+' <span class="tag '+(d.s.st==='done'?'done':'')+'">'+(d.s.st==='done'?'Done':'Started')+'</span></div><div class="meta">Week '+df.lvl+(bits.length?' · '+bits.join(' · '):'')+'</div>');
+        if (d.s.reps && d.s.reps.some(Boolean)) bits.push(nn(d.s.reps.map(function(v){return v?fmt(v):'—';}).join(', ')));
+        if (d.s.test) bits.push(nn(fmt(d.s.test))+(pace(d.s.test,df.test.d)?' ('+np(pace(d.s.test,df.test.d))+')':''));
+        if (d.s.dist) bits.push(esc(d.s.dist)+L(' km',' ק״מ'));
+        if (d.s.non) bits.push(L('nonstop ','ברצף ')+esc(d.s.non)+L(' min',' דק׳'));
+        if (d.s.feel) bits.push(L('feel ','תחושה ')+nn(d.s.feel+'/10'));
+        lines.push('<div class="ttl">'+esc(df.title)+' <span class="tag '+(d.s.st==='done'?'done':'')+'">'+(d.s.st==='done'?L('Done','בוצע'):L('Started','התחיל'))+'</span></div><div class="meta">'+L('Week ','שבוע ')+df.lvl+(bits.length?' · '+bits.join(' · '):'')+'</div>');
         if (d.s.notes) lines.push('<div class="meta">“'+esc(d.s.notes)+'”</div>');
         if (d.s.ach) lines.push('<div class="meta">⭐ '+esc(d.s.ach)+'</div>');
-      } else if (d.s && d.s.st==='rest') lines.push('<div class="ttl">Rest day</div><div class="meta">Tired or sore</div>');
-      if (d.pl && (d.pl.feel||d.pl.notes||d.pl.ach)){
-        lines.push('<div class="ttl">'+plabel(d.p||S.settings.practice[dow(date)]||[])+'</div><div class="meta">'+(d.pl.feel?'feel '+d.pl.feel+'/10':'')+(d.pl.notes?' · “'+esc(d.pl.notes)+'”':'')+'</div>'+(d.pl.ach?'<div class="meta">⭐ '+esc(d.pl.ach)+'</div>':''));
-      }
-      S.measures.forEach(function(m){ if(!m.del && m.date===date) lines.push('<div class="ttl">⏱ '+dname(m.d)+': <span class="mono">'+fmt(m.sec)+'</span> '+(pace(m.sec,m.d)?'<span class="meta">('+pace(m.sec,m.d)+')</span>':'')+' <button class="log-open" data-delm="'+m.id+'" aria-label="Delete time">✕</button></div>'+(m.note?'<div class="meta">'+esc(m.note)+'</div>':'')); });
+      } else if (d.s && d.s.st==='rest') lines.push('<div class="ttl">'+L('Rest day','יום מנוחה')+'</div><div class="meta">'+L('Tired or sore','עייף או כואב')+'</div>');
+      if (d.pl && (d.pl.feel||d.pl.notes||d.pl.ach)) lines.push('<div class="ttl">'+plabel(d.pa?(d.p||[]):(S.settings.practice[dow(date)]||[]))+'</div><div class="meta">'+(d.pl.feel?L('feel ','תחושה ')+nn(d.pl.feel+'/10'):'')+(d.pl.notes?' · “'+esc(d.pl.notes)+'”':'')+'</div>'+(d.pl.ach?'<div class="meta">⭐ '+esc(d.pl.ach)+'</div>':''));
+      S.measures.forEach(function(m){ if(!m.del && m.date===date) lines.push('<div class="ttl">⏱ '+dname(m.d)+': <span class="mono">'+fmt(m.sec)+'</span> '+(pace(m.sec,m.d)?'<span class="meta">('+np(pace(m.sec,m.d))+')</span>':'')+' <button class="log-open" data-delm="'+m.id+'" aria-label="'+L('Delete time','מחיקת זמן')+'">✕</button></div>'+(m.note?'<div class="meta">'+esc(m.note)+'</div>':'')); });
       var dt=pd(date);
-      h+='<div class="log-item"><div class="log-date"><b>'+dt.getDate()+'</b><span>'+MON[dt.getMonth()]+'</span></div><div class="log-body">'+lines.join('')+
-        (date>=S.settings.start?'<button class="log-open" data-open="'+date+'">Open day →</button>':'')+'</div></div>';
+      h+='<div class="log-item"><div class="log-date"><b>'+dt.getDate()+'</b><span>'+MON(dt.getMonth())+'</span></div><div class="log-body">'+lines.join('')+
+        (date>=S.settings.start?'<button class="log-open" data-open="'+date+'">'+L('Open day →','לפתיחת היום ←')+'</button>':'')+'</div></div>';
     });
     h+='</div>';
   }
+  h+='<div class="card flat"><h3>'+L('Use the data','להשתמש בנתונים')+'</h3><p class="small muted" style="margin:4px 0 10px">'+L('Everything you tick and type is saved. Download it as a spreadsheet to look at it in Excel or Google Sheets.','כל מה שמסמנים ומקלידים נשמר. אפשר להוריד הכול כגיליון ולפתוח ב־Excel או ב־Google Sheets.')+'</p><button class="btn sm" id="csv">⬇ '+L('Download spreadsheet (CSV)','הורדת גיליון (CSV)')+'</button></div>';
   el.innerHTML=h;
   $('addM').onclick=function(){ openMeasure(); };
+  $('csv').onclick=downloadCSV;
   el.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=function(){ cur=b.dataset.open; setTab('today'); }; });
   el.querySelectorAll('[data-delm]').forEach(function(b){ b.onclick=function(){
     if (b.dataset.armed){ var m=S.measures.filter(function(x){return x.id===b.dataset.delm;})[0]; if(m){ m.del=1; m.t=now(); save(); render(); } }
-    else { b.dataset.armed=1; b.textContent='Delete?'; setTimeout(function(){ if(b.isConnected){ delete b.dataset.armed; b.textContent='✕'; } },3000); }
+    else { b.dataset.armed=1; b.textContent=L('Delete?','למחוק?'); setTimeout(function(){ if(b.isConnected){ delete b.dataset.armed; b.textContent='✕'; } },3000); }
   }; });
 }
-function hasData(s){ return s && ((s.checks&&Object.keys(s.checks).length)||s.test||(s.reps||[]).some(Boolean)||s.notes||s.feel); }
+function downloadCSV(){
+  function q(v){ v=v==null?'':String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+  var head=L(['Date','Day','Type','Week','Session','Status','Checklist done','Rep/test times','Distance','Distance (km)','Longest nonstop (min)','Feel (1-10)','Practice','Notes','Achievement'],
+             ['תאריך','יום','סוג','שבוע','אימון','סטטוס','בוצעו ברשימה','זמני חזרות/מבחן','מרחק','מרחק (ק״מ)','הכי ארוך ברצף (דק׳)','תחושה (1-10)','אימון קבוצה','הערות','הישג']);
+  var rows=[head];
+  var dates={}; Object.keys(S.days).forEach(function(k){ dates[k]=1; }); S.measures.forEach(function(m){ if(!m.del) dates[m.date]=1; });
+  Object.keys(dates).sort().forEach(function(date){
+    var d=S.days[date]||{}, prac=d.pa?plabel(d.p||[]):'';
+    if (d.s && d.s.key){
+      var df=def(d.s.key,d.s.lvl), ids=allItemIds(df), times=[];
+      if (d.s.reps) d.s.reps.forEach(function(v){ if(v) times.push(fmtN(v)); });
+      if (d.s.test) times.push(fmtN(d.s.test));
+      rows.push([date,DOW(dow(date)),L('Run','ריצה'),df.lvl,df.title,d.s.st==='done'?L('Done','בוצע'):L('Started','התחיל'),
+        ids.filter(function(i){return d.s.checks&&d.s.checks[i];}).length+'/'+ids.length,times.join(' | '),df.reps?M(df.reps.d):df.test?dname(df.test.d):'',d.s.dist||'',d.s.non||'',d.s.feel||'',prac,d.s.notes||'',d.s.ach||'']);
+    } else if (d.s && d.s.st==='rest') rows.push([date,DOW(dow(date)),L('Rest','מנוחה'),'','','','','','','','','',prac,'','']);
+    if (d.pl && (d.pl.feel||d.pl.notes||d.pl.ach||d.pl.c)) rows.push([date,DOW(dow(date)),L('Practice','אימון קבוצה'),'',plabel(d.pa?(d.p||[]):(S.settings.practice[dow(date)]||[])),'','','','','','',d.pl.feel||'',prac,d.pl.notes||'',d.pl.ach||'']);
+    S.measures.forEach(function(m){ if(!m.del && m.date===date) rows.push([date,DOW(dow(date)),L('Timed','מדידת זמן'),'','','','',fmtN(m.sec),dname(m.d),'','','','',m.note||'','']); });
+  });
+  var csv='﻿'+rows.map(function(r){ return r.map(q).join(','); }).join('\r\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='silverun-'+TODAY+'.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
 
 /* ---------------- RECORDS ---------------- */
 var chartD=null;
 function renderRecords(){
-  var el=$('view-records'), best=pbs(), eff=efforts();
-  var std=[60,100,200,300,400,800,1000,2000];
+  var el=$('view-records'), best=pbs(), eff=efforts(), std=[60,100,200,300,400,800,1000,2000];
   Object.keys(best).forEach(function(k){ k=+k; if (std.indexOf(k)<0) std.push(k); });
   std.sort(function(a,b){return a-b;});
-  var h='<div class="row" style="margin-bottom:12px"><h2>Records</h2><span class="spacer"></span><button class="btn sm primary" id="addM2">+ Add a time</button></div>';
-  h+='<div class="card"><h3>Personal bests</h3><p class="small muted" style="margin:4px 0 12px">From interval reps, tests and any time you add (sprints too — 60 m, 200 m…).</p><div class="pbs">';
+  var h='<div class="row" style="margin-bottom:12px"><h2>'+L('Records','שיאים')+'</h2><span class="spacer"></span><button class="btn sm primary" id="addM2">+ '+L('Add a time','הוספת זמן')+'</button></div>';
+  h+='<div class="card"><h3>'+L('Personal bests','שיאים אישיים')+'</h3><p class="small muted" style="margin:4px 0 12px">'+L('From interval reps, tests and any time you add (sprints too — 60 m, 200 m…).','מחזרות, ממבחנים ומכל זמן שמוסיפים (גם ספרינטים — 60 מ׳, 200 מ׳…).')+'</p><div class="pbs">';
   std.forEach(function(d){ var b=best[d];
-    h+='<div class="pb'+(b?'':' none')+'"><div class="d">'+dname(d)+'</div><div class="v">'+(b?fmt(b.sec):'—')+'</div><div class="p">'+(b?(pace(b.sec,d)||'')+(pace(b.sec,d)?' · ':'')+nice(b.date):'not timed yet')+'</div></div>';
+    h+='<div class="pb'+(b?'':' none')+'"><div class="d">'+dname(d)+'</div><div class="v mono">'+(b?fmt(b.sec):'—')+'</div><div class="p">'+(b?(pace(b.sec,d)?np(pace(b.sec,d))+' · ':'')+nice(b.date):L('not timed yet','עוד לא נמדד'))+'</div></div>';
   });
   h+='</div></div>';
   var dists=Object.keys(best).map(Number).sort(function(a,b){return b-a;});
   if (dists.length){
     if (!chartD || dists.indexOf(chartD)<0) chartD = best[2000]?2000:best[1000]?1000:dists[0];
-    h+='<div class="card"><div class="row"><h3>Progress</h3><span class="spacer"></span><select id="chartSel" style="width:auto">'+
+    h+='<div class="card"><div class="row"><h3>'+L('Progress','התקדמות')+'</h3><span class="spacer"></span><select id="chartSel" style="width:auto">'+
       dists.map(function(d){ return '<option value="'+d+'"'+(d===chartD?' selected':'')+'>'+dname(d)+'</option>'; }).join('')+'</select></div>'+
-      '<div class="chart-wrap" id="chartWrap" style="margin-top:10px"></div><p class="small muted" style="margin-top:6px">Best time each day. Lower is faster. Dashed line = goal pace (5:00/km).</p></div>';
+      '<div class="chart-wrap" id="chartWrap" style="margin-top:10px"></div><p class="small muted" style="margin-top:6px">'+L('Best time each day. Higher on the chart = faster. Dashed line = goal pace (5:00/km).','הזמן הטוב ביותר בכל יום. גבוה יותר בגרף = מהיר יותר. קו מקווקו = קצב היעד (5:00 לק״מ).')+'</p></div>';
   }
   var ach=achievements().filter(function(a){return !a.minor;});
-  h+='<div class="card"><h3>Achievements</h3>';
-  if (!ach.length) h+='<p class="muted small" style="margin-top:6px">They’ll appear here — first sessions, new bests, weeks completed, and anything you add with ⭐.</p>';
+  h+='<div class="card"><h3>'+L('Achievements','הישגים')+'</h3>';
+  if (!ach.length) h+='<p class="muted small" style="margin-top:6px">'+L('They’ll appear here — first sessions, new bests, weeks completed, and anything you add with ⭐.','הם יופיעו כאן — אימונים ראשונים, שיאים חדשים, שבועות שהושלמו, וכל מה שמוסיפים עם ⭐.')+'</p>';
   ach.forEach(function(a){ h+='<div class="ach"><div class="star">'+(a.big?'🏆':a.auto?'★':'⭐')+'</div><div><div>'+esc(a.t)+'</div><div class="when">'+nice(a.date)+'</div></div></div>'; });
   h+='</div>';
   el.innerHTML=h;
@@ -1043,62 +1025,55 @@ function drawChart(eff){
   var wrap=$('chartWrap'); if(!wrap) return;
   var byDate={}; eff.forEach(function(e){ if (e.d!==chartD) return; if(!byDate[e.date]||e.sec<byDate[e.date]) byDate[e.date]=e.sec; });
   var pts=Object.keys(byDate).sort().map(function(k){ return {date:k,sec:byDate[k]}; });
-  var W=640,H=240,L=52,R=16,T=14,B=30;
-  var goal = chartD>=200 ? chartD/1000*300 : null;
+  var W=640,H=240,Lm=52,R=16,T=14,B=30, goal = chartD>=200 ? chartD/1000*300 : null;
   var ys=pts.map(function(p){return p.sec;}); if (goal) ys.push(goal);
-  var lo=Math.min.apply(null,ys), hi=Math.max.apply(null,ys), padv=Math.max((hi-lo)*0.15, chartD<200?0.5:5);
-  lo-=padv; hi+=padv;
+  var lo=Math.min.apply(null,ys), hi=Math.max.apply(null,ys), padv=Math.max((hi-lo)*0.15, chartD<200?0.5:5); lo-=padv; hi+=padv;
   var d0=pd(pts[0].date).getTime(), d1=pd(pts[pts.length-1].date).getTime(); if (d1===d0){ d0-=86400000*3; d1+=86400000*3; }
-  function X(date){ return L+(pd(date).getTime()-d0)/(d1-d0)*(W-L-R); }
+  function X(date){ return Lm+(pd(date).getTime()-d0)/(d1-d0)*(W-Lm-R); }
   function Y(v){ return T+(v-lo)/(hi-lo)*(H-T-B); } // faster (fewer seconds) sits higher
-  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+dname(chartD)+' times over time">';
-  var ticks=4;
-  for (var i=0;i<=ticks;i++){ var v=lo+(hi-lo)*i/ticks, y=Y(v);
-    s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">'+esc(fmt(v))+'</text>'; }
-  if (goal){ var gy=Y(goal); s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="'+(W-R)+'" y="'+(gy-6)+'" text-anchor="end" font-size="11" fill="var(--good)">goal '+esc(fmt(goal))+'</text>'; }
-  var path=pts.map(function(p,i){ return (i?'L':'M')+X(p.date).toFixed(1)+' '+Y(p.sec).toFixed(1); }).join(' ');
-  if (pts.length>1) s+='<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
-  pts.forEach(function(p,i){ s+='<circle cx="'+X(p.date)+'" cy="'+Y(p.sec)+'" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>'+
-    '<circle cx="'+X(p.date)+'" cy="'+Y(p.sec)+'" r="16" fill="transparent" data-i="'+i+'" style="cursor:pointer"/>'; });
-  s+='<text x="'+L+'" y="'+(H-8)+'" font-size="11" fill="var(--muted)">'+esc(nice(pts[0].date))+'</text>';
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(dname(chartD))+'">';
+  for (var i=0;i<=4;i++){ var v=lo+(hi-lo)*i/4, y=Y(v);
+    s+='<line x1="'+Lm+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/><text x="'+(Lm-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">'+esc(fmtN(v))+'</text>'; }
+  if (goal){ var gy=Y(goal); s+='<line x1="'+Lm+'" x2="'+(W-R)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="'+(W-R)+'" y="'+(gy-6)+'" text-anchor="end" font-size="11" fill="var(--good)">'+L('goal ','יעד ')+esc(fmtN(goal))+'</text>'; }
+  if (pts.length>1) s+='<path d="'+pts.map(function(p,i){ return (i?'L':'M')+X(p.date).toFixed(1)+' '+Y(p.sec).toFixed(1); }).join(' ')+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  pts.forEach(function(p,i){ s+='<circle cx="'+X(p.date)+'" cy="'+Y(p.sec)+'" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><circle cx="'+X(p.date)+'" cy="'+Y(p.sec)+'" r="16" fill="transparent" data-i="'+i+'" style="cursor:pointer"/>'; });
+  s+='<text x="'+Lm+'" y="'+(H-8)+'" font-size="11" fill="var(--muted)">'+esc(nice(pts[0].date))+'</text>';
   if (pts.length>1) s+='<text x="'+(W-R)+'" y="'+(H-8)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+esc(nice(pts[pts.length-1].date))+'</text>';
   s+='</svg><div class="tip" hidden></div>';
   wrap.innerHTML=s;
   var tip=wrap.querySelector('.tip'), svg=wrap.querySelector('svg');
-  function show(i){ var p=pts[i], r=svg.getBoundingClientRect(), sc=r.width/W;
-    tip.hidden=false; tip.innerHTML='<b>'+esc(fmt(p.sec))+'</b> · '+esc(nice(p.date))+(pace(p.sec,chartD)?' · '+pace(p.sec,chartD):'');
+  function show(i){ var p=pts[i], sc=svg.getBoundingClientRect().width/W; tip.hidden=false;
+    tip.innerHTML='<b>'+esc(fmt(p.sec))+'</b> · '+esc(nice(p.date))+(pace(p.sec,chartD)?' · '+pace(p.sec,chartD):'');
     tip.style.left=(X(p.date)*sc)+'px'; tip.style.top=(Y(p.sec)*sc)+'px'; }
   wrap.querySelectorAll('[data-i]').forEach(function(c){
-    c.addEventListener('mouseenter',function(){ show(+c.dataset.i); });
-    c.addEventListener('click',function(){ show(+c.dataset.i); });
+    c.addEventListener('mouseenter',function(){ show(+c.dataset.i); }); c.addEventListener('click',function(){ show(+c.dataset.i); });
     c.addEventListener('mouseleave',function(){ tip.hidden=true; });
   });
 }
 
 /* ---------------- ADD A TIME ---------------- */
 function openMeasure(){
-  var dl=$('measureDlg'), b=$('measureBody');
-  var opts=[60,100,200,300,400,600,800,1000,1500,2000,3000];
-  b.innerHTML='<div class="dlg-head"><h2>Add a time</h2><button class="iconbtn" id="mClose" aria-label="Close">✕</button></div>'+
-    '<p class="small muted">Sprints, time checks, races — anything he ran for time.</p>'+
-    '<div class="grid2"><div><label class="f" for="mD">Distance</label><select id="mD">'+opts.map(function(o){return '<option value="'+o+'"'+(o===1000?' selected':'')+'>'+dname(o)+'</option>';}).join('')+'<option value="x">Other…</option></select></div>'+
-    '<div><label class="f" for="mDate">Date</label><input type="date" id="mDate" value="'+(cur<=TODAY?cur:TODAY)+'" max="'+TODAY+'"></div></div>'+
-    '<div id="mOtherW" hidden><label class="f" for="mOther">Distance in metres</label><input type="number" id="mOther" inputmode="numeric" placeholder="e.g. 150"></div>'+
-    '<label class="f" for="mT">Time</label><input type="text" id="mT" class="mono" inputmode="decimal" placeholder="e.g. 5:12 or 9.8"><div class="parsed" id="mP" style="margin-top:6px"></div>'+
-    '<label class="f" for="mN">Note (optional)</label><input type="text" id="mN" placeholder="e.g. first time under 5:30!">'+
-    '<div class="actions"><button class="btn primary" id="mSave">Save time</button></div>';
+  var dl=$('measureDlg'), b=$('measureBody'), opts=[60,100,200,300,400,600,800,1000,1500,2000,3000];
+  b.innerHTML='<div class="dlg-head"><h2>'+L('Add a time','הוספת זמן')+'</h2><button class="iconbtn" id="mClose" aria-label="'+L('Close','סגירה')+'">✕</button></div>'+
+    '<p class="small muted">'+L('Sprints, time checks, races — anything he ran for time.','ספרינטים, בדיקות זמן, מרוצים — כל מה שנמדד.')+'</p>'+
+    '<div class="grid2"><div><label class="f" for="mD">'+L('Distance','מרחק')+'</label><select id="mD">'+opts.map(function(o){return '<option value="'+o+'"'+(o===1000?' selected':'')+'>'+dname(o)+'</option>';}).join('')+'<option value="x">'+L('Other…','אחר…')+'</option></select></div>'+
+    '<div><label class="f" for="mDate">'+L('Date','תאריך')+'</label><input type="date" id="mDate" value="'+(cur<=TODAY?cur:TODAY)+'" max="'+TODAY+'"></div></div>'+
+    '<div id="mOtherW" hidden><label class="f" for="mOther">'+L('Distance in metres','מרחק במטרים')+'</label><input type="number" id="mOther" inputmode="numeric" placeholder="150"></div>'+
+    '<label class="f" for="mT">'+L('Time','זמן')+'</label><input type="text" id="mT" class="mono ltr" inputmode="decimal" placeholder="5:12 / 9.8"><div class="parsed" id="mP" style="margin-top:6px"></div>'+
+    '<label class="f" for="mN">'+L('Note (optional)','הערה (רשות)')+'</label><input type="text" id="mN" placeholder="'+L('e.g. first time under 5:30!','למשל: פעם ראשונה מתחת ל־5:30!')+'">'+
+    '<div class="actions"><button class="btn primary" id="mSave">'+L('Save time','שמירת זמן')+'</button></div>';
   function dist(){ var v=$('mD').value; return v==='x'? +$('mOther').value||0 : +v; }
-  function upd(){ var d=dist(), v=parseTime($('mT').value,d); $('mP').textContent = $('mT').value? (v? '= '+fmt(v)+(pace(v,d)?' · '+pace(v,d):'') : 'Type like 5:12, 1:32 or 9.8') : ''; }
+  function upd(){ var d=dist(), v=parseTime($('mT').value,d); $('mP').innerHTML = $('mT').value? (v? '= '+nn(fmt(v))+(pace(v,d)?' · '+np(pace(v,d)):'') : L('Type like 5:12, 1:32 or 9.8','להקליד כמו 5:12, 1:32 או 9.8')) : ''; }
   $('mD').onchange=function(){ $('mOtherW').hidden = $('mD').value!=='x'; upd(); };
   $('mT').oninput=upd; $('mOther').oninput=upd;
   $('mClose').onclick=function(){ dl.close(); };
   $('mSave').onclick=function(){
     var d=dist(), v=parseTime($('mT').value,d), date=$('mDate').value||TODAY;
-    if (!d || !v){ $('mP').textContent='Enter a distance and a time.'; return; }
+    if (!d || !v){ $('mP').textContent=L('Enter a distance and a time.','צריך מרחק וזמן.'); return; }
     var prev=pbs()[d];
     S.measures.push({id:uid(),date:date,d:d,sec:v,note:$('mN').value.trim(),t:now()});
     save(); dl.close(); render();
-    toast(prev && v<prev.sec ? '🎉 New best '+dname(d)+'!' : !prev ? 'First '+dname(d)+' saved!' : 'Time saved');
+    toast(prev && v<prev.sec ? L('🎉 New best '+dname(d)+'!','🎉 שיא חדש ב־'+dname(d)+'!') : !prev ? L('First '+dname(d)+' saved!','זמן ראשון ל־'+dname(d)+' נשמר!') : L('Time saved','הזמן נשמר'));
   };
   dl.showModal();
 }
@@ -1106,20 +1081,24 @@ function openMeasure(){
 /* ---------------- SETTINGS ---------------- */
 function openSettings(){
   var dl=$('settingsDlg'), b=$('settingsBody'), st=S.settings;
-  var h='<div class="dlg-head"><h2>Settings</h2><button class="iconbtn" id="sClose" aria-label="Close">✕</button></div>'+
-    '<label class="f" for="sName">Runner’s name</label><input type="text" id="sName" value="'+esc(st.name)+'" placeholder="e.g. Daniel">'+
-    '<label class="f" for="sStart">Plan start date</label><input type="date" id="sStart" value="'+esc(st.start)+'">'+
-    '<label class="f">Usual practice days</label><div class="days7"><span></span>'+DOW.map(function(d){return '<span class="h">'+d[0]+d[1]+'</span>';}).join('');
-  [['h','Handball'],['s','Swimming']].forEach(function(p){
+  var h='<div class="dlg-head"><h2>'+L('Settings','הגדרות')+'</h2><button class="iconbtn" id="sClose" aria-label="'+L('Close','סגירה')+'">✕</button></div>'+
+    '<label class="f">'+L('Language','שפה')+'</label><div class="seg"><button id="lEn" aria-pressed="'+(LANG==='en')+'">English</button><button id="lHe" aria-pressed="'+(LANG==='he')+'">עברית</button></div>'+
+    '<label class="f" for="sName">'+L('Runner’s name','שם הרץ')+'</label><input type="text" id="sName" value="'+esc(st.name)+'">'+
+    '<label class="f" for="sStart">'+L('Plan start date','תאריך התחלה')+'</label><input type="date" id="sStart" value="'+esc(st.start)+'">'+
+    '<label class="f">'+L('Usual practice days','ימי אימון קבועים')+'</label><div class="days7"><span></span>';
+  for (var i=0;i<7;i++) h+='<span class="h">'+DOW(i)+'</span>';
+  [['h',L('Handball','כדוריד')],['s',L('Swimming','שחייה')]].forEach(function(p){
     h+='<span class="r">'+p[1]+'</span>';
-    for (var i=0;i<7;i++) h+='<input type="checkbox" data-pd="'+i+'" data-pk="'+p[0]+'"'+((st.practice[i]||[]).indexOf(p[0])>=0?' checked':'')+' aria-label="'+p[1]+' on '+DOWL[i]+'">';
+    for (var i=0;i<7;i++) h+='<input type="checkbox" data-pd="'+i+'" data-pk="'+p[0]+'"'+((st.practice[i]||[]).indexOf(p[0])>=0?' checked':'')+' aria-label="'+p[1]+' '+DOWL(i)+'">';
   });
-  h+='</div><label class="f"><input type="checkbox" id="sVoice"'+(st.voice?' checked':'')+'> Voice cues in the timer</label>';
-  h+='<h3 style="margin-top:18px">Sync between phones</h3><div id="syncBox" style="margin-top:8px"></div>';
-  h+='<h3 style="margin-top:18px">Backup</h3><p class="small muted" style="margin:4px 0 8px">Data is saved on this device. Download a backup now and then.</p>'+
-    '<div class="row"><button class="btn sm" id="exp">Download backup</button><label class="btn sm" style="display:inline-flex;align-items:center">Restore…<input type="file" id="imp" accept="application/json,.json" hidden></label>'+
-    '<span class="spacer"></span><button class="btn sm ghost" id="reset" style="color:var(--warn)">Erase all</button></div>';
+  h+='</div><label class="f"><input type="checkbox" id="sVoice"'+(st.voice?' checked':'')+'> '+L('Voice cues in the timer','הנחיות קוליות בטיימר')+'</label>';
+  h+='<h3 style="margin-top:18px">'+L('Sync between phones','סנכרון בין טלפונים')+'</h3><div id="syncBox" style="margin-top:8px"></div>';
+  h+='<h3 style="margin-top:18px">'+L('Your data','הנתונים שלכם')+'</h3><p class="small muted" style="margin:4px 0 8px">'+L('Saved automatically on this device. Keep a backup now and then, or sign in above to keep a copy in the cloud.','נשמר אוטומטית במכשיר הזה. כדאי לשמור גיבוי מדי פעם, או להתחבר למעלה כדי לשמור עותק בענן.')+'</p>'+
+    '<div class="row"><button class="btn sm" id="csv2">⬇ '+L('Spreadsheet (CSV)','גיליון (CSV)')+'</button><button class="btn sm" id="exp">'+L('Download backup','הורדת גיבוי')+'</button><label class="btn sm" style="display:inline-flex;align-items:center">'+L('Restore…','שחזור…')+'<input type="file" id="imp" accept="application/json,.json" hidden></label>'+
+    '<span class="spacer"></span><button class="btn sm ghost" id="reset" style="color:var(--warn)">'+L('Erase all','מחיקת הכול')+'</button></div>';
   b.innerHTML=h;
+  $('lEn').onclick=function(){ setLang('en'); openSettingsAgain(); };
+  $('lHe').onclick=function(){ setLang('he'); openSettingsAgain(); };
   $('sClose').onclick=function(){ dl.close(); render(); };
   $('sName').oninput=function(){ st.name=$('sName').value.trim(); touchSettings(); };
   $('sStart').onchange=function(){ if ($('sStart').value){ st.start=$('sStart').value; st.shift=null; touchSettings(); } };
@@ -1128,23 +1107,25 @@ function openSettings(){
     var i=+c.dataset.pd, k=c.dataset.pk, a=(st.practice[i]||[]).filter(function(x){return x!==k;});
     if (c.checked) a.push(k); a.sort(); st.practice[i]=a; touchSettings();
   }; });
+  $('csv2').onclick=downloadCSV;
   $('exp').onclick=function(){
-    var blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}), a=document.createElement('a');
-    a.href=URL.createObjectURL(blob); a.download='silverun-backup-'+TODAY+'.json'; document.body.appendChild(a); a.click(); a.remove();
+    var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'})); a.download='silverun-backup-'+TODAY+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
   };
   $('imp').onchange=function(e){
     var f=e.target.files[0]; if(!f) return; var r=new FileReader();
-    r.onload=function(){ try{ var x=JSON.parse(r.result); if(!x.days||!x.settings) throw 0; S=mergeState(S,x); save(); toast('Backup restored'); dl.close(); render(); }catch(err){ toast('That file isn’t a Silverun backup'); } };
+    r.onload=function(){ try{ var x=JSON.parse(r.result); if(!x.days||!x.settings) throw 0; S=mergeState(S,x); save(); toast(L('Backup restored','הגיבוי שוחזר')); dl.close(); render(); }catch(err){ toast(L('That file isn’t a Silverun backup','הקובץ הזה הוא לא גיבוי של Silverun')); } };
     r.readAsText(f);
   };
   $('reset').onclick=function(){
     var btn=$('reset');
-    if (btn.dataset.armed){ var keep=S.settings; S=blank(); S.settings.practice=keep.practice; S.settings.name=keep.name; S.settings.t=now(); save(); dl.close(); cur=TODAY; render(); toast('Erased'); }
-    else { btn.dataset.armed=1; btn.textContent='Tap again to erase everything'; }
+    if (btn.dataset.armed){ var keep=S.settings; S=blank(); S.settings.practice=keep.practice; S.settings.name=keep.name; S.settings.t=now(); save(); dl.close(); cur=TODAY; render(); toast(L('Erased','נמחק')); }
+    else { btn.dataset.armed=1; btn.textContent=L('Tap again to erase everything','לחצו שוב כדי למחוק הכול'); }
   };
   drawSync();
-  dl.showModal();
+  if (!dl.open) dl.showModal();
 }
+function openSettingsAgain(){ openSettings(); }
 $('settingsBtn').onclick=openSettings;
 
 /* ==========================================================
@@ -1166,52 +1147,50 @@ function mergeState(a,b){
   return out;
 }
 function docRef(){ return fdb.collection('silverun').doc(user.uid); }
-function clean(o){ return JSON.parse(JSON.stringify(o)); }
 var pushT=null;
 function queuePush(){ if (!user||!fdb||syncState==='denied') return; clearTimeout(pushT); pushT=setTimeout(push,1200); }
 function push(){
   if (!user||!fdb) return;
   var body=JSON.stringify(S); if (body===lastRemote) return;
-  docRef().set({data:body,updated:Date.now()}).then(function(){ lastRemote=body; syncState='ok'; drawSync(); })
-    .catch(function(e){ onSyncErr(e); });
+  docRef().set({data:body,updated:Date.now()}).then(function(){ lastRemote=body; syncState='ok'; drawSync(); }).catch(onSyncErr);
 }
-function onSyncErr(e){
-  syncState = (e && (e.code==='permission-denied' || /permission/i.test(e.message||''))) ? 'denied' : 'error';
-  syncErr = e && e.message || String(e); drawSync();
-}
+function onSyncErr(e){ syncState=(e && (e.code==='permission-denied' || /permission/i.test(e.message||''))) ? 'denied' : 'error'; syncErr=e && e.message || String(e); drawSync(); }
 function startSync(){
   if (unsub){ unsub(); unsub=null; }
   syncState='connecting'; drawSync();
   unsub=docRef().onSnapshot(function(snap){
     if (snap.exists){
-      var raw=snap.data().data; if (raw===lastRemote){ syncState='ok'; drawSync(); return; }
-      try{ var remote=JSON.parse(raw); var merged=mergeState(S,remote); var changed=JSON.stringify(merged)!==JSON.stringify(S);
-        lastRemote=raw; S=merged; save(true); if (changed && !TM && !document.activeElement.matches('input[type=text],textarea')) render();
-        if (JSON.stringify(S)!==raw) queuePush();
-      }catch(e){}
+      var raw=snap.data().data;
+      if (raw!==lastRemote){
+        try{ var merged=mergeState(S,JSON.parse(raw)), changed=JSON.stringify(merged)!==JSON.stringify(S);
+          lastRemote=raw; S=merged; save(true);
+          if (changed && !TM && !(document.activeElement && document.activeElement.matches('input[type=text],textarea'))) render();
+          if (JSON.stringify(S)!==raw) queuePush();
+        }catch(e){}
+      }
     } else queuePush();
     syncState='ok'; drawSync();
   }, onSyncErr);
 }
-if (fauth){
-  fauth.onAuthStateChanged(function(u){ user=u; if (u) startSync(); else { if(unsub){unsub();unsub=null;} syncState='off'; drawSync(); } });
-}
+if (fauth) fauth.onAuthStateChanged(function(u){ user=u; if (u) startSync(); else { if(unsub){unsub();unsub=null;} syncState='off'; drawSync(); } });
 function drawSync(){
   var box=$('syncBox'); if (!box) return;
-  if (!fauth){ box.innerHTML='<div class="sync-state">Sync isn’t available right now (offline?). Everything is still saved on this device.</div>'; return; }
+  if (!fauth){ box.innerHTML='<div class="sync-state">'+L('Sync isn’t available right now (offline?). Everything is still saved on this device.','סנכרון לא זמין כרגע (אין אינטרנט?). הכול עדיין נשמר במכשיר.')+'</div>'; return; }
   if (!user){
-    box.innerHTML='<p class="small muted" style="margin-bottom:8px">Sign in with your Dot Den account to see the same log on your phone and his. Use the same account on both.</p>'+
-      '<input type="email" id="aE" placeholder="Email" autocomplete="username" style="margin-bottom:8px"><input type="password" id="aP" placeholder="Password" autocomplete="current-password">'+
-      '<div class="row" style="margin-top:8px"><button class="btn sm primary" id="aIn">Sign in</button><button class="btn sm" id="aUp">Create account</button></div><div class="small" id="aErr" style="color:var(--warn);margin-top:6px"></div>';
+    box.innerHTML='<p class="small muted" style="margin-bottom:8px">'+L('Sign in with your Dot Den account to keep the data in the cloud and see the same log on your phone and his. Use the same account on both.','התחברו עם חשבון The Dot Den כדי לשמור את הנתונים בענן ולראות את אותו יומן בטלפון שלכם ושלו. משתמשים באותו חשבון בשניהם.')+'</p>'+
+      '<input type="email" id="aE" placeholder="'+L('Email','אימייל')+'" autocomplete="username" style="margin-bottom:8px"><input type="password" id="aP" placeholder="'+L('Password','סיסמה')+'" autocomplete="current-password">'+
+      '<div class="row" style="margin-top:8px"><button class="btn sm primary" id="aIn">'+L('Sign in','התחברות')+'</button><button class="btn sm" id="aUp">'+L('Create account','יצירת חשבון')+'</button></div><div class="small" id="aErr" style="color:var(--warn);margin-top:6px"></div>';
     var go=function(create){ var e=$('aE').value.trim(), p=$('aP').value; $('aErr').textContent='';
       (create?fauth.createUserWithEmailAndPassword(e,p):fauth.signInWithEmailAndPassword(e,p)).catch(function(err){ $('aErr').textContent=err.message; }); };
     $('aIn').onclick=function(){go(false);}; $('aUp').onclick=function(){go(true);};
     return;
   }
-  var msg={connecting:'Connecting…',ok:'✓ Synced as '+esc(user.email||user.displayName||'you'),error:'Couldn’t sync right now — will retry when online. ('+esc(syncErr)+')',
-    denied:'Signed in, but the database doesn’t allow Silverun yet. One-time fix: in the Firebase console → Firestore → Rules, add this inside <code>match /databases/{database}/documents { … }</code> and Publish:'}[syncState]||'';
+  var who=esc(user.email||user.displayName||'');
+  var msg={connecting:L('Connecting…','מתחבר…'),ok:L('✓ Synced as ','✓ מסונכרן בתור ')+who,
+    error:L('Couldn’t sync right now — will retry when online. ','לא הצלחנו לסנכרן כרגע — ננסה שוב כשיהיה אינטרנט. ')+'('+esc(syncErr)+')',
+    denied:L('Signed in, but the database doesn’t allow Silverun yet. One-time fix: in the Firebase console → Firestore → Rules, add this inside <code>match /databases/{database}/documents { … }</code> and Publish:','מחוברים, אבל מסד הנתונים עוד לא מאשר את Silverun. תיקון חד־פעמי: בקונסולת Firebase ← Firestore ← Rules, מוסיפים את זה בתוך <code>match /databases/{database}/documents { … }</code> ולוחצים Publish:')}[syncState]||'';
   box.innerHTML='<div class="sync-state">'+msg+'</div>'+(syncState==='denied'?'<pre class="rules">match /silverun/{uid} {\n  allow read, write: if request.auth != null\n    && request.auth.uid == uid;\n}</pre>':'')+
-    '<div class="row" style="margin-top:8px"><button class="btn sm" id="aOut">Sign out</button>'+(syncState==='denied'||syncState==='error'?'<button class="btn sm" id="aRetry">Retry</button>':'')+'</div>';
+    '<div class="row" style="margin-top:8px"><button class="btn sm" id="aOut">'+L('Sign out','התנתקות')+'</button>'+(syncState==='denied'||syncState==='error'?'<button class="btn sm" id="aRetry">'+L('Retry','לנסות שוב')+'</button>':'')+'</div>';
   $('aOut').onclick=function(){ fauth.signOut(); };
   var rt=$('aRetry'); if (rt) rt.onclick=function(){ startSync(); };
 }
@@ -1219,9 +1198,9 @@ function drawSync(){
 /* ==========================================================
    Go
 ========================================================== */
-// day rollover while the page stays open
 setInterval(function(){ var t=realToday(); if (t!==TODAY){ if (cur===TODAY) cur=t; TODAY=t; if(!TM) render(); } },60000);
-window.SR={suggest:suggest,levelFor:levelFor,get S(){return S;},set S(v){S=v;},def:def,parseTime:parseTime,efforts:efforts,achievements:achievements,render:render};
+window.SR={suggest:suggest,levelFor:levelFor,get S(){return S;},set S(v){S=v;},def:def,parseTime:parseTime,efforts:efforts,achievements:achievements,render:render,setLang:setLang};
+applyLang();
 render();
 })();
 </script>
